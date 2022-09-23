@@ -1,0 +1,326 @@
+{
+  "Dashboard": [
+    {
+                                                                                                                                                                                                                                                                                              : 1,
+      "title": "MTD SALES",
+      "value": "350,897",
+      "view": "3.48",
+      "color": "#f5365c"
+    },
+    {
+      "id": 2,
+      "title": "QTD SALES",
+      "value": "2,356",
+      "view": "3.48",
+      "color": "#fb6340"
+    },
+    {
+      "id": 3,
+      "title": "YTD SALES",
+      "value": "924",
+      "view": "1.10",
+      "color": "#ffd600"
+    }
+  ], 
+  
+  "DashBoardTable": [ 
+    {
+      "LowInventory": {
+        "LowInventory": {
+          "id": "0001",
+          "RETAILER": "RETAILER",
+          "LOCATION": "LOCATION",
+          "SKU": "SKU",
+          "DAYSOFINV": "DAYS OF INV"
+        },
+        "batters": {
+          "batter": [
+            {
+              "id": "1",
+              "RETAILER": "Columbia Care",
+              "LOCATION": "1555 Newton St",
+              "SKU": "SKU",
+              "DAYS OF INV": ""
+            },
+            {
+              "id": "2",
+              "RETAILER": "Columbia Care",
+              "LOCATION": "4645 De Soto",
+              "SKU": "SKU",
+              "DAYS OF INV": ""
+            },
+            {
+              "id": "3",
+              "RETAILER": "Kind Love",
+              "LOCATION": "4645 De Soto",
+              "SKU": "SKU",
+              "DAYS OF INV": ""
+            },
+            {
+              "id": "4",
+              "RETAILER": "Best Buds",
+              "LOCATION": "342 Pine St",
+              "SKU": "SKU",
+              "DAYS OF INV": ""
+            },
+            {
+              "id": "5",
+              "RETAILER": "Regular",
+              "LOCATION": "722 Piermont Ave",
+              "SKU": "SKU",
+              "DAYS OF INV": ""
+            }
+          ]
+        }
+      },
+
+    "ConsumerSale": {
+        "Consumersales": [
+          { "id": "1", "SKU": "Columbia Care", "WOW": "1555 Newton St" },
+          { "id": "2", "SKU": "RSO", "WOW": "46,53%" },
+          { "id": "3", "SKU": "Baby Jeeters", "WOW": "36,49%" },
+          { "id": "4", "SKU": "Moonbites", "WOW": "50,87%" }
+        ]
+      },
+      "TopStores": [
+        { "id": "1", "ACCOUNT": "CC", "LOCATION": "THCSD", "WOW": "46,53%" },
+        { "id": "1", "ACCOUNT": "CC", "LOCATION": "THCSD", "WOW": "46,53%" },
+        { "id": "1", "ACCOUNT": "CC", "LOCATION": "THCSD", "WOW": "46,53%" }
+      ],
+      "BottomStores": [
+        { "id": "1", "ACCOUNT": "CC", "LOCATION": "THCSD", "WOW": "46,53%" },
+        { "id": "1", "ACCOUNT": "CC", "LOCATION": "THCSD", "WOW": "46,53%" },
+        { "id": "1", "ACCOUNT": "CC", "LOCATION": "THCSD", "WOW": "46,53%" }
+      ]
+    }
+  ],
+  
+  "coalmine": [
+    {
+      "LowInventory": [
+        {
+          "id": "1",
+          "RETAILER": "Columbia Care",
+          "LOCATION": "1555 Newton St",
+          "SKU": "SKU",
+          "DAYS OF INV": ""
+        },
+        {
+          "id": "2",
+          "RETAILER": "Columbia Care",
+          "LOCATION": "4645 De Soto",
+          "SKU": "SKU",
+          "DAYS OF INV": ""
+        },
+        {
+          "id": "3",
+          "RETAILER": "Kind Love",
+          "LOCATION": "4645 De Soto",
+          "SKU": "SKU",
+          "DAYS OF INV": ""
+        },
+        {
+          "id": "4",
+          "RETAILER": "Best Buds",
+          "LOCATION": "342 Pine St",
+          "SKU": "SKU",
+          "DAYS OF INV": ""
+        },
+        {
+          "id": "5",
+          "RETAILER": "Regular",
+          "LOCATION": "722 Piermont Ave",
+          "SKU": "SKU",
+          "DAYS OF INV": ""
+        }
+      ]
+    },
+    {
+      "AgingInventory": [
+        {
+          "id": "1",
+          "RETAILER": "Columbia Care",
+          "LOCATION": "1555 Newton St",
+          "SKU": "SKU",
+          "DAYS OF INV": ""
+        },
+        {
+          "id": "2",
+          "RETAILER": "Columbia Care",
+          "LOCATION": "4645 De Soto",
+          "SKU": "SKU",
+          "DAYS OF INV": ""
+        },
+        {
+          "id": "3",
+          "RETAILER": "Kind Love",
+          "LOCATION": "4645 De Soto",
+          "SKU": "SKU",
+          "DAYS OF INV": ""
+        },
+        {
+          "id": "4",
+          "RETAILER": "Best Buds",
+          "LOCATION": "342 Pine St",
+          "SKU": "SKU",
+          "DAYS OF INV": ""
+        },
+        {
+          "id": "5",
+          "RETAILER": "Regular",
+          "LOCATION": "722 Piermont Ave",
+          "SKU": "SKU",
+          "DAYS OF INV": ""
+        }
+      ]
+    },
+    {
+      "ProductsApproachingExpiration": [
+        {
+          "id": "1",
+          "RETAILER": "Columbia Care",
+          "LOCATION": "1555 Newton St",
+          "SKU": "SKU",
+          "DAYS OF INV": ""
+        },
+        {
+          "id": "2",
+          "RETAILER": "Columbia Care",
+          "LOCATION": "4645 De Soto",
+          "SKU": "SKU",
+          "DAYS OF INV": ""
+        },
+        {
+          "id": "3",
+          "RETAILER": "Kind Love",
+          "LOCATION": "4645 De Soto",
+          "SKU": "SKU",
+          "DAYS OF INV": ""
+        },
+        {
+          "id": "4",
+          "RETAILER": "Best Buds",
+          "LOCATION": "342 Pine St",
+          "SKU": "SKU",
+          "DAYS OF INV": ""
+        },
+        {
+          "id": "5",
+          "RETAILER": "Regular",
+          "LOCATION": "722 Piermont Ave",
+          "SKU": "SKU",
+          "DAYS OF INV": ""
+        }
+      ]
+    }
+  ],
+  "production-planing": [
+    { "productionOrder": "Production Order" },
+    { "Sales Orders": "Sales Orders" },
+    {
+      "id": "1",
+      "SKU": "Jeeters Purple Kush 3.5g",
+      "Accounts": "4",
+      "Quantity": "4000",
+      "Total": "$36000",
+      "Per Unit": "9.00",
+      "Earliest Due": "4/04"
+    },
+    {
+      "id": "2",
+      "SKU": "Eaze",
+      "Accounts": "",
+      "Quantity": "8000",
+      "Total": "",
+      "Per Unit": "8.00",
+      "Earliest Due": "4/04"
+    },
+    {
+      "id": "3",
+      "SKU": "March and Ash",
+      "Accounts": "",
+      "Quantity": "9000",
+      "Total": "",
+      "Per Unit": "7.00",
+      "Earliest Due": "4/04"
+    },
+    {
+      "id": "4",
+      "SKU": "Caliva",
+      "Accounts": "4",
+      "Quantity": "4000",
+      "Total": "",
+      "Per Unit": "4.00",
+      "Earliest Due": "4/04"
+    },
+    {
+      "id": "5",
+      "SKU": " Jeeter Juice .5g Pen",
+      "Accounts": "4",
+      "Quantity": "4000",
+      "Total": "15000",
+      "Per Unit": "1500",
+      "Earliest Due": "3/30/2022"
+    }
+  ],
+
+  "graphs": [
+    {
+      "SKU Forecast (All SKUs)": {
+        "T6 Week": "T6 Week",
+        "6 Wk Forecast": "6 Wk Forecast",
+        "T-30 Day Sawtooth (All SKUs)": {
+          "T-30 Day Sawtooth (All SKUs)": "T-30 Day Sawtooth (All SKUs)"
+        }
+      }
+    },
+    {
+      "Production Order-3/28": {
+        "id": "0001",
+        "SKUs": "14",
+        "RetailAccounts": "4",
+        "Units": "18,000",
+        "POWSValue": "$150,000"
+      }
+    }
+  ],
+
+  "SalesOrders": [
+    {
+      "Retailer:Eaze": "Retailer: Eaze",
+      "RDD:4/04/2022": "RDD:4/04/2022",
+      "sales-order": {
+        "id": "1",
+        "SKU": ".5g Pre-Roll Purple Kush",
+        "Quantity": "1000",
+        "WholesaleValue": "$9000"
+      }
+    },
+    {
+      "id": "2",
+      "SKU": ".5g Pre-Roll Purple Kush",
+      "Quantity": "1000",
+      "WholesaleValue": "30000"
+    },
+    {
+      "id": "3",
+      "SKU": "Jeeter Juice 1g Pen",
+      "Quantity": "3000",
+      "WholesaleValue": "$40000"
+    },
+    { "Total":"Total", "Quantity":"5000","WholesaleValue":"79000"}
+  ],
+
+  "Retailer":[
+    "Retailer: March and Ash",
+    {
+      "id":"01",
+      "SKU":"SKU",
+    "Quantity":"Quantity",
+    "WholesaleValue":"WholesaleValue"
+    },
+    {"id":"01","SKU":".5g Pre-Roll Purple Kush","Quantity":"1000","WholesaleValue":"$9000"},
+    {"id":"02","SKU":".Jeeter Juice .5g Pen","Quantity":"1000","WholesaleValue":"$15000"},
+    { "Total":"Total", "Quantity":"2000","WholesaleValue":"24000"}
+  ]
+}
