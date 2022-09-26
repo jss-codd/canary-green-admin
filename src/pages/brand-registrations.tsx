@@ -4,11 +4,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { toast } from "react-toastify";
 import TagsInput from "react-tagsinput";
 import "react-tagsinput/react-tagsinput.css";
+import * as Yup from "yup";
 
 import { BUTTON_LOADER } from '../redux/actions';
 import Sidebar from '../components/Sidebar';
-import { commonFetchAll } from '../services/UserServices';
+import { commonFetchAllAuth, commonFetchAllUser, commonSubmit, commonSubmitNoAuthUser } from '../services/UserServices';
 import ButtonLoader from '../components/buttonLoader';
+import { FaRegCheckCircle, FaSpinner, FaUser } from 'react-icons/fa';
 
 const initialValues = {
     firstName: "",
@@ -19,80 +21,29 @@ const initialValues = {
     region: [],
     brands: [],
     licenseno: "",
-    id: ""
+    autoid: "",
+    id: "",
+    title: ""
 };
 
-const validationSchema = {
-
-};
-
-const tableData = [
-    {
-        date: '08/08/2022',
-        company: 'Sunderstorm B.',
-        name: 'John Smith',
-        title: 'CEO',
-        email: 'john.smith@k',
-        phone: '999.98.88',
-        marketName: 'CA',
-        marketID: '1',
-        brands: ['Kanha', 'Brand 1'],
-        licenseno: 'LIC-42022',
-        id: 1,
-    },
-    {
-        date: '08/08/2022',
-        company: 'Cannaco Inc',
-        name: 'Sally',
-        title: 'Sales Manager',
-        email: 'sally.doe@w',
-        phone: '999.98.88.989',
-        marketName: 'CA',
-        marketID: '1',
-        brands: ['Brand 1'],
-        licenseno: 'LIC-42022454',
-        id: 2,
-    },
-    {
-        date: '08/08/2022',
-        company: 'Sunderstorm B.',
-        name: 'John Smith',
-        title: 'CEO',
-        email: 'john.smith@k',
-        phone: '999.98.88',
-        marketName: 'CA',
-        marketID: '1',
-        brands: ['Brand 1'],
-        licenseno: 'LIC-42022',
-        id: 3,
-    },
-    {
-        date: '08/08/2022',
-        company: 'Sunderstorm B.',
-        name: 'John Smith',
-        title: 'CEO',
-        email: 'john.smith@k',
-        phone: '999.98.88',
-        marketName: 'CA',
-        marketID: '1',
-        brands: ['Brand 1'],
-        licenseno: 'LIC-42022',
-        id: 4,
-    },
-    {
-        date: '08/08/2022',
-        company: 'Sunderstorm B.',
-        name: 'John Smith',
-        title: 'CEO',
-        email: 'john.smith@k',
-        phone: '999.98.88',
-        marketName: 'CA',
-        marketID: '1',
-        brands: ['Brand 1', 'Brand 2'],
-        licenseno: 'LIC-42022',
-        id: 5,
-    }
-];
+const validationSchema = Yup.object().shape({
+    firstName: Yup.string().trim()
+        .required("First name is required"),
+    lastName: Yup.string().trim()
+        .required("Last name is required"),
+    company: Yup.string().trim()
+        .required("Company name is required"),
+    email: Yup.string().trim().email("Invalid email address")
+        .required("Email is required"),
+    phone: Yup.string().trim()
+        .required("Phone is required"),
+    licenseno: Yup.string().trim()
+        .required("License no. is required"),
+    brands: Yup.array().min(1, "Minimum of 1 brand required"),
+    region: Yup.array().min(1, "Minimum of 1 market required"),
+    autoid: Yup.string().required("Auto generated User ID is required"),
+    title: Yup.string().trim().required("Title is required"),
+});
 
 function BrandRegistration() {
     const dispatch = useDispatch();
@@ -100,22 +51,31 @@ function BrandRegistration() {
     const [operateLocation, setOperateLocation] = useState<any[]>([]);
     const [formInputs, setFormInputs] = useState<any>(initialValues);
     const [filterText, setFilterText] = useState("");
+    const [pendingBrandUsers, setPendingBrandUsers] = useState<any[]>([]);
+    const [pendingBrandUsersLoaded, setPendingBrandUsersLoaded] = useState(false);
+    const [licenseValidate, setLicenseValidate] = useState(false);
+
 
     const buttonloader = useSelector(
         (state: any) => state.buttonloader
     );
 
     const selectRow = (id: Number) => {
-        const selectedData = tableData.find((e) => e.id == id);
-        setFormInputs(selectedData);
+        const selectedData = pendingBrandUsers.find((e) => e.ID == id);
 
         setFormInputs(() => {
             const datav = {
-                ...selectedData,
-                firstName: selectedData?.name.split(' ')[0],
-                lastName: selectedData?.name.split(' ')[1] || '',
-                id: '#' + selectedData?.id,
-                region: selectedData?.marketID.split('')
+                firstName: selectedData?.NAME.split(' ')[0],
+                lastName: selectedData?.NAME.split(' ')[1] || '',
+                autoid: '#' + selectedData?.ID,
+                id: selectedData?.ID,
+                company: selectedData?.COMPANY,
+                email: selectedData?.EMAIL,
+                phone: selectedData?.PHONE,
+                region: selectedData?.RETAIL_OPERATE_REGION ? [selectedData?.RETAIL_OPERATE_REGION?.toString()] : [],
+                brands: selectedData?.BRAND_NAME?.split(',') || [],
+                licenseno: selectedData?.LICENSENUMBER,
+                title: selectedData.TITLE
             };
             return datav;
         });
@@ -125,13 +85,13 @@ function BrandRegistration() {
         setFilterText(e.target.value);
     }
 
-    const filteredItems = tableData.filter(
+    const filteredItems = pendingBrandUsers.filter(
         (item) =>
-            item.name && item.name.toLowerCase().includes(filterText.toLowerCase())
+            item.NAME && item.NAME.toLowerCase().includes(filterText.toLowerCase())
     );
 
     const getOperateLocation = async () => {
-        commonFetchAll('operate-region', dispatch)
+        commonFetchAllUser('operate-region', dispatch)
             .then((res: any) => {
                 if (!res || res.status != 200) {
                     throw new Error("Server responds with error!");
@@ -153,9 +113,35 @@ function BrandRegistration() {
             );
     }
 
+    const getPendingBrandUsers = async () => {
+        commonFetchAllAuth('pending-brand-users', dispatch)
+            .then((res: any) => {
+                if (!res || res.status != 200) {
+                    throw new Error("Server responds with error!");
+                }
+                return res.json();
+            })
+            .then(
+                (data) => {
+                    setPendingBrandUsersLoaded(true);
+                    if (data.status) {
+                        setPendingBrandUsers(data.list);
+                    } else {
+                        toast.error(data.message);
+                        setPendingBrandUsers([]);
+                    }
+                },
+                (err) => {
+                    console.log(err);
+                    setPendingBrandUsersLoaded(true);
+                }
+            );
+    }
+
     //get operate-region
     useEffect(() => {
-        getOperateLocation()
+        getOperateLocation();
+        getPendingBrandUsers();
     }, [])
 
     return (
@@ -196,21 +182,27 @@ function BrandRegistration() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {filteredItems.length > 0 ? filteredItems.map((t) => (
-                                        <tr key={`users-${t.id}`} onClick={() => selectRow(t.id)}>
-                                            <td>{t.date}</td>
-                                            <td>{t.company}</td>
-                                            <td>{t.name}</td>
-                                            <td>{t.title}</td>
-                                            <td>{t.email}</td>
-                                            <td>{t.phone}</td>
-                                            <td>{t.marketName}</td>
-                                            <td>{t.brands.join(', ')}</td>
-                                            <td>{t.licenseno}</td>
-                                        </tr>
-                                    )) : (
-                                        <tr className='text-center'><td colSpan={9}>No Data Found</td></tr>
-                                    )}
+                                    {!pendingBrandUsersLoaded ? (
+                                        <>
+                                            <tr className='text-center'><td colSpan={9}><FaSpinner size="2em" className="spinner" /></td></tr>
+                                        </>) : (
+                                        <>
+                                            {filteredItems.length > 0 ? filteredItems.map((t) => (
+                                                <tr key={`users-${t.ID}`} onClick={() => selectRow(t.ID)}>
+                                                    <td>{t.DATE_TIME}</td>
+                                                    <td>{t.COMPANY}</td>
+                                                    <td>{t.NAME}</td>
+                                                    <td>{t.TITLE}</td>
+                                                    <td>{t.EMAIL}</td>
+                                                    <td>{t.PHONE}</td>
+                                                    <td>{t.RETAIL_OPERATE_REGION}</td>
+                                                    <td>{t.BRAND_NAME}</td>
+                                                    <td>{t.LICENSENUMBER}</td>
+                                                </tr>
+                                            )) : (
+                                                <tr className='text-center'><td colSpan={9}>No Data Found</td></tr>
+                                            )}
+                                        </>)}
                                 </tbody>
                             </table>
                         </div>
@@ -224,12 +216,59 @@ function BrandRegistration() {
                                     <Formik
                                         enableReinitialize={true}
                                         initialValues={formInputs}
-                                        //validationSchema={validationSchema}
-                                        onSubmit={(values) => {
-                                            // dispatch({
-                                            //     type: BUTTON_LOADER,
-                                            // });
-                                            console.log(values, 'values')
+                                        validationSchema={validationSchema}
+                                        onSubmit={async (values, { resetForm, setErrors }) => {
+                                            dispatch({ type: BUTTON_LOADER });
+                                            
+                                            const dataSend = { regionId: values.region[0], licenseNumber: values.licenseno, apiKey: pendingBrandUsers.find((d) => d.ID == values.id)?.BRAND_API_KEY };
+                                            commonSubmitNoAuthUser(dataSend, 'licence-validate', dispatch)
+                                                .then((res: any) => {
+                                                    if (!res || res.status != 200) {
+                                                        throw new Error("Server responds with error!");
+                                                    }
+                                                    return res.json();
+                                                })
+                                                .then(
+                                                    (data) => {
+                                                        if (data.status) {
+                                                            setLicenseValidate(true);
+                                                            //now submit
+                                                            commonSubmit(values, 'brand-admin-registration', dispatch)
+                                                                .then((res: any) => {
+                                                                    if (!res || res.status != 200) {
+                                                                        throw new Error("Server responds with error!");
+                                                                    }
+                                                                    return res.json();
+                                                                })
+                                                                .then(
+                                                                    (data) => {
+                                                                        dispatch({ type: BUTTON_LOADER });
+                                                                        if (data.status) {
+                                                                            toast.success(data.message);
+                                                                            window.location.reload();
+                                                                        } else {
+                                                                            toast.error(data.message);
+                                                                        }
+                                                                    },
+                                                                    (err) => {
+                                                                        dispatch({ type: BUTTON_LOADER });
+                                                                        console.log(err, 'err');
+                                                                    }
+                                                                );
+                                                        } else {
+                                                            dispatch({ type: BUTTON_LOADER });
+                                                            setLicenseValidate(false);
+                                                            toast.error(data.message);
+                                                            setErrors({ licenseno: data.message });
+                                                            return;
+                                                        }
+                                                    },
+                                                    (err) => {
+                                                        dispatch({ type: BUTTON_LOADER });
+                                                        setLicenseValidate(false);
+                                                        console.log(err, 'err');
+                                                    }
+                                                );
                                         }}
                                     >
                                         {(formik) => {
@@ -288,6 +327,7 @@ function BrandRegistration() {
                                                         </div>
                                                         <div className='col-xl-3 form-group'>
                                                             <Field
+                                                                readOnly={true}
                                                                 type="text"
                                                                 className="form-control"
                                                                 placeholder="Email"
@@ -304,6 +344,7 @@ function BrandRegistration() {
                                                         </div>
                                                         <div className='col-xl-2 form-group'>
                                                             <Field
+                                                                readOnly={true}
                                                                 type="text"
                                                                 className="form-control"
                                                                 placeholder="Phone"
@@ -362,8 +403,8 @@ function BrandRegistration() {
                                                         </div>
 
                                                         <div className='col-xl-6 mt-2'>
-                                                            <div className='row'>
-                                                                <div className='col-xl-12 form-group'>
+                                                            <div className='row align-items-center px-3 mb-1'>
+                                                                <div className='col p-0'>
                                                                     <Field
                                                                         type="text"
                                                                         className="form-control"
@@ -373,25 +414,51 @@ function BrandRegistration() {
                                                                         onBlur={formik.handleBlur}
                                                                         autoComplete="off"
                                                                     />
-                                                                    <ErrorMessage
-                                                                        name="licenseno"
-                                                                        component="span"
-                                                                        className="inputerror"
-                                                                    />
                                                                 </div>
+                                                                <div className='col-auto pe-0'>
+                                                                    {licenseValidate && (
+                                                                        <FaRegCheckCircle className="text-success" size="1.5rem" />
+                                                                    )}
+                                                                    {!licenseValidate && (
+                                                                        <FaRegCheckCircle className="text-muted" size="1.5rem" />
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                            <ErrorMessage
+                                                                name="licenseno"
+                                                                component="span"
+                                                                className="inputerror"
+                                                            />
 
-                                                                <div className='col-xl-12 form-group'>
+                                                            <div className='row'>
+                                                            <div className='col-xl-6 form-group'>
                                                                     <Field
                                                                         type="text"
                                                                         className="form-control"
-                                                                        placeholder="Auto Generated User ID"
-                                                                        name="id"
+                                                                        placeholder="Title"
+                                                                        name="title"
                                                                         onChange={formik.handleChange}
                                                                         onBlur={formik.handleBlur}
                                                                         autoComplete="off"
                                                                     />
                                                                     <ErrorMessage
-                                                                        name="id"
+                                                                        name="title"
+                                                                        component="span"
+                                                                        className="inputerror"
+                                                                    />
+                                                                </div>
+                                                                <div className='col-xl-6 form-group'>
+                                                                    <Field
+                                                                        type="text"
+                                                                        className="form-control"
+                                                                        placeholder="Auto Generated User ID"
+                                                                        name="autoid"
+                                                                        onChange={formik.handleChange}
+                                                                        onBlur={formik.handleBlur}
+                                                                        autoComplete="off"
+                                                                    />
+                                                                    <ErrorMessage
+                                                                        name="autoid"
                                                                         component="span"
                                                                         className="inputerror"
                                                                     />

@@ -14,7 +14,6 @@ const colorScale:any = scaleLinear()
   .domain([0.01, 2.00])
   .range(rangeColor);
 
-
 const Dashboard = () => {
   const [content, setContent] = useState("");
   return (
@@ -226,7 +225,6 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
-
 
           <div className='mt--7 container-fluid'>
             <div className='row'>

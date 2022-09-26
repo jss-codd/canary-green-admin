@@ -24986,7 +24986,7 @@ table.loading>tbody:after {
   display: block;
 }
 
-table.selectable tr{
+table.selectable tr {
   cursor: pointer;
 }
 
@@ -25002,7 +25002,7 @@ table.selectable tr{
   left: inherit;
 }
 
-.autoheight{
+.autoheight {
   height: auto !important;
 }
 
@@ -25018,6 +25018,30 @@ table.selectable tr{
   text-align: center;
 }
 
-.label-small label{
+.label-small label {
   font-size: 13px;
+}
+
+.spinner {
+  animation: spin infinite 2s linear;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+span.inputerror {
+  color: red;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+table.padding-1 td{
+  padding: .5rem;
 }

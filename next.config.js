@@ -15,13 +15,11 @@ module.exports = {
     API_PATH_USER: "https://kg5l0w8x6i.execute-api.us-west-1.amazonaws.com/api/user/",
     //API_PATH: "http://localhost:3001/api/admin/",
     //API_PATH_USER: "http://localhost:3001/api/user/",
-    WEB_PATH: "https://canary-mu.vercel.app",
+    WEB_PATH: "https://canary-green-admin.vercel.app",
   },
   images: {
-    //domains: ['localhost'],
-    domains: ['canary-mu.vercel.app'],
+    domains: ['canary-green-admin.vercel.app'],
     loader: 'imgix',
-    //path: 'http://localhost:3000/',
-    path: 'https://canary-mu.vercel.app/',
+    path: 'https://canary-green-admin.vercel.app/',
   },
 }
