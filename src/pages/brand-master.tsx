@@ -6,6 +6,7 @@ import TagsInput from "react-tagsinput";
 import "react-tagsinput/react-tagsinput.css";
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
+import Switch from "react-switch";
 
 import { BUTTON_LOADER } from '../redux/actions';
 import Sidebar from '../components/Sidebar';
@@ -100,6 +101,8 @@ const tableData = [
     },
 ];
 
+const billingInputs = {}
+
 const subscriptionData = ['90021 - 1555 Newton St - Project Cannabi', '51601 - 10842 Mangolia Blvd, Project Cannabi', '92018 - 3703 Camino del Rio S - THCSD', '92109 - 4645 De Soto St - Cannabist'];
 
 const UserTab = React.memo(function UserTab(props: any) {
@@ -108,7 +111,7 @@ const UserTab = React.memo(function UserTab(props: any) {
     return (
         <>
             <div className="row">
-                <div className='col-xl-4'>
+                <div className='col-xl-4 form-group'>
                     <div style={{ maxHeight: "60vh" }} className='table-responsive fixTableHead border border-light rounded'>
                         <table className='align-items-center table-flush table mb-2 selectable'>
                             <tbody>
@@ -120,7 +123,7 @@ const UserTab = React.memo(function UserTab(props: any) {
                         </table>
                     </div>
                 </div>
-                <div className='col-xl-8'>
+                <div className='col-xl-8 form-group'>
                     <Formik
                         enableReinitialize={true}
                         initialValues={formInputs}
@@ -344,7 +347,8 @@ const UserTab = React.memo(function UserTab(props: any) {
                                             />
                                         </div>
                                         <div className='col-xl-4 form-group'>
-                                            <button type="submit" className="btn btn-primary btn-block mt-5">
+                                            <label>&nbsp;</label>
+                                            <button type="submit" className="btn bg-gradient-primary text-white btn-block">
                                                 Save
                                             </button>
                                         </div>
@@ -366,14 +370,14 @@ const SubscriptionTab = React.memo(function SubscriptionTab(props: any) {
     return (
         <>
             <div className="row">
-                <div className='col-xl-4'>
+                <div className='col-xl-4 form-group'>
                     <h4>Active Markets</h4>
                     <div className='table-responsive fixTableHead border border-light rounded'>
                         <table className='align-items-center table-flush table table-borderless padding-1'>
                             <tbody>
-                            <tr>
-                                        <td><label><input type="checkbox" />&nbsp; Select All</label></td>
-                                    </tr>
+                                <tr>
+                                    <td><label><input type="checkbox" />&nbsp; Select All</label></td>
+                                </tr>
                                 {operateLocation.length > 0 && operateLocation.map((d: { ID: number; NAME: string }) => (
                                     <tr key={`region-${d.ID}`}>
                                         <td><label><input type="checkbox" />&nbsp; {d.NAME}</label></td>
@@ -383,7 +387,7 @@ const SubscriptionTab = React.memo(function SubscriptionTab(props: any) {
                         </table>
                     </div>
                 </div>
-                <div className='col-xl-8'>
+                <div className='col-xl-8 form-group'>
                     <h4>Active Subscriptions</h4>
                     <div className='table-responsive fixTableHead border border-light rounded'>
                         <table className='align-items-center table-flush table padding-1'>
@@ -400,9 +404,9 @@ const SubscriptionTab = React.memo(function SubscriptionTab(props: any) {
                                 </tr>
                             </thead>
                             <tbody>
-                            <tr>
-                                        <td><label><input type="checkbox" />&nbsp; Select All</label></td>
-                                    </tr>
+                                <tr>
+                                    <td><label><input type="checkbox" />&nbsp; Select All</label></td>
+                                </tr>
                                 {operateLocation.length > 0 && subscriptionData.map((d, i) => (
                                     <tr key={`loc-${i}`}>
                                         <td><label><input type="checkbox" />&nbsp; {d}</label></td>
@@ -411,6 +415,437 @@ const SubscriptionTab = React.memo(function SubscriptionTab(props: any) {
                             </tbody>
                         </table>
                     </div>
+                </div>
+            </div>
+
+            <div className="row mt-4">
+                <div className='col-xl-9'>
+                    <h4 className='pt-2'>Estimated Monthly Subscription: $9.00</h4>
+                </div>
+                <div className='col-xl-3'>
+                    <button type="submit" className="btn bg-gradient-primary text-white btn-block">
+                        Save
+                    </button>
+                </div>
+            </div>
+        </>
+    )
+});
+
+const SettingTab = React.memo(function SettingTab(props: any) {
+    const [apiStatus, setApiStatus] = useState(false);
+
+    const handleChange = (checked: boolean | ((prevState: boolean) => boolean)) => {
+        setApiStatus(checked);
+    }
+
+    return (
+        <>
+            <div className="row">
+                <div className='col-xl-12 form-group'>
+                    <h4>METRC API Keys</h4>
+                    <div className='table-responsive fixTableHead border border-light rounded'>
+                        <table className='align-items-center table-flush table table-borderless padding-1'>
+                            <thead>
+                                <tr>
+                                    <th>Market</th>
+                                    <th>API Key</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>California</td>
+                                    <td>sKwf0zfZ3iRQpAw7qz8ZaAfAX...</td>
+                                    <td>
+                                        <Switch offColor="#d33333" handleDiameter={25} boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)" activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)" height={20} width={48} onChange={handleChange} checked={apiStatus} />
+                                    </td>
+                                    <td><a href="#!">Edit</a></td>
+                                </tr>
+                                <tr>
+                                    <td>Colorrado</td>
+                                    <td>sKwf0zfZ3iRQpAw7qz887uWd...</td>
+                                    <td>
+                                        <Switch offColor="#d33333" handleDiameter={25} boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)" activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)" height={20} width={48} onChange={handleChange} checked={apiStatus} />
+                                    </td>
+                                    <td><a href="#!">Edit</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div className='col-xl-12 form-group'>
+                    <h4>Active Licenses</h4>
+                    <div className='table-responsive fixTableHead border border-light rounded'>
+                        <table className='align-items-center table-flush table padding-1'>
+                            <thead>
+                                <tr>
+                                    <th>Market</th>
+                                    <th>License</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>California</td>
+                                    <td>LIC-230-2303</td>
+                                    <td>
+                                        <Switch offColor="#d33333" handleDiameter={25} boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)" activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)" height={20} width={48} onChange={handleChange} checked={apiStatus} />
+                                    </td>
+                                    <td><a href="#!">Edit</a></td>
+                                </tr>
+                                <tr>
+                                    <td>Colorrado</td>
+                                    <td>LIC-593-2393</td>
+                                    <td>
+                                        <Switch offColor="#d33333" handleDiameter={25} boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)" activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)" height={20} width={48} onChange={handleChange} checked={apiStatus} />
+                                    </td>
+                                    <td><a href="#!">Edit</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div className="row mt-4">
+                <div className='col-xl-9'>
+                    <Switch offColor="#d33333" handleDiameter={25} boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)" activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)" height={20} width={48} onChange={handleChange} checked={apiStatus} />
+                    <label style={{ verticalAlign: "bottom" }}>&nbsp; &nbsp;Active Brand</label>
+                </div>
+                <div className='col-xl-3'>
+                    <button type="submit" className="btn bg-gradient-primary text-white btn-block">
+                        Save
+                    </button>
+                </div>
+            </div>
+        </>
+    )
+});
+
+const BillingTab = React.memo(function BillingTab(props: any) {
+    return (
+        <>
+            <div className="row">
+                <div className='col-xl-12 form-group'>
+                    <h3>Billing Contact</h3>
+                    <Formik
+                        enableReinitialize={true}
+                        initialValues={billingInputs}
+                        onSubmit={(values) => {
+                            console.log(values, 'values')
+                        }}
+                    >
+                        {(formik) => {
+                            const { errors, touched, isValid, dirty, setFieldValue } = formik;
+                            return (
+                                <Form className="form-horizontal label-small mt-4">
+                                    <div className='row'>
+                                        <div className='col-xl-3 form-group'>
+                                            <label>First Name</label>
+                                            <Field
+                                                type="text"
+                                                className="form-control"
+                                                placeholder="First Name"
+                                                name="firstName"
+                                                onChange={formik.handleChange}
+                                                onBlur={formik.handleBlur}
+                                                autoComplete="off"
+                                            />
+                                            <ErrorMessage
+                                                name="firstName"
+                                                component="span"
+                                                className="inputerror"
+                                            />
+                                        </div>
+                                        <div className='col-xl-3 form-group'>
+                                            <label>Last Name</label>
+                                            <Field
+                                                type="text"
+                                                className="form-control"
+                                                placeholder="Last Name"
+                                                name="lastName"
+                                                onChange={formik.handleChange}
+                                                onBlur={formik.handleBlur}
+                                                autoComplete="off"
+                                            />
+                                            <ErrorMessage
+                                                name="lastName"
+                                                component="span"
+                                                className="inputerror"
+                                            />
+                                        </div>
+                                        <div className='col-xl-6 form-group'>
+                                            <label>Email</label>
+                                            <Field
+                                                type="text"
+                                                className="form-control"
+                                                placeholder="Email"
+                                                name="email"
+                                                onChange={formik.handleChange}
+                                                onBlur={formik.handleBlur}
+                                                autoComplete="off"
+                                            />
+                                            <ErrorMessage
+                                                name="email"
+                                                component="span"
+                                                className="inputerror"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className='row'>
+                                        <div className='col-xl-8 form-group'>
+                                            <label>Billing Address</label>
+                                            <Field
+                                                type="text"
+                                                className="form-control"
+                                                placeholder="Billing Address"
+                                                name="billingAddress"
+                                                onChange={formik.handleChange}
+                                                onBlur={formik.handleBlur}
+                                                autoComplete="off"
+                                            />
+                                            <ErrorMessage
+                                                name="billingAddress"
+                                                component="span"
+                                                className="inputerror"
+                                            />
+                                        </div>
+                                        <div className='col-xl-4 form-group'>
+                                            <label>Zip Code</label>
+                                            <Field
+                                                type="text"
+                                                className="form-control"
+                                                placeholder="Zip Code"
+                                                name="zipCode"
+                                                onChange={formik.handleChange}
+                                                onBlur={formik.handleBlur}
+                                                autoComplete="off"
+                                            />
+                                            <ErrorMessage
+                                                name="zipCode"
+                                                component="span"
+                                                className="inputerror"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className='row'>
+                                        <div className='col-xl-4 form-group'>
+                                            <label>Title</label>
+                                            <Field
+                                                type="text"
+                                                className="form-control"
+                                                placeholder="Title"
+                                                name="title"
+                                                onChange={formik.handleChange}
+                                                onBlur={formik.handleBlur}
+                                                autoComplete="off"
+                                            />
+                                            <ErrorMessage
+                                                name="title"
+                                                component="span"
+                                                className="inputerror"
+                                            />
+                                        </div>
+                                        <div className='col-xl-4 form-group'>
+                                            <label>Phone</label>
+                                            <Field
+                                                type="text"
+                                                className="form-control"
+                                                placeholder="Phone"
+                                                name="phone"
+                                                onChange={formik.handleChange}
+                                                onBlur={formik.handleBlur}
+                                                autoComplete="off"
+                                            />
+                                            <ErrorMessage
+                                                name="phone"
+                                                component="span"
+                                                className="inputerror"
+                                            />
+                                        </div>
+                                        <div className='col-xl-4 form-group'>
+                                            <label>Time Zone</label>
+                                            <Field
+                                                type="text"
+                                                className="form-control"
+                                                placeholder="Time Zone"
+                                                name="timeZone"
+                                                onChange={formik.handleChange}
+                                                onBlur={formik.handleBlur}
+                                                autoComplete="off"
+                                            />
+                                            <ErrorMessage
+                                                name="timeZone"
+                                                component="span"
+                                                className="inputerror"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className='row'>
+                                        <div className='col-xl-3 form-group'>
+                                            <label>Payment Terms</label>
+                                            <label>
+                                                <Field
+                                                    type="radio"
+                                                    name="paymentTerms"
+                                                    onChange={formik.handleChange}
+                                                    onBlur={formik.handleBlur}
+                                                    autoComplete="off"
+                                                    value="N15"
+                                                /> &nbsp; N15
+                                            </label>
+
+                                            <label>
+                                                <Field
+                                                    type="radio"
+                                                    name="paymentTerms"
+                                                    onChange={formik.handleChange}
+                                                    onBlur={formik.handleBlur}
+                                                    autoComplete="off"
+                                                    value="N30"
+                                                /> &nbsp; N30
+                                            </label>
+
+                                            <label>
+                                                <Field
+                                                    type="radio"
+                                                    name="paymentTerms"
+                                                    onChange={formik.handleChange}
+                                                    onBlur={formik.handleBlur}
+                                                    autoComplete="off"
+                                                    value="COD"
+                                                /> &nbsp; COD
+                                            </label>
+
+                                            <label>
+                                                <Field
+                                                    type="radio"
+                                                    name="paymentTerms"
+                                                    onChange={formik.handleChange}
+                                                    onBlur={formik.handleBlur}
+                                                    autoComplete="off"
+                                                    value="PrePay"
+                                                /> &nbsp; PrePay
+                                            </label>
+
+                                            <ErrorMessage
+                                                name="paymentTerms"
+                                                component="span"
+                                                className="inputerror"
+                                            />
+                                        </div>
+                                        <div className='col-xl-3 form-group'>
+                                            <label>Payment Method</label>
+                                            <label>
+                                                <Field
+                                                    type="radio"
+                                                    name="paymentMethod"
+                                                    onChange={formik.handleChange}
+                                                    onBlur={formik.handleBlur}
+                                                    value="ACH"
+                                                />&nbsp; ACH
+                                            </label>
+
+                                            <label>
+                                                <Field
+                                                    type="radio"
+                                                    name="paymentMethod"
+                                                    onChange={formik.handleChange}
+                                                    onBlur={formik.handleBlur}
+                                                    value="Credit Card"
+                                                />&nbsp; Credit Card
+                                            </label>
+
+                                            <label>
+                                                <Field
+                                                    type="radio"
+                                                    name="paymentMethod"
+                                                    onChange={formik.handleChange}
+                                                    onBlur={formik.handleBlur}
+                                                    value="Check"
+                                                />&nbsp; Check
+                                            </label>
+
+                                            <ErrorMessage
+                                                name="paymentMethod"
+                                                component="span"
+                                                className="inputerror"
+                                            />
+                                        </div>
+                                        <div className='col-xl-6 form-group'>
+                                            <a href="#!"><u>Manage ACH Information</u></a>
+                                            <br></br>
+                                            <a href="#!"><u>Manage Credit Card Information</u></a>
+                                            <div className='form-group mt-4'>
+                                                <Switch disabled={true} offColor="#d33333" handleDiameter={25} boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)" activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)" height={20} width={48} onChange={() => console.log(1)} checked={true} /> <span style={{ verticalAlign: "super" }}>&nbsp; Paper Invoice</span>
+                                                <button type="submit" className="btn bg-gradient-primary text-white float-right">
+                                                    Save
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Form>
+                            )
+                        }
+                        }
+                    </Formik>
+                </div>
+            </div>
+        </>
+    )
+});
+
+const StatsTab = React.memo(function StatsTab(props: any) {
+    return (
+        <>
+            <div className="row">
+                <div className='col-xl-12'>
+                    <h4 className='bg-gradient-secondary'>Member Since: 8/14/2021</h4>
+                    <h4 className='bg-gradient-secondary'>Total Subscription Paid: $900.00</h4>
+                </div>
+            </div>
+            <hr className='my-2'></hr>
+            <div className="row">
+                <div className='col-xl-4'>
+                    <h4 className='p-2 bg-gradient-primary text-white'># Products: 25</h4>
+                </div>
+                <div className='col-xl-4'>
+                    <h4 className='p-2 bg-gradient-success text-white'># Markets: 2</h4>
+                </div>
+                <div className='col-xl-4'>
+                    <h4 className='p-2 bg-gradient-danger text-white'># Monthly Unit Sold: 2500</h4>
+                </div>
+
+                <div className='col-xl-4'>
+                    <h4 className='p-2 bg-gradient-dark text-white'># Location: 314</h4>
+                </div>
+                <div className='col-xl-4'>
+                    <h4 className='p-2 bg-gradient-info text-white'># Category: 2</h4>
+                </div>
+                <div className='col-xl-4'>
+                    <h4 className='p-2 bg-gradient-warning text-white'># Basket Size: 1.3</h4>
+                </div>
+            </div>
+            <hr className='my-2'></hr>
+            <div className="row">
+                <div className='col-xl-12'>
+                    <h4 className='bg-gradient-secondary'>Average Monthly Revenue: $25,000</h4>
+                    <h4 className='bg-gradient-secondary'>Average Product Retail Price: $900.00</h4>
+                    <h4 className='bg-gradient-secondary'>Increase in revenue since joining: 17%</h4>
+                    <h4 className='bg-gradient-secondary'>Top Product: Sky walker OG kuch 1/4oz Flower</h4>
+                    <h4 className='bg-gradient-secondary'>Category Rank: (2/2345)</h4>
+                </div>
+            </div>
+            <hr className='my-2'></hr>
+            <div className="row">
+                <div className='col-xl-12'>
+                    <textarea rows={5} className='form-control' value="Journal Entries:"></textarea>
                 </div>
             </div>
         </>
@@ -599,10 +1034,13 @@ function Brand_Master() {
                                                             <SubscriptionTab operateLocation={operateLocation} />
                                                         </Tab>
                                                         <Tab key={`Settings`} eventKey={`Settings`} title={`Settings`}>
-                                                            Settings
+                                                            <SettingTab />
                                                         </Tab>
                                                         <Tab key={`Billings`} eventKey={`Billings`} title={`Billings`}>
-                                                            Billings
+                                                            <BillingTab />
+                                                        </Tab>
+                                                        <Tab key={`Stats`} eventKey={`Stats`} title={`Stats`}>
+                                                            <StatsTab />
                                                         </Tab>
                                                     </Tabs>
                                                 </div>
