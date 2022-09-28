@@ -1,36 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Card, Collapse } from 'reactstrap';
-import { useDispatch, useSelector } from 'react-redux';
-import Router, { useRouter } from 'next/router';
+import { Collapse } from 'reactstrap';
+import { useRouter } from 'next/router';
 import Image from 'next/image';
 
 import logo2 from "../../images/logo1.png";
 
 import {
   FaChartArea,
-  FaChartLine,
-  FaClipboardList,
   FaCogs,
-  FaDesktop,
-  FaHammer,
-  FaRegSun,
-  FaShoppingBag,
-  FaSignInAlt,
+  FaMeteor,
+  FaSearchLocation,
+  FaServicestack,
   FaTag,
-  FaToolbox,
-  FaTrademark,
+  FaUserCheck,
   FaUserCog,
+  FaUsers,
+  FaWarehouse,
 } from 'react-icons/fa';
-
-interface AuthState {
-  auth: any;
-}
 
 function Sidebar() {
   const router = useRouter();
   const [dropdownOpen, setdropdownOpen] = useState(false);
-  const [collapseOpen, setCollapseOpen] = React.useState(false);
+  const [collapseOpenBrand, setCollapseOpenBrand] = React.useState(false);
+  const [collapseOpenRetail, setCollapseOpenRetail] = React.useState(false);
 
   return (
     <>
@@ -43,13 +36,17 @@ function Sidebar() {
             <span className='navbar-toggler-icon'></span>
           </button>
           <span>
-            <Link href='#'>
-              <a className='pt-0 navbar-brand'><div className="text-center"><Image
-                src={logo2}
-                alt="logo"
-                width="100px"
-                height="90px"
-              /></div></a>
+            <Link href='#!'>
+              <a className='pt-0 navbar-brand'>
+                <div className="text-center">
+                  <Image
+                    src={logo2}
+                    alt="logo"
+                    width="100px"
+                    height="90px"
+                  />
+                </div>
+              </a>
             </Link>
           </span>
           <ul className='align-items-center d-md-none nav'>
@@ -72,23 +69,22 @@ function Sidebar() {
                 </div>
               </div>
               <div
-                className={`${dropdownOpen ? `` : 'invisible opacity-0'
-                  }   rounded border bg-white px-3 py-3 shadow-card transition-all dropdown-opemn`}
+                className={`${dropdownOpen ? `` : 'invisible opacity-0'} rounded border bg-white px-3 py-3 shadow-card transition-all dropdown-opemn`}
               >
                 {/* <ul className="drop-down-menu">
-                <li>
-                  <Link href="">Dashboard</Link>
-                </li>
-                <li>
-                  <Link href="">Settings</Link>
-                </li>
-                <li>
-                  <Link href="">Earnings</Link>
-                </li>
-                <li>
-                  <Link href="">Logout</Link>
-                </li>
-              </ul> */}
+                  <li>
+                    <Link href="">Dashboard</Link>
+                  </li>
+                  <li>
+                    <Link href="">Settings</Link>
+                  </li>
+                  <li>
+                    <Link href="">Earnings</Link>
+                  </li>
+                  <li>
+                    <Link href="">Logout</Link>
+                  </li>
+                </ul> */}
               </div>
             </li>
           </ul>
@@ -125,8 +121,9 @@ function Sidebar() {
                 </div>
               </div>
             </form>
+
             <ul className='navbar-nav'>
-            <li className='nav-item'>
+              <li className='nav-item'>
                 <Link href='/dashboard'>
                   <a
                     className={
@@ -141,202 +138,147 @@ function Sidebar() {
                 </Link>
               </li>
 
-              <>
-                <li className='nav-item '>
-                  <Link href='/brand'>
-                    <a
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setCollapseOpen(!collapseOpen);
-                      }}
-                      role='button'
-                      id='collapseExample'
-                      className={
-                        router.pathname == '/brand'
-                          ? 'nav-link active'
-                          : 'nav-link'
-                      }
-                    >
-                      <FaTag />
-                      Brand
-                    </a>
-                  </Link>
-                </li>
-                <Collapse isOpen={router.pathname == '/brand-registrations' || router.pathname == '/brand-master' ? !collapseOpen : collapseOpen}>
-                  <ul className='sidebar-nav'>
-                    <li className='nav-item '>
-                      <Link href='/brand-registrations'>
-                        <a
-                          className={
-                            router.pathname == '/brand-registrations'
-                              ? 'nav-link active'
-                              : 'nav-link'
-                          }
-                        >
-                          <FaUserCog/> Registrations
-                        </a>
-                      </Link>
-                    </li>
-                    <li className='nav-item '>
-                      <Link href='/brand-master'>
-                        <a
-                          className={
-                            router.pathname == '/brand-master'
-                              ? 'nav-link active'
-                              : 'nav-link'
-                          }
-                        >
-                          <FaCogs/> Brand Master
-                        </a>
-                      </Link>
-                    </li>
-                  </ul>
-                </Collapse>
-              </>
-
-              {/* <>
-                <li className='nav-item '>
-                  <Link href='/dashboard'>
-                    <a
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setCollapseOpen(!collapseOpen);
-                      }}
-                      role='button'
-                      id='collapseExample'
-                      className={
-                        router.pathname == '/dashboard'
-                          ? 'nav-link active'
-                          : 'nav-link'
-                      }
-                    >
-                      <FaTag />
-                      Admin Panel Home
-                    </a>
-                  </Link>
-                </li>
-                <Collapse isOpen={collapseOpen}>
-                  <ul className='sidebar-nav'>
-                    <li className='nav-item '>
-                      <Link href='/dashboard'>
-                        <a
-                          className={
-                            router.pathname == '/dashboard'
-                              ? 'nav-link active'
-                              : 'nav-link'
-                          }
-                        >
-                          <FaDesktop />
-                          Dashboard
-                        </a>
-                      </Link>
-                    </li>
-                    <li className='nav-item'>
-                      <Link href='/coalmine'>
-                        <a
-                          className={
-                            router.pathname == '/coalmine'
-                              ? 'nav-link active'
-                              : 'nav-link'
-                          }
-                        >
-                          <FaHammer />
-                          Coal Mines
-                        </a>
-                      </Link>
-                    </li>
-
-                    <li className='nav-item'>
-                      <Link href='/performances'>
-                        <a
-                          className={
-                            router.pathname == '/performances'
-                              ? 'nav-link active'
-                              : 'nav-link'
-                          }
-                        >
-                          <FaChartLine />
-                          Performance
-                        </a>
-                      </Link>
-                    </li>
-                    <li className='nav-item'>
-                      <Link href='brandmaster'>
-                        <a
-                          className={
-                            router.pathname == '/brandmaster'
-                              ? 'nav-link active'
-                              : 'nav-link'
-                          }
-                        >
-                          <FaClipboardList />
-                          Outreach Planning
-                        </a>
-                      </Link>
-                    </li>
-                  </ul>
-                </Collapse>
-              </> */}
-
-              {/* <li className='nav-item'>
-                <Link href='/skumaster'>
+              <li className='nav-item '>
+                <Link href='/brand'>
                   <a
-                    className={
-                      router.pathname == '/skumaster'
-                        ? 'nav-link active'
-                        : 'nav-link'
-                    }
-                  >
-                    <FaToolbox />
-                    SKU Master
-                  </a>
-                </Link>
-              </li> */}
-
-              {/* <li className='nav-item'>
-                <Link href='/brandmaster'>
-                  <a
-                    className={
-                      router.pathname == '/brandmaster'
-                        ? 'nav-link active'
-                        : 'nav-link'
-                    }
-                  >
-                    <FaTrademark />
-                    Brand Master
-                  </a>
-                </Link>
-              </li> */}
-
-              {/* <li className='nav-item'>
-                <Link href='#'>
-                  <a
-                    className={
-                      router.pathname == '#' ? 'nav-link active' : 'nav-link'
-                    }
-                  >
-                    <FaSignInAlt />
-                    Production Planning
-                  </a>
-                </Link>
-              </li> */}
-
-              {/* <li className='nav-item'>
-                <Link href='#'>
-                  <a
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setCollapseOpenBrand(!collapseOpenBrand);
+                    }}
                     role='button'
+                    id='collapseExample'
                     className={
-                      router.pathname == '/settings'
+                      router.pathname == '/brand-registrations' || router.pathname == '/brand-master' || router.pathname == '/sku-master' || router.pathname == '/subscriptions' || router.pathname == '/coal-mine'
                         ? 'nav-link active'
                         : 'nav-link'
                     }
                   >
-                    <FaRegSun />
-                    Settings
+                    <FaTag />
+                    Brand
+                  </a>
+                </Link>
+              </li>
+              <Collapse isOpen={router.pathname == '/brand-registrations' || router.pathname == '/brand-master' || router.pathname == '/sku-master' || router.pathname == '/subscriptions' || router.pathname == '/coal-mine' ? !collapseOpenBrand : collapseOpenBrand}>
+                <ul className='sidebar-nav'>
+                  <li className='nav-item '>
+                    <Link href='/brand-registrations'>
+                      <a
+                        className={
+                          router.pathname == '/brand-registrations'
+                            ? 'nav-link active'
+                            : 'nav-link'
+                        }
+                      >
+                        <FaUserCog /> Registrations
+                      </a>
+                    </Link>
+                  </li>
+                  <li className='nav-item '>
+                    <Link href='./brand-master'>
+                      <a
+                        className={
+                          router.pathname == '/brand-master'
+                            ? 'nav-link active'
+                            : 'nav-link'
+                        }
+                      >
+                        <FaCogs /> Brand Master
+                      </a>
+                    </Link>
+                  </li>
+                  <li className='nav-item '>
+                    <Link href='/sku-master'>
+                      <a
+                        className={
+                          router.pathname == '/sku-master'
+                            ? 'nav-link active'
+                            : 'nav-link'
+                        }
+                      >
+                        <FaWarehouse /> SKU Master
+                      </a>
+                    </Link>
+                  </li>
+                  <li className='nav-item '>
+                    <Link href='./subscriptions'>
+                      <a
+                        className={
+                          router.pathname == '/subscriptions'
+                            ? 'nav-link active'
+                            : 'nav-link'
+                        }
+                      >
+                        <FaServicestack /> Subscriptions
+                      </a>
+                    </Link>
+                  </li>
+                  {/* <li className='nav-item '>
+                    <Link href='./coal-mine'>
+                      <a
+                        className={
+                          router.pathname == '/coal-mine'
+                            ? 'nav-link active'
+                            : 'nav-link'
+                        }
+                      >
+                        <FaMeteor /> Coal Mine
+                      </a>
+                    </Link>
+                  </li> */}
+                </ul>
+              </Collapse>
+
+              {/* <li className='nav-item'>
+                <Link href='/'>
+                  <a
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setCollapseOpenRetail(!collapseOpenRetail);
+                    }}
+                    role='button'
+                    id='collapseExample'
+                    className={
+                      router.pathname == '/users' || router.pathname == '/locations'
+                        ? 'nav-link active'
+                        : 'nav-link'
+                    }
+                  >
+                    <FaUsers />
+                    Retail
                   </a>
                 </Link>
               </li> */}
 
+              {/* <Collapse isOpen={router.pathname == '/users' || router.pathname == '/locations' ? !collapseOpenRetail : collapseOpenRetail}>
+                <ul className='sidebar-nav'>
+                  <li className='nav-item '>
+                    <Link href='/users'>
+                      <a
+                        className={
+                          router.pathname == '/users'
+                            ? 'nav-link active'
+                            : 'nav-link'
+                        }
+                      >
+                        <FaUserCheck /> Users
+                      </a>
+                    </Link>
+                  </li>
+                  <li className='nav-item '>
+                    <Link href='./locations'>
+                      <a
+                        className={
+                          router.pathname == '/locations'
+                            ? 'nav-link active'
+                            : 'nav-link'
+                        }
+                      >
+                        <FaSearchLocation /> Locations
+                      </a>
+                    </Link>
+                  </li>
+                </ul>
+              </Collapse> */}
             </ul>
             <hr className='my-3' />
           </div>

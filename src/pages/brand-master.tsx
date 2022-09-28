@@ -103,7 +103,7 @@ const tableData = [
 
 const billingInputs = {}
 
-const subscriptionData = ['90021 - 1555 Newton St - Project Cannabi', '51601 - 10842 Mangolia Blvd, Project Cannabi', '92018 - 3703 Camino del Rio S - THCSD', '92109 - 4645 De Soto St - Cannabist'];
+const subscriptionDataArr = ['90021 - 1555 Newton St - Project Cannabi', '51601 - 10842 Mangolia Blvd, Project Cannabi', '92018 - 3703 Camino del Rio S - THCSD', '92109 - 4645 De Soto St - Cannabist'];
 
 const UserTab = React.memo(function UserTab(props: any) {
     const { formInputs, selectUser } = props;
@@ -366,7 +366,13 @@ const UserTab = React.memo(function UserTab(props: any) {
 
 const SubscriptionTab = React.memo(function SubscriptionTab(props: any) {
     const { operateLocation } = props;
+    const [subscriptionData, setSubscriptionData] = useState(subscriptionDataArr);
 
+    const searchSubscriptionHandler = (e: { target: { value: string; }; }) => {
+        const filteredSubs = subscriptionDataArr.filter((d) => d.toLowerCase().includes(e.target.value.toLowerCase()));
+        setSubscriptionData(filteredSubs);
+    }
+    
     return (
         <>
             <div className="row">
@@ -387,6 +393,7 @@ const SubscriptionTab = React.memo(function SubscriptionTab(props: any) {
                         </table>
                     </div>
                 </div>
+
                 <div className='col-xl-8 form-group'>
                     <h4>Active Subscriptions</h4>
                     <div className='table-responsive fixTableHead border border-light rounded'>
@@ -395,7 +402,7 @@ const SubscriptionTab = React.memo(function SubscriptionTab(props: any) {
                                 <tr>
                                     <th style={{ paddingLeft: ".5rem", paddingRight: ".5rem" }}>
                                         <fieldset className="position-relative has-icon-left">
-                                            <input type="text" className='form-control autoheight' placeholder='search' />
+                                            <input onChange={searchSubscriptionHandler} type="text" className='form-control autoheight' placeholder='search' />
                                             <div className="form-control-position top-0">
                                                 <FaSearch />
                                             </div>
@@ -404,14 +411,18 @@ const SubscriptionTab = React.memo(function SubscriptionTab(props: any) {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td><label><input type="checkbox" />&nbsp; Select All</label></td>
-                                </tr>
-                                {operateLocation.length > 0 && subscriptionData.map((d, i) => (
-                                    <tr key={`loc-${i}`}>
-                                        <td><label><input type="checkbox" />&nbsp; {d}</label></td>
-                                    </tr>
-                                ))}
+                                {operateLocation.length > 0 && subscriptionData.length > 0 && (
+                                    <>
+                                        <tr>
+                                            <td><label><input type="checkbox" />&nbsp; Select All</label></td>
+                                        </tr>
+                                        {subscriptionData.map((d, i) => (
+                                            <tr key={`loc-${i}`}>
+                                                <td><label><input type="checkbox" />&nbsp; {d}</label></td>
+                                            </tr>
+                                        ))}
+                                    </>
+                                )}
                             </tbody>
                         </table>
                     </div>
@@ -845,7 +856,7 @@ const StatsTab = React.memo(function StatsTab(props: any) {
             <hr className='my-2'></hr>
             <div className="row">
                 <div className='col-xl-12'>
-                    <textarea rows={5} className='form-control' value="Journal Entries:"></textarea>
+                    <textarea rows={5} className='form-control' placeholder="Journal Entries:"></textarea>
                 </div>
             </div>
         </>
@@ -882,6 +893,7 @@ function Brand_Master() {
     const [brandName, setBrandName] = useState(arr[0]);
     const [brandIndex, setBrandIndex] = useState(0);
     const [operateLocation, setOperateLocation] = useState<any[]>([]);
+    const [brandList, setBrandList] = useState(arr);
 
     const buttonloader = useSelector(
         (state: any) => state.buttonloader
@@ -900,6 +912,11 @@ function Brand_Master() {
     const selectBrand = (index: any) => {
         setBrandName(arr[index]);
         setBrandIndex(index);
+    }
+
+    const searchBrandHandler = (e: { target: { value: string; }; }) => {
+        const filteredLabs = arr.filter((d) => d.toLowerCase().includes(e.target.value.toLowerCase()));
+        setBrandList(filteredLabs);
     }
 
     const selectUser = (id: Number) => {
@@ -971,7 +988,7 @@ function Brand_Master() {
                                                 <tr>
                                                     <th style={{ paddingLeft: ".5rem", paddingRight: ".5rem" }}>
                                                         <fieldset className="position-relative has-icon-left">
-                                                            <input type="text" className='form-control autoheight' placeholder='search' />
+                                                            <input onChange={searchBrandHandler} type="text" className='form-control autoheight' placeholder='search' />
                                                             <div className="form-control-position top-0">
                                                                 <FaSearch />
                                                             </div>
@@ -980,7 +997,7 @@ function Brand_Master() {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {arr.map((d, i) => (
+                                                {brandList.map((d, i) => (
                                                     <tr key={i} onClick={() => selectBrand(i)}>
                                                         <td className={brandIndex == i ? 'bg-gradient-success text-white' : ''}>{d}</td>
                                                     </tr>
