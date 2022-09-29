@@ -16,21 +16,20 @@ const initialValues = {
     phone: "",
     id: "",
     zipCode: "",
-    title: "",
     timeZone: "",
-    billingAddress: "",
+    physicalAddress: "",
+    retailStoreName: "",
+    licenseNumber: "",
+    apiKey: ""
 };
 
 const validationSchema = {
 };
 
-const subscriptionDataArr = ['90021 - 1555 Newton St - Project Cannabi', '51601 - 10842 Mangolia Blvd, Project Cannabi', '92018 - 3703 Camino del Rio S - THCSD', '92109 - 4645 De Soto St - Cannabist'];
-
 function Locations() {
     const dispatch = useDispatch();
 
     const [formInputs, setFormInputs] = useState<any>(initialValues);
-    const [operateLocation, setOperateLocation] = useState<any[]>([]);
     const [userList, setUserList] = useState<any[]>([]);
     const [filterText, setFilterText] = useState("");
     const [userIndex, setUserIndex] = useState(0);
@@ -53,10 +52,12 @@ function Locations() {
                     id: selectedData?.id,
                     email: selectedData?.email,
                     phone: selectedData?.phone,
-                    title: 'Marketing Specialist',
-                    billingAddress: selectedData?.address?.street + ' ' + selectedData?.address?.suite + ' ' + selectedData?.address?.city,
+                    physicalAddress: selectedData?.address?.street + ' ' + selectedData?.address?.suite + ' ' + selectedData?.address?.city,
                     timeZone: 'Pacific',
                     zipCode: selectedData?.address?.zipcode,
+                    retailStoreName: selectedData.company.name,
+                    licenseNumber: "LIC-420-2233",
+                    apiKey: "YrrPc6RZhBBUSYqxOaKLJUq7WDm5fZCdUQrQJrvoqMFXOMnw"
                 };
                 return datav;
             });
@@ -68,29 +69,6 @@ function Locations() {
     }
 
     const filteredUsers = userList.filter((d) => d.address.street.toLowerCase().includes(filterText.toLowerCase()) || d.address.suite.toLowerCase().includes(filterText.toLowerCase()) || d.address.city.toLowerCase().includes(filterText.toLowerCase()));
-
-    const getOperateLocation = async () => {
-        commonFetchAllUser('operate-region', dispatch)
-            .then((res: any) => {
-                if (!res || res.status != 200) {
-                    throw new Error("Server responds with error!");
-                }
-                return res.json();
-            })
-            .then(
-                (data) => {
-                    if (data.status) {
-                        setOperateLocation(data.regions)
-                    } else {
-                        toast.error(data.message);
-                        setOperateLocation([])
-                    }
-                },
-                (err) => {
-                    console.log(err);
-                }
-            );
-    }
 
     const getFakeUsers = async () => {
         fetch("https://jsonplaceholder.typicode.com/users")
@@ -117,7 +95,6 @@ function Locations() {
     }
 
     useEffect(() => {
-        getOperateLocation();
         getFakeUsers();
     }, [])
 

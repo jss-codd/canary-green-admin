@@ -212,7 +212,7 @@ function Sidebar() {
                       </a>
                     </Link>
                   </li>
-                  {/* <li className='nav-item '>
+                  <li className='nav-item '>
                     <Link href='./coal-mine'>
                       <a
                         className={
@@ -224,11 +224,11 @@ function Sidebar() {
                         <FaMeteor /> Coal Mine
                       </a>
                     </Link>
-                  </li> */}
+                  </li>
                 </ul>
               </Collapse>
 
-              {/* <li className='nav-item'>
+              <li className='nav-item'>
                 <Link href='/'>
                   <a
                     onClick={(e) => {
@@ -247,9 +247,9 @@ function Sidebar() {
                     Retail
                   </a>
                 </Link>
-              </li> */}
+              </li>
 
-              {/* <Collapse isOpen={router.pathname == '/users' || router.pathname == '/locations' ? !collapseOpenRetail : collapseOpenRetail}>
+              <Collapse isOpen={router.pathname == '/users' || router.pathname == '/locations' ? !collapseOpenRetail : collapseOpenRetail}>
                 <ul className='sidebar-nav'>
                   <li className='nav-item '>
                     <Link href='/users'>
@@ -278,7 +278,7 @@ function Sidebar() {
                     </Link>
                   </li>
                 </ul>
-              </Collapse> */}
+              </Collapse>
             </ul>
             <hr className='my-3' />
           </div>
