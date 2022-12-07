@@ -1,19 +1,18 @@
-import { BUTTON_LOADER } from "../actions";
+import { createSlice } from '@reduxjs/toolkit'
 
-const initialState = false;
+export const buttonLoaderSlice = createSlice({
+    name: 'buttonloader',
+    initialState: {
+        value: false,
+    },
+    reducers: {
+        buttonLoaderStatus: (state) => {
+            state.value = !state.value
+        },
+    },
+})
 
-const buttonLoaderReducer = (
-  state = initialState,
-  action: { type: any; payload: any }
-) => {
-  const { type, payload } = action;
-  switch (type) {
-    case BUTTON_LOADER:
-      return !state;
+// Action creators are generated for each case reducer function
+export const { buttonLoaderStatus } = buttonLoaderSlice.actions
 
-    default:
-      return state;
-  }
-};
-
-export default buttonLoaderReducer;
+export default buttonLoaderSlice.reducer

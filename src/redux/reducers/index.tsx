@@ -1,10 +1,15 @@
-import authReducer from "./Auth";
-import buttonLoaderReducer from "./ButtonLoader";
-import { combineReducers } from "redux";
+import { configureStore } from '@reduxjs/toolkit';
 
-const allReducers = combineReducers({
-  auth: authReducer,
-  buttonloader: buttonLoaderReducer
-});
+import authSlice from "./Auth";
+import buttonLoaderSlice from "./ButtonLoader";
+import coalMineSlice from "./CoalMine";
 
-export default allReducers;
+const store = configureStore({
+  reducer: {
+    auth: authSlice,
+    buttonloader: buttonLoaderSlice,
+    coalmine: coalMineSlice,
+  },
+})
+export type AppDispatch = typeof store.dispatch;
+export default store;

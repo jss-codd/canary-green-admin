@@ -8,7 +8,6 @@ import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import Switch from "react-switch";
 
-import { BUTTON_LOADER } from '../redux/actions';
 import Sidebar from '../components/Sidebar';
 import ButtonLoader from '../components/buttonLoader';
 import { FaSearch } from 'react-icons/fa';
@@ -520,7 +519,6 @@ const SettingTab = React.memo(function SettingTab(props: any) {
                     </div>
                 </div>
             </div>
-
             <div className="row mt-4">
                 <div className='col-xl-9'>
                     <Switch offColor="#d33333" handleDiameter={25} boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)" activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)" height={20} width={48} onChange={handleChange} checked={apiStatus} />
@@ -895,9 +893,7 @@ function Brand_Master() {
     const [operateLocation, setOperateLocation] = useState<any[]>([]);
     const [brandList, setBrandList] = useState(arr);
 
-    const buttonloader = useSelector(
-        (state: any) => state.buttonloader
-    );
+    const buttonloader = useSelector((state: any) => state.buttonloader.value)
 
     const onSelectFile = (e: any) => {
         if (!e.target.files || e.target.files.length === 0) {

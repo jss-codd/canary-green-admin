@@ -20,8 +20,8 @@ function Header() {
   const dispatch = useDispatch();
   const [dropdownOpen, setdropdownOpen] = useState(false);
   const [Data, setData] = useState<SalesType>();
-  const baseURL = process.env.API_PATH+'mtd-qtd-ytd';
-  
+  const baseURL = process.env.API_PATH + 'mtd-qtd-ytd';
+
   React.useEffect(() => {
     const defaultOptions = {
       headers: {
@@ -29,15 +29,15 @@ function Header() {
       },
     };
     axios.get(baseURL, { ...defaultOptions })
-    .then((response) => {
-      setData(response.data);
-    })
-    .catch((error) => {
-      console.log('error', error.response.status);
-      if (error.response.status == '403' || error.response.status == '401') {
-        logout(dispatch);
-      }
-    });
+      .then((response) => {
+        setData(response.data);
+      })
+      .catch((error) => {
+        console.log('error', error.response.status);
+        if (error.response.status == '403' || error.response.status == '401') {
+          logout(dispatch);
+        }
+      });
   }, []);
 
   const doLogout = () => {
@@ -92,9 +92,8 @@ function Header() {
               </div>
             </div>
             <div
-              className={`${
-                dropdownOpen ? `` : 'invisible opacity-0'
-              }   rounded border bg-white px-3 py-3 shadow-card transition-all dropdown-opemn`}
+              className={`${dropdownOpen ? `` : 'invisible opacity-0'
+                }   rounded border bg-white px-3 py-3 shadow-card transition-all dropdown-opemn`}
             >
               <ul className='drop-down-menu'>
                 <li>
@@ -179,8 +178,7 @@ function Header() {
                         </div>
                         <div className='col-auto col'>
                           <div className='icon icon-shape bg-yellow text-white rounded-circle shadow'>
-                          <FaUser />
-
+                            <FaUser />
                             {/* <i className='fas fa-users'></i> */}
                           </div>
                         </div>

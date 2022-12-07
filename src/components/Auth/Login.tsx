@@ -7,9 +7,10 @@ import Router from "next/router";
 import Image from "next/image";
 
 import ButtonLoader from '../buttonLoader'
-import { BUTTON_LOADER, LOGIN_SUCCESS } from '../../redux/actions';
 import logo1 from "../../images/logo1.png";
 import { storeExpiry } from '../../helpers/localstorage-helper';
+import { loginAction } from '../../redux/reducers/Auth';
+import { buttonLoaderStatus } from '../../redux/reducers/ButtonLoader';
 
 const validationSchema = Yup.object().shape({
     email: Yup.string()
@@ -31,10 +32,8 @@ interface AuthState {
 
 const Login = () => {
     const dispatch = useDispatch();
-
-    const buttonloader = useSelector(
-        (state: LoaderState) => state.buttonloader
-    );
+    
+    const buttonloader = useSelector((state: any) => state.buttonloader.value)
 
     const [errorText, setErrorText] = useState("");
 
@@ -60,32 +59,28 @@ const Login = () => {
                 }}
                 validationSchema={validationSchema}
                 onSubmit={(values, { resetForm }) => {
-                    dispatch({
-                        type: BUTTON_LOADER,
-                    });
+                    dispatch(buttonLoaderStatus());
                     axios.post(`${baseUrl}${URI}`, values)
                         .then((res) => {
-                            dispatch({
-                                type: BUTTON_LOADER,
-                            });
+                            dispatch(buttonLoaderStatus());
                             setErrorText('');
                             if (res.data.token) {
                                 localStorage.setItem("canary_user", JSON.stringify(res.data));
                                 storeExpiry("canary_user_auth_token", res.data.token, ((Number(res.data.expiryDuration) * 60000)/4), true);
 
-                                dispatch({
-                                    type: LOGIN_SUCCESS,
-                                    payload: { user: res.data },
-                                });
+                                // dispatch({
+                                //     type: LOGIN_SUCCESS,
+                                //     payload: { user: res.data },
+                                // });
+
+                                dispatch(loginAction({ user: res.data }));
 
                                 window.location.href = "/dashboard";
                             } else {
                                 setErrorText('Request failed, Try again later!');
                             }
                         }).catch(error => {
-                            dispatch({
-                                type: BUTTON_LOADER,
-                            });
+                            dispatch(buttonLoaderStatus());
 
                             console.log('error', error)
                             setErrorText('Email or password is incorrect!');

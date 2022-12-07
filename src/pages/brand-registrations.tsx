@@ -6,11 +6,11 @@ import TagsInput from "react-tagsinput";
 import "react-tagsinput/react-tagsinput.css";
 import * as Yup from "yup";
 
-import { BUTTON_LOADER } from '../redux/actions';
 import Sidebar from '../components/Sidebar';
 import { commonFetchAllAuth, commonFetchAllUser, commonSubmit, commonSubmitNoAuthUser } from '../services/UserServices';
 import ButtonLoader from '../components/buttonLoader';
 import { FaRegCheckCircle, FaSpinner, FaUser } from 'react-icons/fa';
+import { buttonLoaderStatus } from '../redux/reducers/ButtonLoader';
 
 const initialValues = {
     firstName: "",
@@ -56,9 +56,7 @@ function BrandRegistration() {
     const [licenseValidate, setLicenseValidate] = useState(false);
 
 
-    const buttonloader = useSelector(
-        (state: any) => state.buttonloader
-    );
+    const buttonloader = useSelector((state: any) => state.buttonloader.value)
 
     const selectRow = (id: Number) => {
         const selectedData = pendingBrandUsers.find((e) => e.ID == id);
@@ -218,7 +216,7 @@ function BrandRegistration() {
                                         initialValues={formInputs}
                                         validationSchema={validationSchema}
                                         onSubmit={async (values, { resetForm, setErrors }) => {
-                                            dispatch({ type: BUTTON_LOADER });
+                                            dispatch(buttonLoaderStatus());
                                             
                                             const dataSend = { regionId: values.region[0], licenseNumber: values.licenseno, apiKey: pendingBrandUsers.find((d) => d.ID == values.id)?.BRAND_API_KEY };
                                             commonSubmitNoAuthUser(dataSend, 'licence-validate', dispatch)
@@ -242,7 +240,7 @@ function BrandRegistration() {
                                                                 })
                                                                 .then(
                                                                     (data) => {
-                                                                        dispatch({ type: BUTTON_LOADER });
+                                                                        dispatch(buttonLoaderStatus());
                                                                         if (data.status) {
                                                                             toast.success(data.message);
                                                                             window.location.reload();
@@ -251,12 +249,12 @@ function BrandRegistration() {
                                                                         }
                                                                     },
                                                                     (err) => {
-                                                                        dispatch({ type: BUTTON_LOADER });
+                                                                        dispatch(buttonLoaderStatus());
                                                                         console.log(err, 'err');
                                                                     }
                                                                 );
                                                         } else {
-                                                            dispatch({ type: BUTTON_LOADER });
+                                                            dispatch(buttonLoaderStatus());
                                                             setLicenseValidate(false);
                                                             toast.error(data.message);
                                                             setErrors({ licenseno: data.message });
@@ -264,7 +262,7 @@ function BrandRegistration() {
                                                         }
                                                     },
                                                     (err) => {
-                                                        dispatch({ type: BUTTON_LOADER });
+                                                        dispatch(buttonLoaderStatus());
                                                         setLicenseValidate(false);
                                                         console.log(err, 'err');
                                                     }

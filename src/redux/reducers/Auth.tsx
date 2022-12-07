@@ -1,34 +1,31 @@
-import { LOGIN_SUCCESS, LOGOUT } from "../actions";
+import { createSlice } from '@reduxjs/toolkit'
 
 let user = {};
 
 const ISSERVER = typeof window === "undefined";
 if (!ISSERVER) {
-  user = JSON.parse(localStorage.getItem("canary_user") || '{}');
+    user = JSON.parse(localStorage.getItem("canary_user") || "{}");
 }
 
 const initialState = user
-  ? { isLoggedIn: true, user }
-  : { isLoggedIn: false, user: null };
+    ? { isLoggedIn: true, user }
+    : { isLoggedIn: false, user: null };
 
-const authReducer = (state = initialState, action: { type: any; payload: any; }) => {
-  const { type, payload } = action;
-  switch (type) {
-    case LOGIN_SUCCESS:
-      return {
-        ...state,
-        isLoggedIn: true,
-        user: payload.user,
-      };
-    case LOGOUT:
-      return {
-        ...state,
-        isLoggedIn: false,
-        user: null,
-      };
-    default:
-      return state;
-  }
-};
+export const authSlice = createSlice({
+    name: 'auth',
+    initialState,
+    reducers: {
+        loginAction: (state, action) => {
+            const { payload } = action
+            state.isLoggedIn = true
+            state.user = payload.user
+        },
+        logoutAction: (state) => {
+            state.isLoggedIn = false
+            state.user = null
+        }
+    },
+})
 
-export default authReducer;
+export const { loginAction, logoutAction } = authSlice.actions;
+export default authSlice.reducer;

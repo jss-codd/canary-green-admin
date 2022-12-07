@@ -3,9 +3,6 @@ import Link from 'next/link';
 import { Collapse } from 'reactstrap';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
-
-import logo2 from "../../images/logo1.png";
-
 import {
   FaChartArea,
   FaCogs,
@@ -17,13 +14,24 @@ import {
   FaUserCog,
   FaUsers,
   FaWarehouse,
+  FaSignOutAlt
 } from 'react-icons/fa';
+import { useDispatch } from 'react-redux';
+
+import logo2 from "../../images/logo1.png";
+import { logout } from '../../services/UserServices';
 
 function Sidebar() {
+  const dispatch = useDispatch();
   const router = useRouter();
   const [dropdownOpen, setdropdownOpen] = useState(false);
   const [collapseOpenBrand, setCollapseOpenBrand] = React.useState(false);
   const [collapseOpenRetail, setCollapseOpenRetail] = React.useState(false);
+
+  const doLogout = () => {
+    logout(dispatch);
+  };
+  
 
   return (
     <>
@@ -121,6 +129,7 @@ function Sidebar() {
                 </div>
               </div>
             </form>
+            {/* || router.pathname == '/Settings' */}
 
             <ul className='navbar-nav'>
               <li className='nav-item'>
@@ -279,6 +288,28 @@ function Sidebar() {
                   </li>
                 </ul>
               </Collapse>
+
+              <li className='nav-item'>
+                <Link href='/settings'>
+                  <a
+                    className={
+                      router.pathname == '/settings'
+                        ? 'nav-link active'
+                        : 'nav-link'
+                    }
+                  >
+                    <FaChartArea />
+                    Settings
+                  </a>
+                </Link>
+              </li>
+
+              <li className='nav-item'>
+                <a className='nav-link' onClick={doLogout}>
+                  <FaSignOutAlt />
+                  Log Out
+                </a>
+              </li>
             </ul>
             <hr className='my-3' />
           </div>

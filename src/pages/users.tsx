@@ -8,7 +8,6 @@ import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import Switch from "react-switch";
 
-import { BUTTON_LOADER } from '../redux/actions';
 import Sidebar from '../components/Sidebar';
 import ButtonLoader from '../components/buttonLoader';
 import { FaCog, FaMinusSquare, FaSearch, FaSpinner } from 'react-icons/fa';
@@ -42,15 +41,13 @@ function Users() {
     const [userIndex, setUserIndex] = useState(0);
     const [subscriptionData, setSubscriptionData] = useState(subscriptionDataArr);
 
-    const buttonloader = useSelector(
-        (state: any) => state.buttonloader
-    );
+    const buttonloader = useSelector((state: any) => state.buttonloader.value)
 
     const selectUser = (i: Number) => {
         setUserIndex(Number(i));
 
         const selectedData = userList.find((e) => e.id == i);
-
+        
         if (selectedData?.id) {
             setFormInputs(() => {
                 const datav = {
@@ -74,7 +71,6 @@ function Users() {
     }
 
     const filteredUsers = userList.filter((d) => d.name.toLowerCase().includes(filterText.toLowerCase()) || d.email.toLowerCase().includes(filterText.toLowerCase()));
-
 
     const getOperateLocation = async () => {
         commonFetchAllUser('operate-region', dispatch)

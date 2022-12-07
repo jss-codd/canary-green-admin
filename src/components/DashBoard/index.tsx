@@ -6,8 +6,7 @@ import ReactTooltip from "react-tooltip";
 import Sidebar from '../Sidebar';
 import { FaAngleDoubleUp, FaChartLine, FaDatabase, FaExclamation, FaExclamationTriangle, FaUserCheck, FaUserFriends, FaUserTag, FaUserTimes } from 'react-icons/fa';
 
-const geoUrl =
-  "https://raw.githubusercontent.com/deldersveld/topojson/master/world-countries.json";
+const geoUrl = "https://raw.githubusercontent.com/deldersveld/topojson/master/world-countries.json";
 
 const rangeColor:any = ["#ffedea", "#ff5233"];
 const colorScale:any = scaleLinear()
@@ -16,6 +15,7 @@ const colorScale:any = scaleLinear()
 
 const Dashboard = () => {
   const [content, setContent] = useState("");
+
   return (
     <>
       <Sidebar />
@@ -325,4 +325,5 @@ const Dashboard = () => {
     </>
   );
 };
+
 export default Dashboard;

@@ -3,9 +3,9 @@ import Sku from '../components/Sku/Sku'
 const SkuMaster = () => {
   return (
     <>
-     <div className="main-content">
-    </div>
-    <div><Sku/></div>
+      <div className="main-content">
+      </div>
+      <div><Sku /></div>
     </>
   )
 }

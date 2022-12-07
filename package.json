@@ -14,6 +14,7 @@
     "@mui/icons-material": "^5.8.4",
     "@mui/material": "^5.9.2",
     "@mui/styled-engine-sc": "^5.8.0",
+    "@reduxjs/toolkit": "^1.9.0",
     "@syncfusion/ej2": "^20.2.39",
     "@syncfusion/ej2-react-maps": "^20.2.38",
     "@twii/sample-base": "^1.0.5",

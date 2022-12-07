@@ -10,6 +10,7 @@ import React from 'react';
 import axios from 'axios';
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import store from '../redux/reducers'
 
 import { RouteGuard } from '../components/RouteGuard';
 import { checkRefreshToken } from "../helpers/refreshToken"
@@ -49,7 +50,7 @@ axios.interceptors.response.use(
 );
 
 function MyApp({ Component, pageProps }: AppProps) {
-  const store = createStore(allReducer);
+  //const store = createStore(allReducer);
 
   return (
     <Provider store={store}>

@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from "react-toastify";
 
-import { BUTTON_LOADER } from '../redux/actions';
 import Sidebar from '../components/Sidebar';
 import ButtonLoader from '../components/buttonLoader';
 import { FaMinusSquare, FaRegCheckCircle, FaSearch } from 'react-icons/fa';
@@ -35,9 +34,7 @@ function Locations() {
     const [userIndex, setUserIndex] = useState(0);
     const [assignedUsers, setAssignedUsers] = useState<any[]>([]);
 
-    const buttonloader = useSelector(
-        (state: any) => state.buttonloader
-    );
+    const buttonloader = useSelector((state: any) => state.buttonloader.value)
 
     const selectUser = (i: Number) => {
         setUserIndex(Number(i));
