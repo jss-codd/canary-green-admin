@@ -9,9 +9,9 @@ import Tabs from 'react-bootstrap/Tabs';
 import Switch from "react-switch";
 
 import Sidebar from '../components/Sidebar';
-import ButtonLoader from '../components/buttonLoader';
 import { FaSearch } from 'react-icons/fa';
 import { commonFetchAllUser } from '../services/UserServices';
+import { getBrandList } from '../services/CommonServices';
 
 const tableData = [
     {
@@ -891,7 +891,8 @@ function Brand_Master() {
     const [brandName, setBrandName] = useState(arr[0]);
     const [brandIndex, setBrandIndex] = useState(0);
     const [operateLocation, setOperateLocation] = useState<any[]>([]);
-    const [brandList, setBrandList] = useState(arr);
+    const [brandList, setBrandList] = useState<any[]>([]);
+    const [allBrandList, setAllBrandList] = useState<any[]>([]);
 
     const buttonloader = useSelector((state: any) => state.buttonloader.value)
 
@@ -911,7 +912,7 @@ function Brand_Master() {
     }
 
     const searchBrandHandler = (e: { target: { value: string; }; }) => {
-        const filteredLabs = arr.filter((d) => d.toLowerCase().includes(e.target.value.toLowerCase()));
+        const filteredLabs = allBrandList.filter((d) => d.toLowerCase().includes(e.target.value.toLowerCase()));
         setBrandList(filteredLabs);
     }
 
@@ -969,6 +970,12 @@ function Brand_Master() {
         getOperateLocation();
     }, [])
 
+    useEffect(() => {
+        getBrandList(dispatch).then((data) => setAllBrandList(data?.map((d: { BRAND_NAME: any; }) => (d.BRAND_NAME))));
+        brandList.push(allBrandList);
+        setBrandList((pre) => ([...allBrandList]))
+      }, [])
+
     return (
         <>
             <Sidebar />
@@ -993,7 +1000,7 @@ function Brand_Master() {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {brandList.map((d, i) => (
+                                                {brandList?.map((d, i) => (
                                                     <tr key={i} onClick={() => selectBrand(i)}>
                                                         <td className={brandIndex == i ? 'bg-gradient-success text-white' : ''}>{d}</td>
                                                     </tr>

@@ -1,17 +1,20 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Dropdown, SelectPicker } from 'rsuite';
 import axios from 'axios';
-import Sidebar from '../Sidebar';
 import { Pagination } from 'antd';
-
+import { useDispatch } from 'react-redux';
 import { toast } from "react-toastify";
+import { FaSearch, FaSpinner } from 'react-icons/fa';
 
 import { authHeader } from '../../helpers/auth-header';
 import { commonFetchAllAuth, commonSubmit, logout } from '../../services/UserServices';
-import { useDispatch } from 'react-redux';
+import { getBrandList } from '../../services/CommonServices';
 
 export default function SkuMaster() {
   const dispatch = useDispatch();
+  const brandRef = useRef<any[]>([]);
+  const brandSelectRef = useRef<any[]>([]);
+
   const [basicActive, setBasicActive] = useState('tab1');
   const [exceptionsItem, setExceptionsItem] = useState<any[]>([]);
 
@@ -25,6 +28,9 @@ export default function SkuMaster() {
   const [postsPerPage, setPostsPerPage] = useState(10);
   const [loadingClass, setLoadingClass] = useState('');
   const [bodyLoaderClass, setBodyLoaderClass] = useState("");
+
+  const [selectValue, setSelectValue] = React.useState<any[]>([]);
+  const [brandList, setBrandList] = useState([]);
 
   const baseURL = process.env.API_PATH + 'sku-products';
 
@@ -48,8 +54,6 @@ export default function SkuMaster() {
         { ...defaultOptions }
       )
       .then((response) => {
-        // setPosts(response?.data?.product);
-        // setTotal(response?.data?.totalLength);
         setPosts(response?.data || []);
         setFilterPosts((response?.data || []).slice(0, postsPerPage));
         setTotal(response?.data?.length || 0);
@@ -63,10 +67,6 @@ export default function SkuMaster() {
         }
       });
   };
-
-  // useEffect(() => {
-  //   loadData(searchText, Number(page) - 1, Number(postsPerPage));
-  // }, [searchText, page, postsPerPage]);
 
   useEffect(() => {
     if (posts.length > 0) {
@@ -112,6 +112,7 @@ export default function SkuMaster() {
     return originalElement;
   };
 
+  // sku exception items
   useEffect(() => {
     const getExceptionsItem = () => {
       commonFetchAllAuth('sku-exceptions-items', dispatch)
@@ -124,6 +125,7 @@ export default function SkuMaster() {
         .then(
           (data) => {
             setExceptionsItem(data);
+            setSelectValue(new Array(data?.length).fill(""));
           },
           (err) => {
             console.log(err);
@@ -134,47 +136,98 @@ export default function SkuMaster() {
     getExceptionsItem();
   }, [])
 
-  const productMap = (mapped_to_item_id: number, mapped_item_id: number) => {
-    // console.log(mapped_to_item_id, 'mapped_to_item_id');
-    // return false;
-    setBodyLoaderClass("cover-spin");
-    const data_to_send = { mapped_to_item_id, mapped_item_id };
-    commonSubmit(data_to_send, 'sku-exceptions-item-mapping', dispatch)
-      .then((res: any) => {
-        if (!res || res.status != 200) {
-          throw new Error("Server responds with error!");
-        }
-        return res.json();
-      })
-      .then(
-        (data) => {
-          if (data.res) {
-            toast.success(data.message);
-            //first get unique id then remove it from exception table
-            const mapped_item_unique_id = exceptionsItem.find((d) => d.ID === mapped_item_id).UNIQUE_ID;
+  useEffect(() => {
+    getBrandList(dispatch).then((data) => setBrandList(data?.map((d: { BRAND_NAME: any; ID: any; }) => ({ label: d.BRAND_NAME, value: d.ID }))));
+  }, [])
 
-            const removedArr = exceptionsItem.filter(function (obj) {
-              return obj.ID !== (+mapped_item_id || 0);
-            });
+  const productMap = (mapped_to_item_id: number, mapped_item_id: number, index: number) => {
+    if ((+mapped_to_item_id || 0) > 0 && (+mapped_item_id || 0) > 0) {
+      setBodyLoaderClass("cover-spin");
+      setSelectValue((pre) => ({ ...pre, [index]: mapped_to_item_id }));
+      const data_to_send = { mapped_to_item_id, mapped_item_id };
+      commonSubmit(data_to_send, 'sku-exceptions-item-mapping', dispatch)
+        .then((res: any) => {
+          if (!res || res.status != 200) {
+            throw new Error("Server responds with error!");
+          }
+          return res.json();
+        })
+        .then(
+          (data) => {
+            if (data.res) {
+              toast.success(data.message);
+              //first get unique id then remove it from exception table
+              const mapped_item_unique_id = exceptionsItem.find((d) => d.ID === mapped_item_id).UNIQUE_ID;
 
-            //replace all DESTINATION_ITEM_NAME where it is mentioned with mapped_to_item_id name
-            const findItemName = product.find((d) => d.value === mapped_to_item_id).label;
+              const removedArr = exceptionsItem.filter(function (obj) {
+                return obj.ID !== (+mapped_item_id || 0);
+              });
 
-            const updatedDestinationName = removedArr.map(function (obj) {
-              return { ...obj, DESTINATION_ITEM_NAME: obj.DESTINATION_ITEM === mapped_item_unique_id ? findItemName : obj.DESTINATION_ITEM_NAME };
-            });
-            setExceptionsItem(updatedDestinationName);
+              //replace all DESTINATION_ITEM_NAME where it is mentioned with mapped_to_item_id name
+              const findItemName = product.find((d) => d.value === mapped_to_item_id).label;
+
+              const updatedDestinationName = removedArr.map(function (obj) {
+                return { ...obj, DESTINATION_ITEM_NAME: obj.DESTINATION_ITEM === mapped_item_unique_id ? findItemName : obj.DESTINATION_ITEM_NAME };
+              });
+              setExceptionsItem(updatedDestinationName);
+
+              setSelectValue(new Array(removedArr?.length).fill(""));
+
+              setBodyLoaderClass("");
+            }
+          },
+          (err) => {
+            console.log(err);
+            toast.error('Something went wrong');
             setBodyLoaderClass("");
           }
-        },
-        (err) => {
-          console.log(err);
-          toast.error('Something went wrong');
-          setBodyLoaderClass("");
-        }
-      );
+        );
+    }
   }
-  
+
+  const brandClickAction = (id: any) => {
+    brandRef.current[id.toString()].classList.add('d-none');
+    brandSelectRef.current[id.toString()].root.classList.remove('d-none');
+  }
+
+  const brandAssign = (brand_id: number, product_id: any) => {
+    brandRef.current[product_id.toString()].classList.remove('d-none');
+    const oldText = brandRef.current[product_id.toString()].innerText;
+    brandRef.current[product_id.toString()].innerText = 'in process...';
+
+    if ((+brand_id || 0) > 0 && (+product_id || 0) > 0) {
+      setBodyLoaderClass("cover-spin");
+
+      const data_to_send = { brand_id, product_id };
+      commonSubmit(data_to_send, 'sku-brand-assignment', dispatch)
+        .then((res: any) => {
+          if (!res || res.status != 200) {
+            throw new Error("Server responds with error!");
+          }
+          return res.json();
+        })
+        .then(
+          (data) => {
+            if (data.res) {
+              toast.success(data.message);
+
+              brandRef.current[product_id.toString()].innerText = data.brand_name;
+
+              setBodyLoaderClass("");
+            }
+          },
+          (err) => {
+            console.log(err);
+            toast.error('Something went wrong');
+            brandRef.current[product_id.toString()].innerText = oldText;
+            setBodyLoaderClass("");
+          }
+        );
+    } else {
+      brandRef.current[product_id.toString()].innerText = oldText;
+    }
+  }
+
   return (
     <>
       <div className={bodyLoaderClass}></div>
@@ -231,7 +284,7 @@ export default function SkuMaster() {
               onClick={() => handleBasicClick('tab2')}
               aria-selected='false'
             >
-              RFID (100)
+              RFID ({" "})
             </a>
           </li>
           <li className='nav-item' role='presentation'>
@@ -269,7 +322,7 @@ export default function SkuMaster() {
                   <thead className='thead-light'>
                     <tr>
                       <th scope='col'>ID</th>
-                      <th scope='col'>Brand</th>
+                      <th scope='col' style={{ textAlign: 'center' }}>Brand</th>
                       <th scope='col'>Product Name</th>
                       <th scope='col'>Category</th>
                       <th scope='col'>Sub Category</th>
@@ -278,10 +331,15 @@ export default function SkuMaster() {
                   </thead>
                   <tbody>
                     {filterPosts.length > 0 ? (
-                      filterPosts.map((post: any) => (
+                      filterPosts.map((post: any, i: Number) => (
                         <tr key={post.ID}>
                           <td style={{ whiteSpace: "normal" }}>{post.ID}</td>
-                          <td style={{ whiteSpace: "normal" }}>{post.BRAND}</td>
+                          <td style={{ whiteSpace: "normal", textAlign: 'center' }}>
+
+                            <span onClick={() => brandClickAction(post.ID)} ref={(el) => { brandRef.current[post.ID.toString()] = el }}>{post.BRAND || 'NA'}</span>
+
+                            <SelectPicker ref={(el) => { brandSelectRef.current[post.ID.toString()] = el }} style={{ width: 150 }} className="d-none" data={brandList} onChange={(e: any) => brandAssign(e, post.ID)} />
+                          </td>
                           <td style={{ whiteSpace: "normal" }}>{post.ITEM_NAME}</td>
                           <td style={{ whiteSpace: "normal" }}>{post.CATEGORY_NAME}</td>
                           <td style={{ whiteSpace: "normal" }}>{post.CATEGORY_TYPE}</td>
@@ -426,7 +484,7 @@ export default function SkuMaster() {
                         <td style={{ whiteSpace: "normal" }}>{d.ITEM_NAME}</td>
                         <td style={{ whiteSpace: "normal" }}>{d.DESTINATION_ITEM_NAME}</td>
                         <td style={{ whiteSpace: "normal" }}>
-                          <SelectPicker data={product} style={{ width: 150 }} onChange={(e: any) => productMap(e, d.ID)} />
+                          <SelectPicker value={selectValue[i]} data={product} style={{ width: 150 }} onChange={(e: any) => productMap(e, d.ID, i)} />
                         </td>
                       </tr>
                     ))}
@@ -446,6 +504,5 @@ export default function SkuMaster() {
         </div>
       </div>
     </>
-
   );
 }
