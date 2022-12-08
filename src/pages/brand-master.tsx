@@ -888,10 +888,10 @@ function Brand_Master() {
     const [formInputs, setFormInputs] = useState<any>(initialValues);
     const [selectedFile, setSelectedFile] = useState();
     const [preview, setPreview] = useState<any>();
-    const [brandName, setBrandName] = useState(arr[0]);
     const [brandIndex, setBrandIndex] = useState(0);
     const [operateLocation, setOperateLocation] = useState<any[]>([]);
     const [brandList, setBrandList] = useState<any[]>([]);
+    const [brandName, setBrandName] = useState('WYLD');
     const [allBrandList, setAllBrandList] = useState<any[]>([]);
 
     const buttonloader = useSelector((state: any) => state.buttonloader.value)
@@ -907,7 +907,7 @@ function Brand_Master() {
     }
 
     const selectBrand = (index: any) => {
-        setBrandName(arr[index]);
+        setBrandName(brandList[index]);
         setBrandIndex(index);
     }
 
