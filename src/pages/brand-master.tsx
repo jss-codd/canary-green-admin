@@ -968,13 +968,15 @@ function Brand_Master() {
 
     useEffect(() => {
         getOperateLocation();
+
+        getBrandList(dispatch).then((data) => setAllBrandList(data?.map((d: { BRAND_NAME: any; }) => (d.BRAND_NAME)))); 
     }, [])
 
     useEffect(() => {
-        getBrandList(dispatch).then((data) => setAllBrandList(data?.map((d: { BRAND_NAME: any; }) => (d.BRAND_NAME))));
-        brandList.push(allBrandList);
-        setBrandList((pre) => ([...allBrandList]))
-      }, [])
+        if(allBrandList.length > 0){
+            setBrandList(allBrandList)
+        }
+      }, [allBrandList.length])
 
     return (
         <>
