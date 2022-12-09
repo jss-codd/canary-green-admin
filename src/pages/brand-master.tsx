@@ -1,5 +1,5 @@
 import { ErrorMessage, Field, Form, Formik } from 'formik';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from "react-toastify";
 import TagsInput from "react-tagsinput";
@@ -7,11 +7,34 @@ import "react-tagsinput/react-tagsinput.css";
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import Switch from "react-switch";
+import { Popover, Whisper } from 'rsuite';
+import { FaSearch } from 'react-icons/fa';
+import * as Yup from "yup";
 
 import Sidebar from '../components/Sidebar';
-import { FaSearch } from 'react-icons/fa';
-import { commonFetchAllUser } from '../services/UserServices';
+import { commonFetchAllUser, commonSubmit } from '../services/UserServices';
 import { getBrandList } from '../services/CommonServices';
+import FormikHelper from "../helpers/formikHelper";
+
+const AddBrandPopUp = React.forwardRef(({ content, formProps, ...props }: any, ref) => {
+    return (
+        <Popover ref={ref} {...props}>
+            <FormikHelper {...formProps}></FormikHelper>
+        </Popover>
+    );
+});
+
+AddBrandPopUp.displayName = 'AddBrandPopUp';
+
+const brandInitialValues = {
+    brandName: ""
+};
+
+const brandValidationSchema = Yup.object().shape({
+    brandName: Yup.string().trim().required("*required field"),
+});
+
+const fields = [{ type: "text", placeholder: "Enter Brand Name*", name: "brandName" }];
 
 const tableData = [
     {
@@ -371,7 +394,7 @@ const SubscriptionTab = React.memo(function SubscriptionTab(props: any) {
         const filteredSubs = subscriptionDataArr.filter((d) => d.toLowerCase().includes(e.target.value.toLowerCase()));
         setSubscriptionData(filteredSubs);
     }
-    
+
     return (
         <>
             <div className="row">
@@ -877,13 +900,11 @@ const initialValues = {
     billingAddress: "",
 };
 
-const validationSchema = {
-};
-
 const arr = ['710 Labs', '215 Concentrates', '3C Forms', '420 Kingdom', '8 Bit', 'Absolute Extracts', 'AI EI Bluntito', 'Agua De For', 'AIMS', 'Alins Labs', 'Alomora Farm', 'Amber', 'Angel Oraganics', 'Animas', 'APE', 'Apex Canabis', 'Apex Soltuions', 'ASCND', 'Ball Family Famrs'];
 
 function Brand_Master() {
     const dispatch = useDispatch();
+    const addBrandTriggerRef = useRef<any>(null);
 
     const [formInputs, setFormInputs] = useState<any>(initialValues);
     const [selectedFile, setSelectedFile] = useState();
@@ -893,6 +914,7 @@ function Brand_Master() {
     const [brandList, setBrandList] = useState<any[]>([]);
     const [brandName, setBrandName] = useState('WYLD');
     const [allBrandList, setAllBrandList] = useState<any[]>([]);
+    const [brandAdded, setBrandAdded] = useState(0);
 
     const buttonloader = useSelector((state: any) => state.buttonloader.value)
 
@@ -953,6 +975,23 @@ function Brand_Master() {
             );
     }
 
+    const closeBrandPopUp = () => addBrandTriggerRef?.current?.close();
+
+    const inheritFunctions = (data: any) => {
+        setBrandAdded((pre) => ++pre);
+        closeBrandPopUp();
+    }
+
+    const formProps = {
+        initialValues: brandInitialValues,
+        validationSchema: brandValidationSchema,
+        sendFunction: commonSubmit,
+        fields,
+        endpoint: 'add-brand',
+        divClass: 'col-xl-12',
+        inheritFunctions
+    }
+
     useEffect(() => {
         if (!selectedFile) {
             setPreview(undefined);
@@ -966,17 +1005,22 @@ function Brand_Master() {
         return () => URL.revokeObjectURL(objectUrl);
     }, [selectedFile])
 
+    //get operation location
     useEffect(() => {
         getOperateLocation();
-
-        getBrandList(dispatch).then((data) => setAllBrandList(data?.map((d: { BRAND_NAME: any; }) => (d.BRAND_NAME)))); 
     }, [])
 
+    //get brand list
     useEffect(() => {
-        if(allBrandList.length > 0){
+        getBrandList(dispatch).then((data) => setAllBrandList(data?.map((d: { BRAND_NAME: any; }) => (d.BRAND_NAME))));
+    }, [brandAdded])
+
+    //when brand is loaded then set state of list of brand list
+    useEffect(() => {
+        if (allBrandList.length > 0) {
             setBrandList(allBrandList)
         }
-      }, [allBrandList.length])
+    }, [allBrandList.length])
 
     return (
         <>
@@ -989,6 +1033,21 @@ function Brand_Master() {
                                 <div className='col-xl-3'>
                                     <div className='table-responsive fixTableHead-full border border-light rounded'>
                                         <table className='align-items-center table-flush table selectable padding-1'>
+                                            <thead>
+                                                <tr>
+                                                    <td style={{ paddingLeft: "0.5rem", paddingRight: "0.5rem" }}>
+                                                        <Whisper
+                                                            trigger="click"
+                                                            ref={addBrandTriggerRef}
+                                                            // placement="autoVerticalStart"
+                                                            placement="auto"
+                                                            speaker={<AddBrandPopUp content={""} formProps={formProps} />}
+                                                        >
+                                                            <button style={{ width: "100%" }} className='btn btn-secondary'>Add New Brand</button>
+                                                        </Whisper>
+                                                    </td>
+                                                </tr>
+                                            </thead>
                                             <thead>
                                                 <tr>
                                                     <th style={{ paddingLeft: ".5rem", paddingRight: ".5rem" }}>

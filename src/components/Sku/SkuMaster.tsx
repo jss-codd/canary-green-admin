@@ -4,16 +4,19 @@ import axios from 'axios';
 import { Pagination } from 'antd';
 import { useDispatch } from 'react-redux';
 import { toast } from "react-toastify";
-import { FaSearch, FaSpinner } from 'react-icons/fa';
 
 import { authHeader } from '../../helpers/auth-header';
 import { commonFetchAllAuth, commonSubmit, logout } from '../../services/UserServices';
 import { getBrandList } from '../../services/CommonServices';
+import AddSku from './AddSku';
+
+const baseURL = process.env.API_PATH + 'sku-products';
 
 export default function SkuMaster() {
   const dispatch = useDispatch();
   const brandRef = useRef<any[]>([]);
   const brandSelectRef = useRef<any[]>([]);
+  const addProductTriggerRef = useRef<any>(null);
 
   const [basicActive, setBasicActive] = useState('tab1');
   const [exceptionsItem, setExceptionsItem] = useState<any[]>([]);
@@ -30,9 +33,34 @@ export default function SkuMaster() {
   const [bodyLoaderClass, setBodyLoaderClass] = useState("");
 
   const [selectValue, setSelectValue] = React.useState<any[]>([]);
-  const [brandList, setBrandList] = useState([]);
+  const [brandList, setBrandList] = useState<any[]>([]);
+  const [productAdded, setProductAdded] = useState(0);
 
-  const baseURL = process.env.API_PATH + 'sku-products';
+  const addSkuHelper = {
+    setProductAdded,
+    brandList,
+    buttonName: 'Add Product',
+    buttonClass: "btn btn-primary",
+  }
+
+  const blankObj = {
+    ID: 0,
+    SIZE: "",
+    BRAND: "",
+    CATEGORY_NAME: "",
+    DOMINANCE: "",
+    ITEM_NAME: "",
+    TIER: "",
+    FLAVOR_STRAIN: "",
+    FORM: ""
+  };
+
+  const editSkuHelper = {
+    setProductAdded,
+    brandList,
+    buttonName: 'Edit',
+    buttonClass: "btn btn-success btn-sm",
+  }
 
   const handleBasicClick = (value: string) => {
     if (value === basicActive) {
@@ -68,25 +96,7 @@ export default function SkuMaster() {
       });
   };
 
-  useEffect(() => {
-    if (posts.length > 0) {
-      const start = (+page - 1) * postsPerPage;
-      const end = +postsPerPage + (+start);
-
-      console.log(start, end)
-
-      const filteredPost = posts.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchText.toLowerCase())).slice(start, end);
-
-      setFilterPosts(filteredPost);
-
-      setTotal(posts.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchText.toLowerCase())).length);
-    }
-  }, [searchText, page, postsPerPage]);
-
-  useEffect(() => {
-    loadData(searchText, Number(page) - 1, Number(postsPerPage));
-  }, []);
-
+  //call when post per count change
   const onShowSizeChange = (
     _current: any,
     pageSize: React.SetStateAction<number>
@@ -94,6 +104,7 @@ export default function SkuMaster() {
     setPostsPerPage(pageSize);
   };
 
+  //pagination text render
   const itemRender = (current: any, type: string, originalElement: any) => {
     if (type === 'prev') {
       return (
@@ -112,34 +123,7 @@ export default function SkuMaster() {
     return originalElement;
   };
 
-  // sku exception items
-  useEffect(() => {
-    const getExceptionsItem = () => {
-      commonFetchAllAuth('sku-exceptions-items', dispatch)
-        .then((res: any) => {
-          if (!res || res.status != 200) {
-            throw new Error("Server responds with error!");
-          }
-          return res.json();
-        })
-        .then(
-          (data) => {
-            setExceptionsItem(data);
-            setSelectValue(new Array(data?.length).fill(""));
-          },
-          (err) => {
-            console.log(err);
-          }
-        );
-    }
-
-    getExceptionsItem();
-  }, [])
-
-  useEffect(() => {
-    getBrandList(dispatch).then((data) => setBrandList(data?.map((d: { BRAND_NAME: any; ID: any; }) => ({ label: d.BRAND_NAME, value: d.ID }))));
-  }, [])
-
+  //call when product map from exceptions section
   const productMap = (mapped_to_item_id: number, mapped_item_id: number, index: number) => {
     if ((+mapped_to_item_id || 0) > 0 && (+mapped_item_id || 0) > 0) {
       setBodyLoaderClass("cover-spin");
@@ -185,11 +169,13 @@ export default function SkuMaster() {
     }
   }
 
+  //when brand name clicked then brand select list is open
   const brandClickAction = (id: any) => {
     brandRef.current[id.toString()].classList.add('d-none');
     brandSelectRef.current[id.toString()].root.classList.remove('d-none');
   }
 
+  //run when brand is assign to product
   const brandAssign = (brand_id: number, product_id: any) => {
     brandRef.current[product_id.toString()].classList.remove('d-none');
     const oldText = brandRef.current[product_id.toString()].innerText;
@@ -227,6 +213,56 @@ export default function SkuMaster() {
       brandRef.current[product_id.toString()].innerText = oldText;
     }
   }
+
+  //run when search enter, page change, post per change
+  useEffect(() => {
+    if (posts.length > 0) {
+      const start = (+page - 1) * postsPerPage;
+      const end = +postsPerPage + (+start);
+
+      console.log(start, end)
+
+      const filteredPost = posts.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchText.toLowerCase())).slice(start, end);
+
+      setFilterPosts(filteredPost);
+
+      setTotal(posts.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchText.toLowerCase())).length);
+    }
+  }, [searchText, page, postsPerPage]);
+
+  //call api for sku products
+  useEffect(() => {
+    loadData(searchText, Number(page) - 1, Number(postsPerPage));
+  }, []);
+
+  // sku exception items
+  useEffect(() => {
+    const getExceptionsItem = () => {
+      commonFetchAllAuth('sku-exceptions-items', dispatch)
+        .then((res: any) => {
+          if (!res || res.status != 200) {
+            throw new Error("Server responds with error!");
+          }
+          return res.json();
+        })
+        .then(
+          (data) => {
+            setExceptionsItem(data);
+            setSelectValue(new Array(data?.length).fill(""));
+          },
+          (err) => {
+            console.log(err);
+          }
+        );
+    }
+
+    getExceptionsItem();
+  }, [])
+
+  //get brand list
+  useEffect(() => {
+    getBrandList(dispatch).then((data) => setBrandList(data?.map((d: { BRAND_NAME: any; ID: any; }) => ({ label: d.BRAND_NAME, value: d.ID }))));
+  }, [])
 
   return (
     <>
@@ -299,13 +335,12 @@ export default function SkuMaster() {
             </a>
           </li>
           <div className='col text-right'>
-            <a href='#' className='btn btn-primary'>
-              Add Product
-            </a>
+            <AddSku helper={addSkuHelper} formData={blankObj} />
           </div>
         </ul>
 
         <div className='tab-content'>
+          {/* SKU MASTER */}
           <div
             className={
               basicActive === 'tab1'
@@ -344,7 +379,7 @@ export default function SkuMaster() {
                           <td style={{ whiteSpace: "normal" }}>{post.CATEGORY_NAME}</td>
                           <td style={{ whiteSpace: "normal" }}>{post.CATEGORY_TYPE}</td>
                           <td>
-                            <a href='#'>Edit</a>
+                            <AddSku helper={editSkuHelper} formData={post} />
                           </td>
                         </tr>
                       ))
@@ -370,6 +405,7 @@ export default function SkuMaster() {
               </div>
             </div>
           </div>
+          {/* RFID TAB */}
           <div
             className={
               basicActive === 'tab2'
@@ -458,6 +494,7 @@ export default function SkuMaster() {
               </div>
             </div>
           </div>
+          {/* EXCEPTION TAB */}
           <div
             className={
               basicActive === 'tab3'
