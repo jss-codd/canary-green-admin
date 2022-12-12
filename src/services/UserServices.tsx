@@ -78,6 +78,19 @@ export const commonSubmit = async (data: any, endpoint: string, dispatch: Dispat
   }
 };
 
+export const commonPut = async (data: object, id: Number, endpoint: string, dispatch: Dispatch<AnyAction>, prm1: any = "") => {
+  try {
+    const response = await fetchWrapper.putWithAuth(
+      `${process.env.API_PATH}${endpoint}/${id}/${prm1}`,
+      data
+    );
+    const res = fetchWrapper.handler(response, dispatch);
+    return res;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 // common function for submit
 export const commonSubmitNoAuthUser = async (data: any, endpoint: string, dispatch: Dispatch<AnyAction>) => {
   try {

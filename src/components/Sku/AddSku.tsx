@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { Popover, Whisper } from "rsuite";
 import * as Yup from "yup";
 import FormikHelper from "../../helpers/formikHelper";
-import { commonSubmit } from "../../services/UserServices";
+import { commonSubmit, commonPut } from "../../services/UserServices";
 
 const AddProductPopUp = React.forwardRef(({ content, formProps, ...props }: any, ref) => {
     return (
@@ -81,11 +81,12 @@ const AddSku = (props: { helper: { setProductAdded: any; brandList: any; buttonN
     const formProps = {
         initialValues: formValues,
         validationSchema,
-        sendFunction: commonSubmit,
+        sendFunction: ID === 0 ? commonSubmit : commonPut,
         fields,
         endpoint: ID === 0 ? 'add-product' : 'update-product',
         divClass: 'col-xl-6',
-        inheritFunctions
+        inheritFunctions,
+        updatedID: ID
     }
 
     useEffect(() => {
@@ -94,20 +95,17 @@ const AddSku = (props: { helper: { setProductAdded: any; brandList: any; buttonN
         }
     }, [ID])
 
-
     return (
-        <>
-            <Whisper
-                trigger="click"
-                ref={addProductTriggerRef}
-                placement="auto"
-                speaker={<AddProductPopUp content={""} formProps={formProps} />}
-            >
-                <button className={`${buttonClass}`}>
-                    {buttonName}
-                </button>
-            </Whisper>
-        </>
+        <Whisper
+            trigger="click"
+            ref={addProductTriggerRef}
+            placement="auto"
+            speaker={<AddProductPopUp content={""} formProps={formProps} />}
+        >
+            <button className={`${buttonClass}`}>
+                {buttonName}
+            </button>
+        </Whisper>
     );
 }
 

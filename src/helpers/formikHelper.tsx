@@ -8,9 +8,9 @@ import ButtonLoader from "../components/buttonLoader";
 import { buttonLoaderStatus } from "../redux/reducers/ButtonLoader";
 
 const FormikHelper = (props: {
-    buttonStyle: CSSProperties | undefined; initialValues: any; validationSchema: any; sendFunction: any; fields: any; buttonText: string; loaderText: string, endpoint: string; inheritFunctions: any; divClass: string;
+    buttonStyle: CSSProperties | undefined; initialValues: any; validationSchema: any; sendFunction: any; fields: any; buttonText: string; loaderText: string, endpoint: string; inheritFunctions: any; divClass: string; updatedID: number;
 }) => {
-    const { initialValues, validationSchema, sendFunction, fields, buttonText, loaderText, endpoint, inheritFunctions, divClass } = props;
+    const { initialValues, validationSchema, sendFunction, fields, buttonText, loaderText, endpoint, inheritFunctions, divClass, updatedID } = props;
 
     const dispatch = useDispatch();
     const buttonloader = useSelector((state: any) => state.buttonloader.value);
@@ -22,7 +22,8 @@ const FormikHelper = (props: {
             validationSchema={validationSchema}
             onSubmit={(values) => {
                 dispatch(buttonLoaderStatus());
-                sendFunction(values, endpoint, dispatch)
+                const mutation = updatedID > 0 ? sendFunction(values, updatedID, endpoint, dispatch) : sendFunction(values, endpoint, dispatch);
+                mutation
                     .then((res: any) => {
                         if (!res || res.status != 200) {
                             throw new Error("Server responds with error!");
@@ -126,7 +127,8 @@ FormikHelper.defaultProps = {
     buttonText: 'SUBMIT',
     loaderText: 'Submitting',
     buttonStyle: { width: "auto" },
-    divClass: 'col-xl-6'
+    divClass: 'col-xl-6',
+    updatedID: 0
 }
 
 export default memo(FormikHelper);
