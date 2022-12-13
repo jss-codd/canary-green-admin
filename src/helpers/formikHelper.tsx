@@ -14,7 +14,7 @@ const FormikHelper = (props: {
 
     const dispatch = useDispatch();
     const buttonloader = useSelector((state: any) => state.buttonloader.value);
-    console.log('form render')
+
     return (
         <Formik
             enableReinitialize={true}
@@ -50,11 +50,12 @@ const FormikHelper = (props: {
             }}
         >
             {(formik) => {
-                const { errors, touched, isValid, dirty } = formik;
+                const { errors, touched, isValid, dirty, values } = formik;
                 return (
                     <Form className="form-horizontal label-small">
                         <div className='row'>
                             {fields.map((d: {
+                                withOtherInput: any;
                                 options: any;
                                 readonly: boolean; type: any; className: any; placeholder: any; name: string; fieldset: boolean
                             }, i: number) => (
@@ -70,10 +71,30 @@ const FormikHelper = (props: {
                                                     onBlur={formik.handleBlur}
                                                 >
                                                     <option value="">{d.placeholder}</option>
+                                                    {d?.withOtherInput === true && (
+                                                        <option value="Add New">Add New</option>
+                                                    )}
                                                     {d.options.map((o: { value: string | number | boolean; label: string | number | boolean }, i: number) => (
                                                         <option key={`option-${o.value}-${i}`} value={`${o.value}`}>{o.label}</option>
                                                     ))}
                                                 </Field>
+                                                {d?.withOtherInput && formik.values[d.name] === 'Add New' && (
+                                                    <>
+                                                        <Field
+                                                            type="text"
+                                                            className={d.className || `form-control`}
+                                                            placeholder={`Enter value here`}
+                                                            name={`${d.name}_other`}
+                                                            onChange={formik.handleChange}
+                                                            onBlur={formik.handleBlur}
+                                                        />
+                                                        <ErrorMessage
+                                                            name={`${d.name}_other`}
+                                                            component="span"
+                                                            className="inputerror"
+                                                        />
+                                                    </>
+                                                )}
                                             </>
                                         ) : (
                                             <>

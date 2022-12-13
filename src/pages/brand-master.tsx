@@ -912,7 +912,7 @@ function Brand_Master() {
     const [brandIndex, setBrandIndex] = useState(0);
     const [operateLocation, setOperateLocation] = useState<any[]>([]);
     const [brandList, setBrandList] = useState<any[]>([]);
-    const [brandName, setBrandName] = useState('WYLD');
+    const [brandName, setBrandName] = useState('14er');
     const [allBrandList, setAllBrandList] = useState<any[]>([]);
     const [brandAdded, setBrandAdded] = useState(0);
 
@@ -1012,7 +1012,7 @@ function Brand_Master() {
 
     //get brand list
     useEffect(() => {
-        getBrandList(dispatch).then((data) => setAllBrandList(data?.map((d: { BRAND_NAME: any; }) => (d.BRAND_NAME))));
+        getBrandList(dispatch).then((data) => setAllBrandList(data?.map((d: { NAME: any; }) => (d.NAME))));
     }, [brandAdded])
 
     //when brand is loaded then set state of list of brand list
