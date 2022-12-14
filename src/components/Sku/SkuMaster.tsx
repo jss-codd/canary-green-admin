@@ -45,9 +45,7 @@ export default function SkuMaster() {
   const addSkuHelper = {
     setProduct,
     setSkuChanged,
-    posts,
     setPosts,
-    setProductAdded,
     brandList,
     sizeList,
     categoryList,
@@ -61,9 +59,7 @@ export default function SkuMaster() {
   const editSkuHelper = {
     setProduct,
     setSkuChanged,
-    posts,
     setPosts,
-    setProductAdded,
     brandList,
     sizeList,
     categoryList,

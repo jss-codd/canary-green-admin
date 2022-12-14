@@ -41,11 +41,10 @@ const validationSchema = Yup.object().shape({
 const tier = ['Good', 'Better', 'Best'];
 
 const AddSku = (props: {
-    helper: { setProduct: any; setSkuChanged: any; posts: any[]; setPosts: any; setProductAdded: any; brandList: any[]; sizeList: any[]; categoryList: any[]; dominanceList: any[]; flavorStrainList: any[]; formList: any[]; buttonName: any; buttonClass: any; };
+    helper: { setProduct: any; setSkuChanged: any; setPosts: any; brandList: any[]; sizeList: any[]; categoryList: any[]; dominanceList: any[]; flavorStrainList: any[]; formList: any[]; buttonName: any; buttonClass: any; };
     formData: { ID: any; SIZE: any; BRAND: any; CATEGORY_NAME: any; DOMINANCE: any; TIER: any; FLAVOR_STRAIN: any; FORM: any; ITEM_NAME: any; };
 }) => {
-
-    const { setProduct, setSkuChanged, posts, setPosts, setProductAdded, brandList, sizeList, categoryList, dominanceList, flavorStrainList, formList, buttonName, buttonClass } = props.helper;
+    const { setProduct, setSkuChanged, setPosts, brandList, sizeList, categoryList, dominanceList, flavorStrainList, formList, buttonName, buttonClass } = props.helper;
     const { ID, SIZE, BRAND, CATEGORY_NAME, DOMINANCE, TIER, FLAVOR_STRAIN, FORM, ITEM_NAME } = props.formData;
 
     const addProductTriggerRef = useRef<any>(null);
@@ -55,17 +54,16 @@ const AddSku = (props: {
     const closeProductPopUp = () => addProductTriggerRef?.current?.close();
 
     const inheritFunctionsOnAdd = (data: any) => {
-        setProductAdded((pre: number) => ++pre);
+        setPosts((pre: any[]) => ([...data.res, ...pre]));
+        setProduct((pre: any[]) => ([...[{ label: data.res[0].ITEM_NAME, value: data.res[0].ID }], ...pre]));
+        setSkuChanged((pre: boolean) => !pre);
         closeProductPopUp();
-        //here we have to add some code for setPosts with push logic
-        //also setProduct with push
-        //also setSkuChanged
     }
 
     const inheritFunctionsOnUpdate = (data: any) => {
         setPosts((pre: any[]) => (pre.map(obj => data.res.find((o: { ID: Number; }) => o.ID === obj.ID) || obj)));
         setProduct((pre: any[]) => (pre.map(obj => { return data.res.find((o: { ID: Number; }) => o.ID === obj.value) && { label: data.res[0].ITEM_NAME, value: obj.value } || obj })));
-        setSkuChanged((pre: any) => !pre);
+        setSkuChanged((pre: boolean) => !pre);
         closeProductPopUp();
     }
 
