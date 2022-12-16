@@ -22,13 +22,19 @@ export default function SkuMaster() {
 
   const [posts, setPosts] = useState<any[]>([]);
   const [filterPosts, setFilterPosts] = useState<any[]>([]);
+  const [filterPostsExc, setFilterPostsExc] = useState<any[]>([]);
   const [product, setProduct] = useState<any[]>([]);
 
   const [searchText, setSearchText] = useState('');
+  const [searchTextExc, setSearchTextExc] = useState('');
   const [total, setTotal] = useState(0);
+  const [totalExc, setTotalExc] = useState(0);
   const [page, setPage] = useState(1);
+  const [pageExc, setPageExc] = useState(1);
   const [postsPerPage, setPostsPerPage] = useState(10);
+  const [postsPerPageExc, setPostsPerPageExc] = useState(10);
   const [loadingClass, setLoadingClass] = useState('');
+  const [loadingClassExc, setLoadingClassExc] = useState('');
   const [bodyLoaderClass, setBodyLoaderClass] = useState("");
 
   const [selectValue, setSelectValue] = React.useState<any[]>([]);
@@ -39,8 +45,7 @@ export default function SkuMaster() {
   const [flavorStrainList, setFlavorStrainList] = useState<any[]>([]);
   const [formList, setFormList] = useState<any[]>([]);
   const [skuChanged, setSkuChanged] = useState(false);
-
-  const [productAdded, setProductAdded] = useState(0);
+  const [searchBrand, setSearchBrand] = useState('');
 
   const addSkuHelper = {
     setProduct,
@@ -124,6 +129,13 @@ export default function SkuMaster() {
     setPostsPerPage(pageSize);
   };
 
+  const onShowSizeChangeExc = (
+    _current: any,
+    pageSize: React.SetStateAction<number>
+  ) => {
+    setPostsPerPageExc(pageSize);
+  };
+
   //pagination text render
   const itemRender = (current: any, type: string, originalElement: any) => {
     if (type === 'prev') {
@@ -205,6 +217,7 @@ export default function SkuMaster() {
       setBodyLoaderClass("cover-spin");
 
       const data_to_send = { brand_id, product_id };
+
       commonSubmit(data_to_send, 'sku-brand-assignment', dispatch)
         .then((res: any) => {
           if (!res || res.status != 200) {
@@ -218,6 +231,8 @@ export default function SkuMaster() {
               toast.success(data.message);
 
               brandRef.current[product_id.toString()].innerText = data.brand_name;
+
+              setPosts((pre: any[]) => pre.map((d) => { return d.ID === product_id ? { ...d, BRAND: data.brand_name } : d }));
 
               setBodyLoaderClass("");
             }
@@ -234,19 +249,42 @@ export default function SkuMaster() {
     }
   }
 
-  //run when search enter, page change, post per change
+  //run when search enter, page change, post per change for SKU Master
   useEffect(() => {
-    if (posts.length > 0) {
+    let filteredPost = posts;
+    if (filteredPost.length > 0) {
+
       const start = (+page - 1) * postsPerPage;
       const end = +postsPerPage + (+start);
 
-      const filteredPost = posts.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchText.toLowerCase())).slice(start, end);
+      filteredPost = filteredPost.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchText.toLowerCase()));
 
-      setFilterPosts(filteredPost);
+      if (searchBrand) {
+        const getBrandLabel = brandList.find((d) => d.value === searchBrand)?.label;
+        filteredPost = filteredPost.filter((d) => d.BRAND === getBrandLabel);
+      }
 
-      setTotal(posts.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchText.toLowerCase())).length);
+      setFilterPosts(filteredPost.slice(start, end));
+
+      setTotal(filteredPost.length);
     }
-  }, [searchText, page, postsPerPage, skuChanged]);
+  }, [searchText, page, postsPerPage, skuChanged, searchBrand]);
+
+  //run when search enter, page change, post per change for SKU Exceptions Master
+  useEffect(() => {
+    let filteredPost = exceptionsItem;
+
+    if (filteredPost.length > 0) {
+      const start = (+pageExc - 1) * postsPerPageExc;
+      const end = +postsPerPageExc + (+start);
+
+      filteredPost = filteredPost.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchTextExc.toLowerCase()));
+
+      setFilterPostsExc(filteredPost.slice(start, end));
+
+      setTotalExc(filteredPost.length);
+    }
+  }, [searchTextExc, pageExc, postsPerPageExc]);
 
   //call api for sku products
   useEffect(() => {
@@ -256,6 +294,7 @@ export default function SkuMaster() {
   // sku exception items
   useEffect(() => {
     const getExceptionsItem = () => {
+      setLoadingClassExc('loading');
       commonFetchAllAuth('sku-exceptions-items', dispatch)
         .then((res: any) => {
           if (!res || res.status != 200) {
@@ -267,8 +306,12 @@ export default function SkuMaster() {
           (data) => {
             setExceptionsItem(data);
             setSelectValue(new Array(data?.length).fill(""));
+            setFilterPostsExc((data || []).slice(0, postsPerPageExc));
+            setTotalExc(data?.length || 0);
+            setLoadingClassExc('');
           },
           (err) => {
+            setLoadingClassExc('');
             console.log(err);
           }
         );
@@ -277,7 +320,7 @@ export default function SkuMaster() {
     getExceptionsItem();
   }, [])
 
-  //get brand list
+  //get brand list & other attributes
   useEffect(() => {
     getBrandList(dispatch).then((data) => setBrandList(data?.map((d: { NAME: any; ID: any; }) => ({ label: d.NAME, value: d.ID }))));
 
@@ -305,27 +348,36 @@ export default function SkuMaster() {
               <h1 className='mb-0'>SKU Master</h1>
             </div>
             <form className='form-inline my-2 my-lg-0'>
-              <input
-                className='form-control mr-sm-2'
-                type='search'
-                placeholder='Search'
-                aria-label='Search'
-                value={searchText}
-                onChange={(e) => {
-                  setPage(1);
-                  setSearchText(e.target.value);
-                }}
-              />
+              {basicActive === 'tab1' && (
+                <>
+                  <input
+                    className='form-control mr-sm-2'
+                    type='search'
+                    placeholder='Search'
+                    aria-label='Search'
+                    value={searchText}
+                    onChange={(e) => {
+                      setPage(1);
+                      setSearchText(e.target.value);
+                    }}
+                  />
+                  <SelectPicker size="lg" data={brandList} style={{ width: 200 }} onChange={(d: any) => setSearchBrand(d)} />
+                </>
+              )}
+              {basicActive === 'tab3' && (
+                <input
+                  className='form-control mr-sm-2'
+                  type='search'
+                  placeholder='Search'
+                  aria-label='Search'
+                  value={searchTextExc}
+                  onChange={(e) => {
+                    setPageExc(1);
+                    setSearchTextExc(e.target.value);
+                  }}
+                />
+              )}
             </form>{' '}
-            <Dropdown title='All Products'>
-              <Dropdown.Item>New File</Dropdown.Item>
-              <Dropdown.Item>New File with Current Profile</Dropdown.Item>
-              <Dropdown.Item>Download As...</Dropdown.Item>
-              <Dropdown.Item>Export PDF</Dropdown.Item>
-              <Dropdown.Item>Export HTML</Dropdown.Item>
-              <Dropdown.Item>Settings</Dropdown.Item>
-              <Dropdown.Item>About</Dropdown.Item>
-            </Dropdown>
           </div>
         </div>
         <ul className='nav nav-tabs mb-3' role='tablist'>
@@ -348,7 +400,7 @@ export default function SkuMaster() {
               onClick={() => handleBasicClick('tab2')}
               aria-selected='false'
             >
-              RFID ({" "})
+              RFID ({"0"})
             </a>
           </li>
           <li className='nav-item' role='presentation'>
@@ -359,7 +411,7 @@ export default function SkuMaster() {
               onClick={() => handleBasicClick('tab3')}
               aria-selected='false'
             >
-              Exceptions ({exceptionsItem.length})
+              Exceptions ({totalExc})
             </a>
           </li>
           <div className='col text-right'>
@@ -379,9 +431,7 @@ export default function SkuMaster() {
           >
             <div className='shadow card my-4'>
               <div className='table-responsive'>
-                <table
-                  className={`align-items-center table-flush table mb-2 table-sm ${loadingClass}`}
-                >
+                <table className={`align-items-center table-flush table mb-2 table-sm ${loadingClass}`}>
                   <thead className='thead-light'>
                     <tr>
                       <th scope='col'>ID</th>
@@ -454,70 +504,8 @@ export default function SkuMaster() {
                       <th></th>
                     </tr>
                   </thead>
-                  {/* <tbody>
-                    <tr>
-                      <td>A1540434343434</td>
-                      <td>WYLD Elderberry Gummeis 2:1 TCH:CBN</td>
-                      <td>Missiob Bay LLC</td>
-                      <td>153</td>
-                      <td>
-                        <a href='#'>Edit</a>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>A1540434343434</td>
-                      <td>WYLD Elderberry Gummeis 2:1 TCH:CBN</td>
-                      <td>Missiob Bay LLC</td>
-                      <td>153</td>
-                      <td>
-                        <a href='#'>Edit</a>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>A1540434343434</td>
-                      <td>WYLD Elderberry Gummeis 2:1 TCH:CBN</td>
-                      <td>Missiob Bay LLC</td>
-                      <td>153</td>
-                      <td>
-                        <a href='#'>Edit</a>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>A154043553434</td>
-                      <td>WYLD Elderberry Gummeis 2:1 TCH:CBN</td>
-                      <td>Missiob Bay LLC</td>
-                      <td>153</td>
-                      <td>
-                        <a href='#'>Edit</a>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>A1540434343434</td>
-                      <td>WYLD Elderberry Gummeis 2:1 TCH:CBN</td>
-                      <td>Missiob Bay LLC</td>
-                      <td>153</td>
-                      <td>
-                        <a href='#'>Edit</a>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>A1540434343434</td>
-                      <td>WYLD Elderberry Gummeis 2:1 TCH:CBN</td>
-                      <td>Missiob Bay LLC</td>
-                      <td>153</td>
-                      <td>
-                        <a href='#'>Edit</a>
-                      </td>
-                    </tr>
-                  </tbody> */}
                 </table>
                 <div className='col text-right'>
-                  <Pagination
-                    pageSize={10}
-                    total={30}
-                    current={1}
-                    itemRender={itemRender}
-                  />
                 </div>
               </div>
             </div>
@@ -533,7 +521,7 @@ export default function SkuMaster() {
           >
             <div className='shadow card my-4'>
               <div className='table-responsive'>
-                <table className='align-items-center table-flush table mb-2 table-sm'>
+                <table className={`align-items-center table-flush table mb-2 table-sm ${loadingClassExc}`}>
                   <thead className='thead-light'>
                     <tr>
                       <th>RFID</th>
@@ -543,23 +531,35 @@ export default function SkuMaster() {
                     </tr>
                   </thead>
                   <tbody>
-                    {exceptionsItem.map((d, i) => (
-                      <tr key={`exception-${i}`}>
-                        <td style={{ whiteSpace: "normal" }}>{d.RFID}</td>
-                        <td style={{ whiteSpace: "normal" }}>{d.ITEM_NAME}</td>
-                        <td style={{ whiteSpace: "normal" }}>{d.DESTINATION_ITEM_NAME}</td>
-                        <td style={{ whiteSpace: "normal" }}>
-                          <SelectPicker value={selectValue[i]} data={product} style={{ width: 150 }} onChange={(e: any) => productMap(e, d.ID, i)} />
-                        </td>
+                    {filterPostsExc.length > 0 ? (
+                      <>
+                        {filterPostsExc.map((d, i) => (
+                          <tr key={`exception-${i}`}>
+                            <td style={{ whiteSpace: "normal" }}>{d.RFID}</td>
+                            <td style={{ whiteSpace: "normal" }}>{d.ITEM_NAME}</td>
+                            <td style={{ whiteSpace: "normal" }}>{d.DESTINATION_ITEM_NAME}</td>
+                            <td style={{ whiteSpace: "normal" }}>
+                              <SelectPicker value={selectValue[i]} data={product} style={{ width: 150 }} onChange={(e: any) => productMap(e, d.ID, i)} />
+                            </td>
+                          </tr>
+                        ))}
+                      </>
+                    ) : (
+                      <tr>
+                        <td style={{ whiteSpace: "normal" }} colSpan={4}>&nbsp;</td>
                       </tr>
-                    ))}
+                    )}
                   </tbody>
                 </table>
                 <div className='col text-right'>
                   <Pagination
-                    pageSize={10}
-                    total={10}
-                    current={1}
+                    onChange={(value) => setPageExc(value)}
+                    pageSize={postsPerPageExc}
+                    total={totalExc}
+                    current={pageExc}
+                    showSizeChanger
+                    showQuickJumper
+                    onShowSizeChange={onShowSizeChangeExc}
                     itemRender={itemRender}
                   />
                 </div>
