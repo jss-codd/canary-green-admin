@@ -361,7 +361,7 @@ export default function SkuMaster() {
                       setSearchText(e.target.value);
                     }}
                   />
-                  <SelectPicker size="lg" data={brandList} style={{ width: 200 }} onChange={(d: any) => setSearchBrand(d)} />
+                  <SelectPicker placeholder="All Brands" size="lg" data={brandList} style={{ width: 200 }} onChange={(d: any) => setSearchBrand(d)} />
                 </>
               )}
               {basicActive === 'tab3' && (
