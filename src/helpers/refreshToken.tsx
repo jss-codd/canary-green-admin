@@ -6,7 +6,7 @@ import { authHeader } from "./auth-header";
 import axios from "axios";
 
 export const checkRefreshToken = (routerName: string) => {
-
+    
     let path = routerName?.split("?")[0];
     path = "/" + path?.split('/')[1];
 

@@ -50,13 +50,11 @@ axios.interceptors.response.use(
 );
 
 function MyApp({ Component, pageProps }: AppProps) {
-  //const store = createStore(allReducer);
-
   return (
     <Provider store={store}>
       <React.StrictMode>
         <RouteGuard>
-        <Component {...pageProps} />
+          <Component {...pageProps} />
         </RouteGuard>
       </React.StrictMode>
       <ToastContainer theme="dark" />
