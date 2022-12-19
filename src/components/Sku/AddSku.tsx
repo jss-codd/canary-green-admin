@@ -1,5 +1,4 @@
 import React, { memo, useEffect, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
 import { Popover, Whisper } from "rsuite";
 import * as Yup from "yup";
 import FormikHelper from "../../helpers/formikHelper";
@@ -48,7 +47,7 @@ const AddSku = (props: {
     const { ID, SIZE, BRAND, CATEGORY_NAME, DOMINANCE, TIER, FLAVOR_STRAIN, FORM, ITEM_NAME } = props.formData;
 
     const addProductTriggerRef = useRef<any>(null);
-    const dispatch = useDispatch();
+    
     const [formValues, setFormValues] = useState(initialValues);
 
     const closeProductPopUp = () => addProductTriggerRef?.current?.close();
@@ -69,13 +68,13 @@ const AddSku = (props: {
 
     const fields = [
         { type: "text", placeholder: "If left blank Product Name Will Be Generated based on Attributes", name: "productName", readonly: true },
-        { type: "select", name: "productSize", placeholder: "Select Product Size", options: sizeList.map((d) => ({ label: d.label, value: d.label })).sort((a, b) => a.label.localeCompare(b.label)) },
-        { type: "select", name: "productBrand", placeholder: "Select Brand", options: brandList.map((d: { label: any; }) => ({ label: d.label, value: d.label })).sort((a: { label: string; }, b: { label: any; }) => a.label.localeCompare(b.label)) },
-        { type: "select", name: "productCategory", placeholder: "Select Category", options: categoryList.map((d) => ({ label: d.label, value: d.label })).sort((a, b) => a.label.localeCompare(b.label)) },
+        { type: "select", name: "productSize", placeholder: "Select Product Size", options: sizeList.map((d) => ({ label: d.label, value: d.label })).sort((a, b) => a.label.localeCompare(b.label)), searchable: true },
+        { type: "select", name: "productBrand", placeholder: "Select Brand", options: brandList.map((d: { label: any; }) => ({ label: d.label, value: d.label })).sort((a: { label: string; }, b: { label: any; }) => a.label.localeCompare(b.label)), searchable: true },
+        { type: "select", name: "productCategory", placeholder: "Select Category", options: categoryList.map((d) => ({ label: d.label, value: d.label })).sort((a, b) => a.label.localeCompare(b.label)), searchable: true },
         { type: "select", name: "dominance", placeholder: "Select Dominance", options: dominanceList.map((d) => ({ label: d.label, value: d.label })).sort((a, b) => a.label.localeCompare(b.label)) },
         { type: "select", name: "tier", placeholder: "Select Tier", options: tier.map((d) => ({ label: d, value: d })) },
-        { type: "select", name: "flavorStrain", placeholder: "Flavor or Strain (Choose or Add New)", options: flavorStrainList.map((d) => ({ label: d.label, value: d.label })).sort((a, b) => a.label.localeCompare(b.label)), withOtherInput: true },
-        { type: "select", name: "form", placeholder: "Select Form (Choose or Add New)", options: formList.map((d) => ({ label: d.label, value: d.label })).sort((a, b) => a.label.localeCompare(b.label)), withOtherInput: true }
+        { type: "select", name: "flavorStrain", placeholder: "Flavor or Strain (Choose or Add New)", options: flavorStrainList.map((d) => ({ label: d.label, value: d.label })).sort((a, b) => a.label.localeCompare(b.label)), withOtherInput: true, searchable: true },
+        { type: "select", name: "form", placeholder: "Select Form (Choose or Add New)", options: formList.map((d) => ({ label: d.label, value: d.label })).sort((a, b) => a.label.localeCompare(b.label)), withOtherInput: true, searchable: true }
     ];
 
     const formProps = {
@@ -98,6 +97,7 @@ const AddSku = (props: {
     return (
         <Whisper
             trigger="click"
+            controlId="control-id-click"
             ref={addProductTriggerRef}
             placement="auto"
             speaker={<AddProductPopUp content={""} formProps={formProps} />}

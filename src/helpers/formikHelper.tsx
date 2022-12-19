@@ -2,10 +2,25 @@ import { ErrorMessage, Field, Form, Formik } from "formik";
 import React, { CSSProperties, memo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import { SelectPicker } from "rsuite";
 
 import ButtonLoader from "../components/buttonLoader";
 
 import { buttonLoaderStatus } from "../redux/reducers/ButtonLoader";
+
+const PreventOverflowContainer = (props: { children: any; }) => {
+    const { children } = props;
+    const container = React.useRef(null);
+    const content = React.useRef(null);
+
+    return (
+        <div style={{ position: 'relative' }} ref={container}>
+            <div ref={content}>
+                {children(() => container.current)}
+            </div>
+        </div>
+    );
+}
 
 const FormikHelper = (props: {
     buttonStyle: CSSProperties | undefined; initialValues: any; validationSchema: any; sendFunction: any; fields: any; buttonText: string; loaderText: string, endpoint: string; inheritFunctions: any; divClass: string; updatedID: number;
@@ -50,11 +65,12 @@ const FormikHelper = (props: {
             }}
         >
             {(formik) => {
-                const { errors, touched, isValid, dirty, values } = formik;
+                const { errors, touched, isValid, dirty, values, setFieldValue } = formik;
                 return (
                     <Form className="form-horizontal label-small">
                         <div className='row'>
                             {fields.map((d: {
+                                searchable: boolean | undefined | null;
                                 withOtherInput: any;
                                 options: any;
                                 readonly: boolean; type: any; className: any; placeholder: any; name: string; fieldset: boolean
@@ -63,21 +79,20 @@ const FormikHelper = (props: {
                                     <div className={`${divClass} form-group`}>
                                         {d.type === 'select' ? (
                                             <>
-                                                <Field
-                                                    as={d.type}
-                                                    className={d.className || `form-control`}
-                                                    name={d.name}
-                                                    onChange={formik.handleChange}
-                                                    onBlur={formik.handleBlur}
-                                                >
-                                                    <option value="">{d.placeholder}</option>
-                                                    {d?.withOtherInput === true && (
-                                                        <option value="Add New">Add New</option>
+                                                <PreventOverflowContainer>
+                                                    {(getContainer: HTMLElement | (() => HTMLElement) | undefined) => (
+                                                        <SelectPicker
+                                                            style={{ width: 500 }}
+                                                            container={getContainer}
+                                                            value={formik.values[d.name]}
+                                                            data={d?.withOtherInput === true ? [...[{ label: "Add New", value: "Add New" }], ...d.options] : d.options}
+                                                            placeholder={d.placeholder}
+                                                            onChange={(e) => setFieldValue(d.name, e || "")}
+                                                            name={d.name}
+                                                            searchable={d?.searchable || false}
+                                                        />
                                                     )}
-                                                    {d.options.map((o: { value: string | number | boolean; label: string | number | boolean }, i: number) => (
-                                                        <option key={`option-${o.value}-${i}`} value={`${o.value}`}>{o.label}</option>
-                                                    ))}
-                                                </Field>
+                                                </PreventOverflowContainer>
                                                 {d?.withOtherInput && formik.values[d.name] === 'Add New' && (
                                                     <>
                                                         <Field
@@ -97,18 +112,15 @@ const FormikHelper = (props: {
                                                 )}
                                             </>
                                         ) : (
-                                            <>
-                                                <Field
-                                                    type={d.type}
-                                                    className={d.className || `form-control`}
-                                                    placeholder={d.placeholder || `Enter value here`}
-                                                    name={d.name}
-                                                    onChange={formik.handleChange}
-                                                    onBlur={formik.handleBlur}
-                                                />
-                                            </>
+                                            <Field
+                                                type={d.type}
+                                                className={d.className || `form-control`}
+                                                placeholder={d.placeholder || `Enter value here`}
+                                                name={d.name}
+                                                onChange={formik.handleChange}
+                                                onBlur={formik.handleBlur}
+                                            />
                                         )}
-
                                         <ErrorMessage
                                             name={d.name}
                                             component="span"

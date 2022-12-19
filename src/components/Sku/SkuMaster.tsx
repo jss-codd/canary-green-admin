@@ -15,7 +15,6 @@ const baseURL = process.env.API_PATH + 'sku-products';
 export default function SkuMaster() {
   const dispatch = useDispatch();
   const brandRef = useRef<any[]>([]);
-  const brandSelectRef = useRef<any[]>([]);
 
   const [basicActive, setBasicActive] = useState('tab1');
   const [exceptionsItem, setExceptionsItem] = useState<any[]>([]);
@@ -198,54 +197,6 @@ export default function SkuMaster() {
             setBodyLoaderClass("");
           }
         );
-    }
-  }
-
-  //when brand name clicked then brand select list is open
-  const brandClickAction = (id: any) => {
-    brandRef.current[id.toString()].classList.add('d-none');
-    brandSelectRef.current[id.toString()].root.classList.remove('d-none');
-  }
-
-  //run when brand is assign to product
-  const brandAssign = (brand_id: number, product_id: any) => {
-    brandRef.current[product_id.toString()].classList.remove('d-none');
-    const oldText = brandRef.current[product_id.toString()].innerText;
-    brandRef.current[product_id.toString()].innerText = 'in process...';
-
-    if ((+brand_id || 0) > 0 && (+product_id || 0) > 0) {
-      setBodyLoaderClass("cover-spin");
-
-      const data_to_send = { brand_id, product_id };
-
-      commonSubmit(data_to_send, 'sku-brand-assignment', dispatch)
-        .then((res: any) => {
-          if (!res || res.status != 200) {
-            throw new Error("Server responds with error!");
-          }
-          return res.json();
-        })
-        .then(
-          (data) => {
-            if (data.res) {
-              toast.success(data.message);
-
-              brandRef.current[product_id.toString()].innerText = data.brand_name;
-
-              setPosts((pre: any[]) => pre.map((d) => { return d.ID === product_id ? { ...d, BRAND: data.brand_name } : d }));
-
-              setBodyLoaderClass("");
-            }
-          },
-          (err) => {
-            console.log(err);
-            toast.error('Something went wrong');
-            brandRef.current[product_id.toString()].innerText = oldText;
-            setBodyLoaderClass("");
-          }
-        );
-    } else {
-      brandRef.current[product_id.toString()].innerText = oldText;
     }
   }
 
@@ -447,12 +398,7 @@ export default function SkuMaster() {
                       filterPosts.map((post: any, i: Number) => (
                         <tr key={post.ID}>
                           <td style={{ whiteSpace: "normal" }}>{post.ID}</td>
-                          <td style={{ whiteSpace: "normal", textAlign: 'center' }}>
-
-                            <span onClick={() => brandClickAction(post.ID)} ref={(el) => { brandRef.current[post.ID.toString()] = el }}>{post.BRAND || 'NA'}</span>
-
-                            <SelectPicker ref={(el) => { brandSelectRef.current[post.ID.toString()] = el }} style={{ width: 150 }} className="d-none" data={brandList} onChange={(e: any) => brandAssign(e, post.ID)} />
-                          </td>
+                          <td style={{ whiteSpace: "normal" }}>{post.BRAND || 'NA'}</td>
                           <td style={{ whiteSpace: "normal" }}>{post.ITEM_NAME}</td>
                           <td style={{ whiteSpace: "normal" }}>{post.CATEGORY_NAME}</td>
                           <td style={{ whiteSpace: "normal" }}>{post.CATEGORY_TYPE}</td>
