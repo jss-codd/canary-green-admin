@@ -58,7 +58,7 @@ const FormikHelper = (props: {
                         },
                         (err: any) => {
                             dispatch(buttonLoaderStatus());
-                            toast.error('Something went wrong.');
+                            toast.error('Something went wrong.')
                             console.log(err)
                         }
                     );
@@ -71,12 +71,13 @@ const FormikHelper = (props: {
                         <div className='row'>
                             {fields.map((d: {
                                 searchable: boolean | undefined | null;
+                                divClass: string | undefined | null;
                                 withOtherInput: any;
                                 options: any;
                                 readonly: boolean; type: any; className: any; placeholder: any; name: string; fieldset: boolean
                             }, i: number) => (
                                 <React.Fragment key={`form-${i}`}>
-                                    <div className={`${divClass} form-group`}>
+                                    <div className={`${d?.divClass ? d.divClass : divClass} form-group`}>
                                         {d.type === 'select' ? (
                                             <>
                                                 <PreventOverflowContainer>
@@ -146,7 +147,6 @@ const FormikHelper = (props: {
                                 )}
                             </div>
                         </div>
-
                     </Form>
                 )
             }

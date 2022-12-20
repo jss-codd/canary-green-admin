@@ -526,7 +526,7 @@ function CoalMine() {
                                                                             }
 
                                                                         }
-                                                                        } />&nbsp; {d.LOCATION}
+                                                                        } />&nbsp; {d.LOCATION.replace(/___/g, ',')}
                                                                 </label>
                                                             </td>
                                                         </tr>
@@ -636,9 +636,9 @@ function CoalMine() {
                                                                 <>
                                                                     {lowInventoryDataList && lowInventoryDataList.length > 0 && Array.isArray(lowInventoryDataList) ? lowInventoryDataList?.map((d: any, i: Number) => (
                                                                         <tr key={i as number}>
-                                                                            <td>{d.PACKAGES_ITEMFROMFACILITYNAME}</td>
-                                                                            <td>{d.NAME}</td>
-                                                                            <td>{d.PACKAGES_ITEM_NAME}</td>
+                                                                            <td>{d.PACKAGES_ITEMFROMFACILITYNAME.replace(/___/g, ',')}</td>
+                                                                            <td>{d.NAME.replace(/___/g, ',')}</td>
+                                                                            <td>{d.PACKAGES_ITEM_NAME.replace(/___/g, ',')}</td>
                                                                             <td>{d.DAYS_OF_INVENTORY} Days</td>
                                                                         </tr>
                                                                     )) : (
@@ -676,9 +676,9 @@ function CoalMine() {
                                                                 <>
                                                                     {agingInventoryDataList && agingInventoryDataList.length > 0 && Array.isArray(agingInventoryDataList) ? agingInventoryDataList?.map((d: any, i: Number) => (
                                                                         <tr key={i as number}>
-                                                                            <td>{d.PACKAGES_ITEMFROMFACILITYNAME}</td>
-                                                                            <td>{d.NAME}</td>
-                                                                            <td>{d.PACKAGES_ITEM_NAME}</td>
+                                                                            <td>{d.PACKAGES_ITEMFROMFACILITYNAME.replace(/___/g, ',')}</td>
+                                                                            <td>{d.NAME.replace(/___/g, ',')}</td>
+                                                                            <td>{d.PACKAGES_ITEM_NAME.replace(/___/g, ',')}</td>
                                                                             <td>{(+d.DAYS_OF_INVENTORY).toFixed(0)} Days</td>
                                                                         </tr>
                                                                     )) : (
@@ -716,9 +716,9 @@ function CoalMine() {
                                                                 <>
                                                                     {expirationApproachingDataList && expirationApproachingDataList.length > 0 && Array.isArray(expirationApproachingDataList) ? expirationApproachingDataList?.map((d: any, i: Number) => (
                                                                         <tr key={i as number}>
-                                                                            <td>{d.PACKAGES_ITEMFROMFACILITYNAME}</td>
-                                                                            <td>{d.NAME}</td>
-                                                                            <td>{d.PACKAGES_ITEM_NAME}</td>
+                                                                            <td>{d.PACKAGES_ITEMFROMFACILITYNAME.replace(/___/g, ',')}</td>
+                                                                            <td>{d.NAME.replace(/___/g, ',')}</td>
+                                                                            <td>{d.PACKAGES_ITEM_NAME.replace(/___/g, ',')}</td>
                                                                             <td>{d.DAYS_UNTIL_EXPIRATION} Days</td>
                                                                         </tr>
                                                                     )) : (
@@ -840,9 +840,9 @@ function CoalMine() {
                                                                 <>
                                                                     {topPricedLocationsDataList && topPricedLocationsDataList.length > 0 && Array.isArray(topPricedLocationsDataList) ? topPricedLocationsDataList?.map((d: any, i: Number) => (
                                                                         <tr key={i as number}>
-                                                                            <td>{d.ITEMFROMFACILITYNAME}</td>
-                                                                            <td>{d.NAME}</td>
-                                                                            <td>{d.ITEM_NAME}</td>
+                                                                            <td>{d.ITEMFROMFACILITYNAME.replace(/___/g, ',')}</td>
+                                                                            <td>{d.NAME.replace(/___/g, ',')}</td>
+                                                                            <td>{d.ITEM_NAME.replace(/___/g, ',')}</td>
                                                                             <td>${d.PRICE}</td>
                                                                         </tr>
                                                                     )) : (
@@ -880,9 +880,9 @@ function CoalMine() {
                                                                 <>
                                                                     {lowestPricedLocationsDataList && lowestPricedLocationsDataList.length > 0 && Array.isArray(lowestPricedLocationsDataList) ? lowestPricedLocationsDataList?.map((d: any, i: Number) => (
                                                                         <tr key={i as number}>
-                                                                            <td>{d.ITEMFROMFACILITYNAME}</td>
-                                                                            <td>{d.NAME}</td>
-                                                                            <td>{d.ITEM_NAME}</td>
+                                                                            <td>{d.ITEMFROMFACILITYNAME.replace(/___/g, ',')}</td>
+                                                                            <td>{d.NAME.replace(/___/g, ',')}</td>
+                                                                            <td>{d.ITEM_NAME.replace(/___/g, ',')}</td>
                                                                             <td>${d.PRICE}</td>
                                                                         </tr>
                                                                     )) : (
