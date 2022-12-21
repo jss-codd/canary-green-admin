@@ -18,22 +18,29 @@ export default function SkuMaster() {
 
   const [basicActive, setBasicActive] = useState('tab1');
   const [exceptionsItem, setExceptionsItem] = useState<any[]>([]);
+  const [RFIDItem, setRFIDItem] = useState<any[]>([]);
 
   const [posts, setPosts] = useState<any[]>([]);
   const [filterPosts, setFilterPosts] = useState<any[]>([]);
   const [filterPostsExc, setFilterPostsExc] = useState<any[]>([]);
+  const [filterRFID, setFilterRFID] = useState<any[]>([]);
   const [product, setProduct] = useState<any[]>([]);
 
   const [searchText, setSearchText] = useState('');
   const [searchTextExc, setSearchTextExc] = useState('');
+  const [searchTextRFID, setSearchTextRFID] = useState('');
   const [total, setTotal] = useState(0);
   const [totalExc, setTotalExc] = useState(0);
+  const [totalRFID, setTotalRFID] = useState(0);
   const [page, setPage] = useState(1);
   const [pageExc, setPageExc] = useState(1);
+  const [pageRFID, setPageRFID] = useState(1);
   const [postsPerPage, setPostsPerPage] = useState(10);
   const [postsPerPageExc, setPostsPerPageExc] = useState(10);
+  const [perPageRFID, setPerPageRFID] = useState(10);
   const [loadingClass, setLoadingClass] = useState('');
   const [loadingClassExc, setLoadingClassExc] = useState('');
+  const [loadingClassRFID, setLoadingClassRFID] = useState('');
   const [bodyLoaderClass, setBodyLoaderClass] = useState("");
 
   const [selectValue, setSelectValue] = React.useState<any[]>([]);
@@ -133,6 +140,13 @@ export default function SkuMaster() {
     pageSize: React.SetStateAction<number>
   ) => {
     setPostsPerPageExc(pageSize);
+  };
+
+  const onShowSizeChangeRFID = (
+    _current: any,
+    pageSize: React.SetStateAction<number>
+  ) => {
+    setPerPageRFID(pageSize);
   };
 
   //pagination text render
@@ -237,6 +251,22 @@ export default function SkuMaster() {
     }
   }, [searchTextExc, pageExc, postsPerPageExc]);
 
+  //run when search enter, page change, post per change for RFID Master
+  useEffect(() => {
+    let filteredPost = RFIDItem;
+
+    if (filteredPost.length > 0) {
+      const start = (+pageRFID - 1) * perPageRFID;
+      const end = +perPageRFID + (+start);
+
+      filteredPost = filteredPost.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchTextRFID.toLowerCase()));
+
+      setFilterRFID(filteredPost.slice(start, end));
+
+      setTotalRFID(filteredPost.length);
+    }
+  }, [searchTextRFID, pageRFID, perPageRFID]);
+
   //call api for sku products
   useEffect(() => {
     loadData(searchText, Number(page) - 1, Number(postsPerPage));
@@ -269,6 +299,34 @@ export default function SkuMaster() {
     }
 
     getExceptionsItem();
+  }, [])
+
+  //RFIDS Tab
+  useEffect(() => {
+    const getBatchInventory = () => {
+      setLoadingClassRFID('loading');
+      commonFetchAllAuth('batch-level-inventory', dispatch)
+        .then((res: any) => {
+          if (!res || res.status != 200) {
+            throw new Error("Server responds with error!");
+          }
+          return res.json();
+        })
+        .then(
+          (data) => {
+            setRFIDItem(data);
+            setFilterRFID((data || []).slice(0, perPageRFID));
+            setTotalRFID(data?.length || 0);
+            setLoadingClassRFID('');
+          },
+          (err) => {
+            setLoadingClassRFID('');
+            console.log(err);
+          }
+        );
+    }
+
+    getBatchInventory();
   }, [])
 
   //get brand list & other attributes
@@ -315,6 +373,19 @@ export default function SkuMaster() {
                   <SelectPicker placeholder="All Brands" size="lg" data={brandList} style={{ width: 200 }} onChange={(d: any) => setSearchBrand(d)} />
                 </>
               )}
+              {basicActive === 'tab2' && (
+                <input
+                  className='form-control mr-sm-2'
+                  type='search'
+                  placeholder='Search'
+                  aria-label='Search'
+                  value={searchTextRFID}
+                  onChange={(e) => {
+                    setPageRFID(1);
+                    setSearchTextRFID(e.target.value);
+                  }}
+                />
+              )}
               {basicActive === 'tab3' && (
                 <input
                   className='form-control mr-sm-2'
@@ -351,7 +422,7 @@ export default function SkuMaster() {
               onClick={() => handleBasicClick('tab2')}
               aria-selected='false'
             >
-              RFID ({"0"})
+              RFID ({totalRFID})
             </a>
           </li>
           <li className='nav-item' role='presentation'>
@@ -366,7 +437,7 @@ export default function SkuMaster() {
             </a>
           </li>
           <div className='col text-right'>
-            <AddSku helper={addSkuHelper} formData={blankObj} />
+            <AddSku helper={addSkuHelper} formData={blankObj}/>
           </div>
         </ul>
 
@@ -440,7 +511,7 @@ export default function SkuMaster() {
           >
             <div className='shadow card my-4'>
               <div className='table-responsive'>
-                <table className='align-items-center table-flush table mb-2'>
+                <table className={`align-items-center table-flush table mb-2 ${loadingClassRFID}`}>
                   <thead className='thead-light'>
                     <tr>
                       <th scope='col'>RFID</th>
@@ -450,8 +521,37 @@ export default function SkuMaster() {
                       <th></th>
                     </tr>
                   </thead>
+                  <tbody>
+                    {filterRFID.length > 0 ? (
+                      <>
+                        {filterRFID.map((d, i) => (
+                          <tr key={`rfid-${i}`}>
+                            <td style={{ whiteSpace: "normal" }}>{d.RFID}</td>
+                            <td style={{ whiteSpace: "normal" }}>{d.ITEM_NAME}</td>
+                            <td style={{ whiteSpace: "normal" }}>{d.NAME.replace(/___/g, ',')}</td>
+                            <td>{d.ONHANDD_VALUE}</td>
+                            <td></td>
+                          </tr>
+                        ))}
+                      </>
+                    ) : (
+                      <tr>
+                        <td style={{ whiteSpace: "normal" }} colSpan={5}>&nbsp;</td>
+                      </tr>
+                    )}
+                  </tbody>
                 </table>
                 <div className='col text-right'>
+                  <Pagination
+                    onChange={(value) => setPageRFID(value)}
+                    pageSize={perPageRFID}
+                    total={totalRFID}
+                    current={pageRFID}
+                    showSizeChanger
+                    showQuickJumper
+                    onShowSizeChange={onShowSizeChangeRFID}
+                    itemRender={itemRender}
+                  />
                 </div>
               </div>
             </div>

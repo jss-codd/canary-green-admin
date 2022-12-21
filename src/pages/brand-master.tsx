@@ -1,5 +1,6 @@
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import React, { useEffect, useRef, useState } from 'react';
+import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from "react-toastify";
 import TagsInput from "react-tagsinput";
@@ -27,15 +28,59 @@ const AddBrandPopUp = React.forwardRef(({ content, formProps, ...props }: any, r
 AddBrandPopUp.displayName = 'AddBrandPopUp';
 
 const brandInitialValues = {
-    brandName: ""
+    firstName: "",
+    lastName: "",
+    company: "",
+    email: "",
+    phone: "",
+    id: "",
+    otherbrands: [],
+    distributors: [],
+    zipCode: "",
+    title: "",
+    timezone: "",
+    type: [],
+    billingAddress: "",
 };
 
 const brandValidationSchema = Yup.object().shape({
-    brandName: Yup.string().trim().required("*required field"),
+    firstName: Yup.string().trim().required("*required field"),
+    lastName: Yup.string().trim().required("*required field"),
+    company: Yup.string().trim().required("*required field"),
+    email: Yup.string().trim().required("*required field"),
+    phone: Yup.number().required("*required field"),
+    id: Yup.number().required("*required field"),
+    otherbrands: Yup.string().required("*required field"),
+    distributors: Yup.string().required("*required field"),
+    title: Yup.string().required("*required field"),
+    timezone: Yup.string().required("*required field"),
+    billingAddress: Yup.string().required("*required field")
 });
 
-const fields = [{ type: "text", placeholder: "Enter Brand Name*", name: "brandName" }];
+const fields = [
+    { type: "text", placeholder: "First Name*", name: "firstName" },
+    { type: "text", placeholder: "Last Name*", name: "lastName" },
+    { type: "email", placeholder: "Email*", name: "email" },
+    { type: "text", placeholder: "BillingAddres", name: "billingAddress" },
+    { type: "number", placeholder: "Zip Code", name: "Zip Code" },
+    { type: "text", placeholder: "Title*", name: "title" },
+    { type: "number", placeholder: "Phone Number*", name: "phone" },
+    { type: "number", placeholder: "Id*", name: "id" },
+    { type: "text", placeholder: "Otherbrands*", name: "otherbrands" },
+    { type: "text", placeholder: "distributors*", name: "distributors" },
+    { type: "text", placeholder: "Timezone*", name: "timezone" },
+    { type: "type", placeholder: "Type*", name: "type" },
+    { type: "text", placeholder: "Company*", name: "company" },
+];
+const labelsname=[
+    { label: "First Name", value: "First Name" },
+    { label: "Last  Name", value: "Last  Name" },
+    { label: "Email", value: "Email" },
+    { label: "id", value: "id" },
+    { label: "First Name", value: "First Name" },
+    { label: "First Name", value: "First Name" },
 
+]
 const tableData = [
     {
         company: 'Sunderstorm B.',
@@ -901,7 +946,7 @@ const initialValues = {
 };
 
 const arr = ['710 Labs', '215 Concentrates', '3C Forms', '420 Kingdom', '8 Bit', 'Absolute Extracts', 'AI EI Bluntito', 'Agua De For', 'AIMS', 'Alins Labs', 'Alomora Farm', 'Amber', 'Angel Oraganics', 'Animas', 'APE', 'Apex Canabis', 'Apex Soltuions', 'ASCND', 'Ball Family Famrs'];
-
+const labelname = ['First Name', 'LastName', 'Company', 'Title']
 function Brand_Master() {
     const dispatch = useDispatch();
     const addBrandTriggerRef = useRef<any>(null);
@@ -952,6 +997,12 @@ function Brand_Master() {
         });
     }
 
+//    const selectLabel = ()=>{
+//     const selectlabelData=tableData.find((e)=>e.id == id);  
+//     setFormLabels =tableData
+
+//    }
+
     const getOperateLocation = async () => {
         commonFetchAllUser('operate-region', dispatch)
             .then((res: any) => {
@@ -987,8 +1038,10 @@ function Brand_Master() {
         validationSchema: brandValidationSchema,
         sendFunction: commonSubmit,
         fields,
+        labelsname,
         endpoint: 'add-brand',
-        divClass: 'col-xl-12',
+        divClass: 'col-xl-4',
+        labels: "",
         inheritFunctions
     }
 
@@ -1016,6 +1069,7 @@ function Brand_Master() {
     }, [brandAdded])
 
     //when brand is loaded then set state of list of brand list
+
     useEffect(() => {
         if (allBrandList.length > 0) {
             setBrandList(allBrandList)
@@ -1109,8 +1163,14 @@ function Brand_Master() {
                                                     >
                                                         <Tab key={`users`} eventKey={`users`} title={`Users`}>
                                                             <UserTab formInputs={formInputs} selectUser={selectUser} />
+                                                            {/* <FloatingLabel
+                                                                controlId="floatingTextarea"
+                                                                label="First Name"
+                                                                className="mb-2"
+                                                            >
+                                                            </FloatingLabel> */}
+                                                            {/* <FormikHelper {...formProps}></FormikHelper> */}
                                                         </Tab>
-
                                                         <Tab key={`subscriptions`} eventKey={`subscriptions`} title={`Subscriptions`}>
                                                             <SubscriptionTab operateLocation={operateLocation} />
                                                         </Tab>
