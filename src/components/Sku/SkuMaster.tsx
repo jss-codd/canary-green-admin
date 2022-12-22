@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Dropdown, SelectPicker } from 'rsuite';
+import React, { useState, useEffect } from 'react';
+import { SelectPicker } from 'rsuite';
 import axios from 'axios';
 import { Pagination } from 'antd';
 import { useDispatch } from 'react-redux';
@@ -9,12 +9,12 @@ import { authHeader } from '../../helpers/auth-header';
 import { commonFetchAllAuth, commonSubmit, logout } from '../../services/UserServices';
 import { getBrandList, getSizeList, getCategoryList, getDominanceList, getFlavorStrainList, getFormList } from '../../services/CommonServices';
 import AddSku from './AddSku';
+import EditBatch from './EditBatch';
 
 const baseURL = process.env.API_PATH + 'sku-products';
 
 export default function SkuMaster() {
   const dispatch = useDispatch();
-  const brandRef = useRef<any[]>([]);
 
   const [basicActive, setBasicActive] = useState('tab1');
   const [exceptionsItem, setExceptionsItem] = useState<any[]>([]);
@@ -51,6 +51,7 @@ export default function SkuMaster() {
   const [flavorStrainList, setFlavorStrainList] = useState<any[]>([]);
   const [formList, setFormList] = useState<any[]>([]);
   const [skuChanged, setSkuChanged] = useState(false);
+  const [RFIDChanged, setRFIDChanged] = useState(false);
   const [searchBrand, setSearchBrand] = useState('');
 
   const addSkuHelper = {
@@ -77,6 +78,13 @@ export default function SkuMaster() {
     dominanceList,
     flavorStrainList,
     formList,
+    buttonName: 'Edit',
+    buttonClass: "btn btn-success btn-sm",
+  }
+
+  const editBatchHelper = {
+    setRFIDChanged,
+    setRFIDItem,
     buttonName: 'Edit',
     buttonClass: "btn btn-success btn-sm",
   }
@@ -265,7 +273,7 @@ export default function SkuMaster() {
 
       setTotalRFID(filteredPost.length);
     }
-  }, [searchTextRFID, pageRFID, perPageRFID]);
+  }, [searchTextRFID, pageRFID, perPageRFID, RFIDChanged]);
 
   //call api for sku products
   useEffect(() => {
@@ -437,7 +445,7 @@ export default function SkuMaster() {
             </a>
           </li>
           <div className='col text-right'>
-            <AddSku helper={addSkuHelper} formData={blankObj}/>
+            <AddSku helper={addSkuHelper} formData={blankObj} />
           </div>
         </ul>
 
@@ -530,7 +538,7 @@ export default function SkuMaster() {
                             <td style={{ whiteSpace: "normal" }}>{d.ITEM_NAME}</td>
                             <td style={{ whiteSpace: "normal" }}>{d.NAME.replace(/___/g, ',')}</td>
                             <td>{d.ONHANDD_VALUE}</td>
-                            <td></td>
+                            <td><EditBatch helper={editBatchHelper} formData={d} /></td>
                           </tr>
                         ))}
                       </>
