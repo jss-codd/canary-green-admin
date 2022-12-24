@@ -1,12 +1,10 @@
-import Router from "next/router";
-
 import { readExpiry, storeExpiry } from "./localstorage-helper";
 import { publicPaths } from "../components/RouteGuard";
 import { authHeader } from "./auth-header";
 import axios from "axios";
 
 export const checkRefreshToken = (routerName: string) => {
-    
+
     let path = routerName?.split("?")[0];
     path = "/" + path?.split('/')[1];
 
@@ -30,8 +28,8 @@ export const checkRefreshToken = (routerName: string) => {
                         ...authHeader(),
                     },
                 };
-                axios.post(baseURL, {"refreshToken": ""}, { ...defaultOptions })
-                    .then((res) => {console.log('res',res)
+                axios.post(baseURL, { "refreshToken": "" }, { ...defaultOptions })
+                    .then((res) => {
                         if (res.data.status) {
                             localStorage.setItem("canary_user", JSON.stringify(res.data));
                             storeExpiry("canary_user_auth_token", res.data.token, ((Number(res.data.expiryDuration) * 60000 / 4)), true);

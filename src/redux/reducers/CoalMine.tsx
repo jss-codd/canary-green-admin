@@ -6,7 +6,8 @@ const initialState = {
     loaded: { lowInventoryItems: false, agingInventoryItems: false, expirationApproachingItems: false, topPricedLocations: false, lowestPricedLocations: false },
     categories: { lowInventoryItems: [], agingInventoryItems: [], expirationApproachingItems: [], topPricedLocations: [], lowestPricedLocations: [] },
     location: { lowInventoryItems: [], agingInventoryItems: [], expirationApproachingItems: [], topPricedLocations: [], lowestPricedLocations: [] },
-    items: { lowInventoryItems: [], agingInventoryItems: [], expirationApproachingItems: [], topPricedLocations: [], lowestPricedLocations:[] },
+    items: { lowInventoryItems: [], agingInventoryItems: [], expirationApproachingItems: [], topPricedLocations: [], lowestPricedLocations: [] },
+    brands: { lowInventoryItems: [], agingInventoryItems: [], expirationApproachingItems: [], topPricedLocations: [], lowestPricedLocations: [] },
 };
 
 export const coalMineSlice = createSlice({
@@ -38,6 +39,11 @@ export const coalMineSlice = createSlice({
                 ...state.items,
                 lowInventoryItems: action.payload.filter((value: { ITEM_ID: any; }, index: any, self: any[]) => self.map(x => x.ITEM_ID).indexOf(value.ITEM_ID) == index).map((k: { ITEM_ID: any; PACKAGES_ITEM_NAME: any; }) => { return { ITEM_ID: k.ITEM_ID, ITEM_NAME: k.PACKAGES_ITEM_NAME } })
             }
+
+            state.brands = {
+                ...state.brands,
+                lowInventoryItems: action.payload.filter((value: { BRAND: any; }, index: any, self: any[]) => self.map(x => x.BRAND).indexOf(value.BRAND) == index && value.BRAND !== "" && value.BRAND !== null).map((k: { BRAND: any; }) => { return { BRAND: k.BRAND } })
+            }
         },
 
         setAgingInventoryItems: (state, action) => {
@@ -64,6 +70,11 @@ export const coalMineSlice = createSlice({
             state.items = {
                 ...state.items,
                 agingInventoryItems: action.payload.filter((value: { ITEM_ID: any; }, index: any, self: any[]) => self.map(x => x.ITEM_ID).indexOf(value.ITEM_ID) == index).map((k: { ITEM_ID: any; PACKAGES_ITEM_NAME: any; }) => { return { ITEM_ID: k.ITEM_ID, ITEM_NAME: k.PACKAGES_ITEM_NAME } })
+            }
+
+            state.brands = {
+                ...state.brands,
+                agingInventoryItems: action.payload.filter((value: { BRAND: any; }, index: any, self: any[]) => self.map(x => x.BRAND).indexOf(value.BRAND) == index && value.BRAND !== "" && value.BRAND !== null).map((k: { BRAND: any; }) => { return { BRAND: k.BRAND } })
             }
         },
 
@@ -92,6 +103,11 @@ export const coalMineSlice = createSlice({
                 ...state.items,
                 expirationApproachingItems: action.payload.filter((value: { ITEM_ID: any; }, index: any, self: any[]) => self.map(x => x.ITEM_ID).indexOf(value.ITEM_ID) == index).map((k: { ITEM_ID: any; PACKAGES_ITEM_NAME: any; }) => { return { ITEM_ID: k.ITEM_ID, ITEM_NAME: k.PACKAGES_ITEM_NAME } })
             }
+
+            state.brands = {
+                ...state.brands,
+                expirationApproachingItems: action.payload.filter((value: { BRAND: any; }, index: any, self: any[]) => self.map(x => x.BRAND).indexOf(value.BRAND) == index && value.BRAND !== "" && value.BRAND !== null).map((k: { BRAND: any; }) => { return { BRAND: k.BRAND } })
+            }
         },
 
         setTopPricedLocations: (state, action) => {
@@ -119,6 +135,11 @@ export const coalMineSlice = createSlice({
                 ...state.items,
                 topPricedLocations: action.payload.filter((value: { ITEM_ID: any; }, index: any, self: any[]) => self.map(x => x.ITEM_ID).indexOf(value.ITEM_ID) == index).map((k: { ITEM_ID: any; ITEM_NAME: any; }) => { return { ITEM_ID: k.ITEM_ID, ITEM_NAME: k.ITEM_NAME } })
             }
+
+            state.brands = {
+                ...state.brands,
+                topPricedLocations: action.payload.filter((value: { BRAND: any; }, index: any, self: any[]) => self.map(x => x.BRAND).indexOf(value.BRAND) == index && value.BRAND !== "" && value.BRAND !== null).map((k: { BRAND: any; }) => { return { BRAND: k.BRAND } })
+            }
         },
 
         setLowestPricedLocations: (state, action) => {
@@ -145,6 +166,11 @@ export const coalMineSlice = createSlice({
             state.items = {
                 ...state.items,
                 lowestPricedLocations: action.payload.filter((value: { ITEM_ID: any; }, index: any, self: any[]) => self.map(x => x.ITEM_ID).indexOf(value.ITEM_ID) == index).map((k: { ITEM_ID: any; ITEM_NAME: any; }) => { return { ITEM_ID: k.ITEM_ID, ITEM_NAME: k.ITEM_NAME } })
+            }
+
+            state.brands = {
+                ...state.brands,
+                lowestPricedLocations: action.payload.filter((value: { BRAND: any; }, index: any, self: any[]) => self.map(x => x.BRAND).indexOf(value.BRAND) == index && value.BRAND !== "" && value.BRAND !== null).map((k: { BRAND: any; }) => { return { BRAND: k.BRAND } })
             }
         },
     },
@@ -265,5 +291,8 @@ export const mergeLocations = (state: { coalmine: { location: { lowInventoryItem
 
 //merge all products & get unique come from above payloads
 export const mergeProducts = (state: { coalmine: { items: { lowInventoryItems: any; agingInventoryItems: any; expirationApproachingItems: any; topPricedLocations: any; lowestPricedLocations: any; }; }; }) => [...state.coalmine.items.lowInventoryItems, ...state.coalmine.items.agingInventoryItems, ...state.coalmine.items.expirationApproachingItems, ...state.coalmine.items.topPricedLocations, ...state.coalmine.items.lowestPricedLocations].filter((value: { ITEM_ID: any; }, index: any, self: any[]) => self.map(x => x.ITEM_ID).indexOf(value.ITEM_ID) == index).sort((a, b) => a.ITEM_NAME.toLowerCase().localeCompare(b.ITEM_NAME.toLowerCase()));
+
+//merge all brands & get unique come from above payloads
+export const mergeBrands = (state: { coalmine: { brands: { lowInventoryItems: any; agingInventoryItems: any; expirationApproachingItems: any; topPricedLocations: any; lowestPricedLocations: any; }; }; }) => [...state.coalmine.brands.lowInventoryItems, ...state.coalmine.brands.agingInventoryItems, ...state.coalmine.brands.expirationApproachingItems, ...state.coalmine.brands.topPricedLocations, ...state.coalmine.brands.lowestPricedLocations].filter((value: { BRAND: any; }, index: any, self: any[]) => self.map(x => x.BRAND).indexOf(value.BRAND) == index).sort((a, b) => a?.BRAND?.toLowerCase()?.localeCompare(b?.BRAND?.toLowerCase()));
 
 export default coalMineSlice.reducer;

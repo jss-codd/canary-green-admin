@@ -57,7 +57,7 @@ const storeExpiry = (key: string, value: any, expiryDuration: number, expiry = f
 	const encryptedData = encrypt(value);
 	if (expiry === true) {
 		const encryptedExpiry = encrypt(getExpiry(expiryDuration));
-		store(`${key}.e`,encryptedExpiry);
+		store(`${key}.e`, encryptedExpiry);
 	}
 	return store(key, encryptedData);
 };
@@ -66,7 +66,7 @@ const storeExpiry = (key: string, value: any, expiryDuration: number, expiry = f
 const readExpiry = (key: string) => {
 	const expiryData = decrypt(read(`${key}.e`));
 	const data = decrypt(read(key));
-	
+
 	if (data != null) {
 		if (data && isExpired(expiryData)) {
 			return { response: data, expired: true };
@@ -75,7 +75,7 @@ const readExpiry = (key: string) => {
 			return { response: data, expired: false };
 		}
 	}
-	return {response: null, expired: true};
+	return { response: null, expired: true };
 };
 
 // reset localstorage

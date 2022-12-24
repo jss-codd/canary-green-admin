@@ -1,13 +1,9 @@
 
 import { ErrorMessage, Field, Form, Formik } from 'formik';
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { toast } from "react-toastify";
+import React, { useState } from 'react';
 
 import Sidebar from '../components/Sidebar';
-import ButtonLoader from '../components/buttonLoader';
-import { FaMinusSquare, FaRegCheckCircle, FaSearch } from 'react-icons/fa';
-import { commonFetchAllUser } from '../services/UserServices';
+import { FaRegCheckCircle } from 'react-icons/fa';
 
 const initialValues = {
   firstName: "",
@@ -35,7 +31,7 @@ const Settings = () => {
   const [preview, setPreview] = useState<any>();
   const [brandName, setBrandName] = useState(arr[0]);
   const [brandIndex, setBrandIndex] = useState(0);
-  const [data, setData] =useState([])
+  const [data, setData] = useState([])
   const onSelectFile = (e: any) => {
     if (!e.target.files || e.target.files.length === 0) {
       setSelectedFile(undefined);
@@ -44,16 +40,15 @@ const Settings = () => {
     // I've kept this example simple by using the first image instead of multiple
     setSelectedFile(e.target.files[0]);
   }
-  
 
   const selectBrand = (index: any) => {
     setBrandName(arr[index]);
     setBrandIndex(index);
-}
+  }
 
   return (
     <>
-      <Sidebar/>
+      <Sidebar />
       <div className='main-content'>
         <div className='cantainer'>
           <div className='main-content card'>
@@ -68,7 +63,7 @@ const Settings = () => {
                         // validationSchema={validationSchema}
                         onSubmit={async (values, { resetForm, setErrors }) => {
                           setData(values)
-                          console.log(values,"values");
+                          console.log(values, "values");
                           return;
                         }}
                       >
@@ -107,7 +102,7 @@ const Settings = () => {
                                     autoComplete="off"
                                   />
                                   <ErrorMessage
-                                    name="phone"  
+                                    name="phone"
                                     component="span"
                                     className="inputerror"
                                   />
@@ -296,7 +291,7 @@ const Settings = () => {
                               </div>
                               <div className="row">
                                 <div className='col-xl-12 form-group'>
-                                  <button type="submit"className="btn bg-gradient-primary text-white float-right">
+                                  <button type="submit" className="btn bg-gradient-primary text-white float-right">
                                     Save
                                   </button>
                                 </div>

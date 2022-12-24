@@ -1,5 +1,5 @@
 import { ErrorMessage, Field, Form, Formik } from 'formik';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from "react-toastify";
 import TagsInput from "react-tagsinput";
@@ -217,7 +217,7 @@ function BrandRegistration() {
                                         validationSchema={validationSchema}
                                         onSubmit={async (values, { resetForm, setErrors }) => {
                                             dispatch(buttonLoaderStatus());
-                                            
+
                                             const dataSend = { regionId: values.region[0], licenseNumber: values.licenseno, apiKey: pendingBrandUsers.find((d) => d.ID == values.id)?.BRAND_API_KEY };
                                             commonSubmitNoAuthUser(dataSend, 'licence-validate', dispatch)
                                                 .then((res: any) => {
@@ -429,7 +429,7 @@ function BrandRegistration() {
                                                             />
 
                                                             <div className='row'>
-                                                            <div className='col-xl-6 form-group'>
+                                                                <div className='col-xl-6 form-group'>
                                                                     <Field
                                                                         type="text"
                                                                         className="form-control"

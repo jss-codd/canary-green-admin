@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SelectPicker } from 'rsuite';
+import { SelectPicker, Modal, Button } from 'rsuite';
 import axios from 'axios';
 import { Pagination } from 'antd';
 import { useDispatch } from 'react-redux';
@@ -51,8 +51,13 @@ export default function SkuMaster() {
   const [flavorStrainList, setFlavorStrainList] = useState<any[]>([]);
   const [formList, setFormList] = useState<any[]>([]);
   const [skuChanged, setSkuChanged] = useState(false);
+  const [excChanged, setExcChanged] = useState(false);
   const [RFIDChanged, setRFIDChanged] = useState(false);
   const [searchBrand, setSearchBrand] = useState('');
+  const [searchBrandRFID, setSearchBrandRFID] = useState('');
+  const [searchBrandExc, setSearchBrandExc] = useState('');
+  const [mapConfirmModalShow, setMapConfirmModalShow] = useState(false);
+  const [mapConfirmPopupObj, setMapConfirmPopupObj] = useState({ rfid: "", mapped_item: "", mapped_to_item: "", mapped_item_id: 0, mapped_to_item_id: 0, index: 0 });
 
   const addSkuHelper = {
     setProduct,
@@ -176,12 +181,49 @@ export default function SkuMaster() {
     return originalElement;
   };
 
+  const mapConfirmHandleClose = (type: string) => {
+    if (type === 'yes') {
+      productMapConfirmed(mapConfirmPopupObj.mapped_to_item_id, mapConfirmPopupObj.mapped_item_id, mapConfirmPopupObj.index);
+    } else {
+      setSelectValue((pre) => ({ ...pre, [mapConfirmPopupObj.index]: "" }));
+      setMapConfirmModalShow(false);
+    }
+  }
+
   //call when product map from exceptions section
   const productMap = (mapped_to_item_id: number, mapped_item_id: number, index: number) => {
     if ((+mapped_to_item_id || 0) > 0 && (+mapped_item_id || 0) > 0) {
+
+      const mapped_item = exceptionsItem.find((d) => d.ID === mapped_item_id);
+
+      if (mapped_item && mapped_item !== undefined) {
+
+        const findItemName = product.find((d) => d.value === mapped_to_item_id).label;
+
+        setMapConfirmPopupObj((pre) => ({
+          rfid: mapped_item.RFID,
+          mapped_item: mapped_item.ITEM_NAME,
+          mapped_to_item: findItemName,
+          mapped_item_id: mapped_item_id,
+          mapped_to_item_id: mapped_to_item_id,
+          index: index
+        }))
+
+        setSelectValue((pre) => ({ ...pre, [index]: mapped_to_item_id }));
+
+        setMapConfirmModalShow(true);
+      }
+    }
+  }
+
+  const productMapConfirmed = (mapped_to_item_id: number, mapped_item_id: number, index: number) => {
+    if ((+mapped_to_item_id || 0) > 0 && (+mapped_item_id || 0) > 0) {
       setBodyLoaderClass("cover-spin");
-      setSelectValue((pre) => ({ ...pre, [index]: mapped_to_item_id }));
+
+      //setSelectValue((pre) => ({ ...pre, [index]: mapped_to_item_id }));
+
       const data_to_send = { mapped_to_item_id, mapped_item_id };
+
       commonSubmit(data_to_send, 'sku-exceptions-item-mapping', dispatch)
         .then((res: any) => {
           if (!res || res.status != 200) {
@@ -206,19 +248,24 @@ export default function SkuMaster() {
               const updatedDestinationName = removedArr.map(function (obj) {
                 return { ...obj, DESTINATION_ITEM_NAME: obj.DESTINATION_ITEM === mapped_item_unique_id ? findItemName : obj.DESTINATION_ITEM_NAME };
               });
+
               setExceptionsItem(updatedDestinationName);
 
               setSelectValue(new Array(removedArr?.length).fill(""));
-
+              setExcChanged(pre => !pre);
               setBodyLoaderClass("");
+              setMapConfirmModalShow(false);
             }
           },
           (err) => {
             console.log(err);
             toast.error('Something went wrong');
             setBodyLoaderClass("");
+            setMapConfirmModalShow(false);
           }
         );
+    } else {
+      setMapConfirmModalShow(false);
     }
   }
 
@@ -253,11 +300,16 @@ export default function SkuMaster() {
 
       filteredPost = filteredPost.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchTextExc.toLowerCase()));
 
+      if (searchBrandExc) {
+        const getBrandLabel = brandList.find((d) => d.value === searchBrandExc)?.label;
+        filteredPost = filteredPost.filter((d) => d.BRAND === getBrandLabel);
+      }
+
       setFilterPostsExc(filteredPost.slice(start, end));
 
       setTotalExc(filteredPost.length);
     }
-  }, [searchTextExc, pageExc, postsPerPageExc]);
+  }, [searchTextExc, pageExc, postsPerPageExc, searchBrandExc, excChanged]);
 
   //run when search enter, page change, post per change for RFID Master
   useEffect(() => {
@@ -269,11 +321,16 @@ export default function SkuMaster() {
 
       filteredPost = filteredPost.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchTextRFID.toLowerCase()));
 
+      if (searchBrandRFID) {
+        const getBrandLabel = brandList.find((d) => d.value === searchBrandRFID)?.label;
+        filteredPost = filteredPost.filter((d) => d.BRAND === getBrandLabel);
+      }
+
       setFilterRFID(filteredPost.slice(start, end));
 
       setTotalRFID(filteredPost.length);
     }
-  }, [searchTextRFID, pageRFID, perPageRFID, RFIDChanged]);
+  }, [searchTextRFID, pageRFID, perPageRFID, RFIDChanged, searchBrandRFID]);
 
   //call api for sku products
   useEffect(() => {
@@ -378,34 +435,40 @@ export default function SkuMaster() {
                       setSearchText(e.target.value);
                     }}
                   />
-                  <SelectPicker placeholder="All Brands" size="lg" data={brandList} style={{ width: 200 }} onChange={(d: any) => setSearchBrand(d)} />
+                  <SelectPicker value={searchBrand} placeholder="All Brands" size="lg" data={brandList} style={{ width: 200 }} onChange={(d: any) => setSearchBrand(d)} />
                 </>
               )}
               {basicActive === 'tab2' && (
-                <input
-                  className='form-control mr-sm-2'
-                  type='search'
-                  placeholder='Search'
-                  aria-label='Search'
-                  value={searchTextRFID}
-                  onChange={(e) => {
-                    setPageRFID(1);
-                    setSearchTextRFID(e.target.value);
-                  }}
-                />
+                <>
+                  <input
+                    className='form-control mr-sm-2'
+                    type='search'
+                    placeholder='Search'
+                    aria-label='Search'
+                    value={searchTextRFID}
+                    onChange={(e) => {
+                      setPageRFID(1);
+                      setSearchTextRFID(e.target.value);
+                    }}
+                  />
+                  <SelectPicker value={searchBrandRFID} placeholder="All Brands" size="lg" data={brandList} style={{ width: 200 }} onChange={(d: any) => setSearchBrandRFID(d)} />
+                </>
               )}
               {basicActive === 'tab3' && (
-                <input
-                  className='form-control mr-sm-2'
-                  type='search'
-                  placeholder='Search'
-                  aria-label='Search'
-                  value={searchTextExc}
-                  onChange={(e) => {
-                    setPageExc(1);
-                    setSearchTextExc(e.target.value);
-                  }}
-                />
+                <>
+                  <input
+                    className='form-control mr-sm-2'
+                    type='search'
+                    placeholder='Search'
+                    aria-label='Search'
+                    value={searchTextExc}
+                    onChange={(e) => {
+                      setPageExc(1);
+                      setSearchTextExc(e.target.value);
+                    }}
+                  />
+                  <SelectPicker value={searchBrandExc} placeholder="All Brands" size="lg" data={brandList} style={{ width: 200 }} onChange={(d: any) => setSearchBrandExc(d)} />
+                </>
               )}
             </form>{' '}
           </div>
@@ -622,6 +685,29 @@ export default function SkuMaster() {
           </div>
         </div>
       </div>
+
+      <Modal backdrop={`static`} keyboard={false} open={mapConfirmModalShow} onClose={() => mapConfirmHandleClose('no')}>
+        <Modal.Header>
+          <Modal.Title>Confirmation for mapping SKU</Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+          <small><span className='text-danger'>RFID: </span> {mapConfirmPopupObj.rfid}</small>
+          <br></br>
+          <small><span className='text-danger'>SOURCE NAME:</span> {mapConfirmPopupObj.mapped_item}</small>
+          <br></br>
+          <small><span className='text-danger'>MAP TO:</span> {mapConfirmPopupObj.mapped_to_item}</small>
+        </Modal.Body>
+
+        <Modal.Footer>
+          <Button onClick={() => mapConfirmHandleClose('yes')} appearance="primary">
+            Yes
+          </Button>
+          <Button onClick={() => mapConfirmHandleClose('no')} appearance="subtle">
+            Cancel
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 }

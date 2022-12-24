@@ -5,15 +5,11 @@ import { toast } from "react-toastify";
 import Sidebar from '../components/Sidebar';
 import { FaSearch, FaSpinner } from 'react-icons/fa';
 import { commonFetchAllUser } from '../services/UserServices';
-import { agingInventoryItems, agingInventoryItemsStatus, expirationApproachingItems, expirationApproachingItemsStatus, fetchAgingInventoryItems, fetchExpirationApproachingItems, fetchLowestPricedLocations, fetchLowInventoryItems, fetchTopPricedLocations, lowestPricedLocationsItems, lowestPricedLocationsItemsStatus, lowInventoryItems, lowInventoryItemsStatus, mergeCategories, mergeLocations, mergeProducts, topPricedLocationsItems, topPricedLocationsItemsStatus } from '../redux/reducers/CoalMine';
+import { agingInventoryItems, agingInventoryItemsStatus, expirationApproachingItems, expirationApproachingItemsStatus, fetchAgingInventoryItems, fetchExpirationApproachingItems, fetchLowestPricedLocations, fetchLowInventoryItems, fetchTopPricedLocations, lowestPricedLocationsItems, lowestPricedLocationsItemsStatus, lowInventoryItems, lowInventoryItemsStatus, mergeBrands, mergeCategories, mergeLocations, mergeProducts, topPricedLocationsItems, topPricedLocationsItemsStatus } from '../redux/reducers/CoalMine';
 
 let category: any[] = [];
 let location: any[] = [];
-let brands = [
-    { BRAND: '1907' },
-    { BRAND: 'Willi Reserve' },
-    { BRAND: 'Nector B' },
-];
+let brands: any[] = [];
 let products: any[] = [];
 
 let categoryFilterValue: { CATEGORY: string }[] = [];
@@ -42,11 +38,13 @@ function CoalMine() {
     const mergeLocationList = useSelector(mergeLocations);
     const mergeCategorieList = useSelector(mergeCategories);
     const mergeProductList = useSelector(mergeProducts);
+    const mergeBrandList = useSelector(mergeBrands);
 
     category = mergeCategorieList;
     location = mergeLocationList;
     products = mergeProductList;
-    
+    brands = mergeBrandList;
+
     const [lowInventoryDataList, setLowInventoryDataList] = useState([]);
     const [agingInventoryDataList, setAgingInventoryDataList] = useState([]);
     const [expirationApproachingDataList, setExpirationApproachingDataList] = useState([]);
@@ -56,6 +54,7 @@ function CoalMine() {
     const [locationData, setLocationData] = useState<any[]>([]);
     const [categoryData, setCategoryData] = useState<any[]>([]);
     const [productData, setProductData] = useState<any[]>([]);
+    const [brandData, setBrandData] = useState<any[]>([]);
 
     const [operateLocation, setOperateLocation] = useState<any[]>([]);
 
@@ -184,6 +183,38 @@ function CoalMine() {
             });
         }
 
+        if (brandFilterValue?.length > 0) {
+            filterDataLowInventory = filterDataLowInventory.filter((el: { BRAND: string; }) => {
+                return brandFilterValue.some((f) => {
+                    return f.BRAND == el.BRAND;
+                });
+            });
+
+            filterDataAgingInventory = filterDataAgingInventory.filter((el: { BRAND: string; }) => {
+                return brandFilterValue.some((f) => {
+                    return f.BRAND == el.BRAND;
+                });
+            });
+
+            filterDataExpirationApproaching = filterDataExpirationApproaching.filter((el: { BRAND: string; }) => {
+                return brandFilterValue.some((f) => {
+                    return f.BRAND == el.BRAND;
+                });
+            });
+
+            filterDataTopPricedLocations = filterDataTopPricedLocations.filter((el: { BRAND: string; }) => {
+                return brandFilterValue.some((f) => {
+                    return f.BRAND == el.BRAND;
+                });
+            });
+
+            filterDataLowestPricedLocations = filterDataLowestPricedLocations.filter((el: { BRAND: string; }) => {
+                return brandFilterValue.some((f) => {
+                    return f.BRAND == el.BRAND;
+                });
+            });
+        }
+
         setLowInventoryDataList(filterDataLowInventory);
         setAgingInventoryDataList(filterDataAgingInventory);
         setExpirationApproachingDataList(filterDataExpirationApproaching);
@@ -288,7 +319,7 @@ function CoalMine() {
         }
     }, [lowestPricedLocationsLoaded]);
 
-    //set in state for category, location, products dropdown data also set false for all checkbox array length
+    //set in state for category, location, products, brands dropdown data also set false for all checkbox array length
     useEffect(() => {
         setCheckedState((prevState: any) => ({
             ...prevState,
@@ -302,15 +333,20 @@ function CoalMine() {
             ...prevState,
             activeProducts: new Array(mergeProductList?.length).fill(false),
         }));
+        setCheckedState((prevState: any) => ({
+            ...prevState,
+            activeBrands: new Array(mergeBrandList?.length).fill(false),
+        }));
 
         setCategoryData(mergeCategorieList);
         setLocationData(mergeLocationList);
         setProductData(mergeProductList);
+        setBrandData(mergeBrandList);
     }, [lowInventoryItemsLoaded, agingInventoryItemsLoaded, expirationApproachingItemsLoaded, topPricedLocationsLoaded, lowestPricedLocationsLoaded]);
 
     return (
         <>
-            <Sidebar/>
+            <Sidebar />
             <div className='main-content'>
                 <div className='cantainer'>
                     <div className='main-content card'>
@@ -319,7 +355,6 @@ function CoalMine() {
                                 <div className='col-xl-3' id="sticky-sidebar">
                                     <div className="sticky-top-1">
                                         <h4 className='px-2 border-bottom py-2 fw-600'>Market</h4>
-
                                         <div style={{ maxHeight: "25vh" }} className='table-responsive fixTableHead-full border border-light rounded shadow-lg mb-2'>
                                             <table className='align-items-center table-flush table padding-1'>
                                                 <tbody>
@@ -401,59 +436,67 @@ function CoalMine() {
                                         <div style={{ maxHeight: "25vh" }} className='table-responsive fixTableHead-full border border-light rounded shadow-lg mb-2'>
                                             <table className='align-items-center table-flush table padding-1'>
                                                 <tbody>
-                                                    <tr>
-                                                        <td>
-                                                            <label>
-                                                                <input type="checkbox"
-                                                                    checked={checkedState?.activeBrands.find((d) => d === false) === undefined ? true : false}
-                                                                    onChange={(e) => {
-                                                                        brandFilterValue = [];
-                                                                        if (checkedState?.activeBrands.find((d) => d === false) !== undefined) {
-                                                                            brandFilterValue.push(...brands);
-                                                                            setCheckedState((prevState: any) => ({
-                                                                                ...prevState,
-                                                                                activeBrands: new Array(brands.length).fill(true),
-                                                                            }));
-                                                                            lowInventoryFilter();
-                                                                        }
-                                                                        else {
-                                                                            setCheckedState((prevState: any) => ({
-                                                                                ...prevState,
-                                                                                activeBrands: new Array(brands.length).fill(false),
-                                                                            }));
-                                                                            lowInventoryFilter();
-                                                                        }
-                                                                    }
-                                                                    } />&nbsp; Select All
-                                                            </label>
-                                                        </td>
-                                                    </tr>
-                                                    {brands.length > 0 && brands.map((d: any, position: number) => (
-                                                        <tr key={`region-${position}`}>
-                                                            <td>
-                                                                <label>
-                                                                    <input type="checkbox"
-                                                                        checked={checkedState?.activeBrands[position]}
-                                                                        value={d.BRAND}
-                                                                        onChange={(e) => {
-                                                                            let index = brandFilterValue?.map((dt: { BRAND: string }) => dt.BRAND).indexOf(e?.target?.value);
-                                                                            if (index === -1) {
-                                                                                brandFilterValue.push({ BRAND: e?.target?.value })
-                                                                                lowInventoryFilter();
-                                                                                handleCheckBoxStatus(position, 'activeBrands');
-                                                                            }
-                                                                            else {
-                                                                                brandFilterValue?.splice(index, 1);
-                                                                                lowInventoryFilter();
-                                                                                handleCheckBoxStatus(position, 'activeBrands');
-                                                                            }
+                                                    {brandData.length > 0 && (
+                                                        <>
+                                                            <tr>
+                                                                <td>
+                                                                    <label>
+                                                                        <input type="checkbox"
+                                                                            checked={checkedState?.activeBrands.find((d) => d === false) === undefined ? true : false}
+                                                                            onChange={(e) => {
+                                                                                brandFilterValue = [];
+                                                                                if (checkedState?.activeBrands.find((d) => d === false) !== undefined) {
+                                                                                    brandFilterValue.push(...brandData.filter((d) => d.BRAND != ''));
 
-                                                                        }
-                                                                        } />&nbsp; {d.BRAND}
-                                                                </label>
-                                                            </td>
-                                                        </tr>
-                                                    ))}
+                                                                                    let obj = brandData.map((d, i) => {
+                                                                                        return d.BRAND != '' ? true : false;
+                                                                                    });
+
+                                                                                    setCheckedState((prevState: any) => ({
+                                                                                        ...prevState,
+                                                                                        activeBrands: obj
+                                                                                    }));
+                                                                                    lowInventoryFilter();
+                                                                                }
+                                                                                else {
+                                                                                    setCheckedState((prevState: any) => ({
+                                                                                        ...prevState,
+                                                                                        activeBrands: new Array(brands.length).fill(false),
+                                                                                    }));
+                                                                                    lowInventoryFilter();
+                                                                                }
+                                                                            }
+                                                                            } />&nbsp; Select All
+                                                                    </label>
+                                                                </td>
+                                                            </tr>
+                                                            {brandData.map((d: any, position: number) => (
+                                                                <tr key={`region-${position}`}>
+                                                                    <td>
+                                                                        <label>
+                                                                            <input type="checkbox"
+                                                                                checked={checkedState?.activeBrands[position] == true ? true : false}
+                                                                                value={d.BRAND}
+                                                                                onChange={(e) => {
+                                                                                    let index = brandFilterValue?.map((dt: { BRAND: string }) => dt.BRAND).indexOf(e?.target?.value);
+                                                                                    if (index === -1) {
+                                                                                        brandFilterValue.push({ BRAND: e?.target?.value })
+                                                                                        lowInventoryFilter();
+                                                                                        handleCheckBoxStatus(position, 'activeBrands');
+                                                                                    }
+                                                                                    else {
+                                                                                        brandFilterValue?.splice(index, 1);
+                                                                                        lowInventoryFilter();
+                                                                                        handleCheckBoxStatus(position, 'activeBrands');
+                                                                                    }
+                                                                                }
+                                                                                } />&nbsp; {d.BRAND}
+                                                                        </label>
+                                                                    </td>
+                                                                </tr>
+                                                            ))}
+                                                        </>
+                                                    )}
                                                 </tbody>
                                             </table>
                                         </div>

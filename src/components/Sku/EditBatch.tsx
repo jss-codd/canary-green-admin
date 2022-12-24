@@ -2,7 +2,7 @@ import React, { memo, useEffect, useRef, useState } from "react";
 import { Popover, Whisper } from "rsuite";
 import * as Yup from "yup";
 import FormikHelper from "../../helpers/formikHelper";
-import { commonSubmit, commonPut } from "../../services/UserServices";
+import { commonSubmit } from "../../services/UserServices";
 
 const PopUp = React.forwardRef(({ content, formProps, ...props }: any, ref) => {
     return (
@@ -22,7 +22,9 @@ const initialValues = {
     ITEM_NAME: "",
     LOC_NAME: "",
     RFID: "",
-    ITEM_ID: ""
+    ITEM_ID: "",
+    BRAND: "",
+    ONHANDD: ""
 };
 
 const validationSchema = Yup.object().shape({
@@ -30,20 +32,20 @@ const validationSchema = Yup.object().shape({
 });
 
 const EditBatch = (props: {
-    helper: { setRFIDChanged: any; setRFIDItem: any; buttonName: string; buttonClass: string;};
-    formData: { RFID: any; ITEM_NAME: any; NAME: any; ONHANDD_VALUE: any; ITEM_ID: any;};
+    helper: { setRFIDChanged: any; setRFIDItem: any; buttonName: string; buttonClass: string; };
+    formData: { RFID: any; ITEM_NAME: any; NAME: any; ONHANDD_VALUE: any; ITEM_ID: any; BRAND: any; ONHANDD: any; };
 }) => {
     const { setRFIDChanged, setRFIDItem, buttonName, buttonClass } = props.helper;
-    const { RFID, ITEM_NAME, NAME, ONHANDD_VALUE, ITEM_ID } = props.formData;
+    const { RFID, ITEM_NAME, NAME, ONHANDD_VALUE, ITEM_ID, BRAND, ONHANDD } = props.formData;
 
     const triggerRef = useRef<any>(null);
 
     const [formValues, setFormValues] = useState(initialValues);
 
     const closePopUp = () => triggerRef?.current?.close();
-    
+
     const inheritFunctions = (data: any) => {
-        setRFIDItem((pre: any[]) => (pre.map(obj => data.res.find((o: { NAME: any; RFID: any; ITEM_NAME: any; ITEM_ID: any; }) => o.NAME === obj.NAME && o.RFID === obj.RFID && o.ITEM_NAME === obj.ITEM_NAME && o.ITEM_ID === obj.ITEM_ID) || obj)));
+        setRFIDItem((pre: any[]) => (pre.map(obj => data.res.find((o: { NAME: any; RFID: any; ITEM_NAME: any; ITEM_ID: any; ONHANDD: any; }) => o.NAME === obj.NAME && o.RFID === obj.RFID && o.ITEM_NAME === obj.ITEM_NAME && o.ITEM_ID === obj.ITEM_ID && o.ONHANDD === obj.ONHANDD) || obj)));
         setRFIDChanged((pre: boolean) => !pre);
         closePopUp();
     }
@@ -65,9 +67,9 @@ const EditBatch = (props: {
 
     useEffect(() => {
         if (NAME !== "") {
-            setFormValues({ RFID: RFID || "", ITEM_NAME: ITEM_NAME || "", LOC_NAME: NAME || "", QTY: ONHANDD_VALUE || 0, ITEM_ID: ITEM_ID || "" });
+            setFormValues({ RFID: RFID || "", ITEM_NAME: ITEM_NAME || "", LOC_NAME: NAME || "", QTY: ONHANDD_VALUE || 0, ITEM_ID: ITEM_ID || "", BRAND: BRAND || "", ONHANDD: ONHANDD || "" });
         }
-    }, [RFID, ITEM_NAME, NAME, ONHANDD_VALUE, ITEM_ID])
+    }, [RFID, ITEM_NAME, NAME, ONHANDD_VALUE, ITEM_ID, BRAND, ONHANDD])
 
     return (
         <Whisper

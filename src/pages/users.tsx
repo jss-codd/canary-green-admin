@@ -47,7 +47,7 @@ function Users() {
         setUserIndex(Number(i));
 
         const selectedData = userList.find((e) => e.id == i);
-        
+
         if (selectedData?.id) {
             setFormInputs(() => {
                 const datav = {

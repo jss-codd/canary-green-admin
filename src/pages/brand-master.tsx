@@ -1,6 +1,5 @@
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import React, { useEffect, useRef, useState } from 'react';
-import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from "react-toastify";
 import TagsInput from "react-tagsinput";
@@ -72,7 +71,7 @@ const fields = [
     { type: "type", placeholder: "Type*", name: "type" },
     { type: "text", placeholder: "Company*", name: "company" },
 ];
-const labelsname=[
+const labelsname = [
     { label: "First Name", value: "First Name" },
     { label: "Last  Name", value: "Last  Name" },
     { label: "Email", value: "Email" },
@@ -997,11 +996,11 @@ function Brand_Master() {
         });
     }
 
-//    const selectLabel = ()=>{
-//     const selectlabelData=tableData.find((e)=>e.id == id);  
-//     setFormLabels =tableData
+    //    const selectLabel = ()=>{
+    //     const selectlabelData=tableData.find((e)=>e.id == id);  
+    //     setFormLabels =tableData
 
-//    }
+    //    }
 
     const getOperateLocation = async () => {
         commonFetchAllUser('operate-region', dispatch)
@@ -1163,13 +1162,6 @@ function Brand_Master() {
                                                     >
                                                         <Tab key={`users`} eventKey={`users`} title={`Users`}>
                                                             <UserTab formInputs={formInputs} selectUser={selectUser} />
-                                                            {/* <FloatingLabel
-                                                                controlId="floatingTextarea"
-                                                                label="First Name"
-                                                                className="mb-2"
-                                                            >
-                                                            </FloatingLabel> */}
-                                                            {/* <FormikHelper {...formProps}></FormikHelper> */}
                                                         </Tab>
                                                         <Tab key={`subscriptions`} eventKey={`subscriptions`} title={`Subscriptions`}>
                                                             <SubscriptionTab operateLocation={operateLocation} />

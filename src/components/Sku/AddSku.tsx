@@ -47,7 +47,7 @@ const AddSku = (props: {
     const { ID, SIZE, BRAND, CATEGORY_NAME, DOMINANCE, TIER, FLAVOR_STRAIN, FORM, ITEM_NAME } = props.formData;
 
     const addProductTriggerRef = useRef<any>(null);
-    
+
     const [formValues, setFormValues] = useState(initialValues);
 
     const closeProductPopUp = () => addProductTriggerRef?.current?.close();

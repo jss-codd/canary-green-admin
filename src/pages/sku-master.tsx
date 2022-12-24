@@ -12,4 +12,3 @@ const SkuMaster = () => {
 }
 
 export default SkuMaster;
-
