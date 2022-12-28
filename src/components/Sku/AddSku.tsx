@@ -31,7 +31,7 @@ const validationSchema = Yup.object().shape({
     productSize: Yup.string().trim().required("*required field"),
     productBrand: Yup.string().trim().required("*required field"),
     productCategory: Yup.string().trim().required("*required field"),
-    dominance: Yup.string().trim().required("*required field"),
+    dominance: Yup.string().trim(),
     tier: Yup.string().trim().oneOf(['Good', 'Better', 'Best'], 'Invalid tier selection').required("*required field"),
     flavorStrain: Yup.string().trim().required("*required field"),
     form: Yup.string().trim().required("*required field"),
