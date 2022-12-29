@@ -10,6 +10,7 @@ import { commonFetchAllAuth, commonSubmit, logout } from '../../services/UserSer
 import { getBrandList, getSizeList, getCategoryList, getDominanceList, getFlavorStrainList, getFormList } from '../../services/CommonServices';
 import AddSku from './AddSku';
 import EditBatch from './EditBatch';
+import UploadSku from './UploadSku';
 
 const baseURL = process.env.API_PATH + 'sku-products';
 
@@ -92,6 +93,11 @@ export default function SkuMaster() {
     setRFIDItem,
     buttonName: 'Edit',
     buttonClass: "btn btn-success btn-sm",
+  }
+
+  const uploadSkuHelper = {
+    buttonName: 'Upload',
+    buttonClass: "btn btn-danger",
   }
 
   const blankObj = {
@@ -509,6 +515,7 @@ export default function SkuMaster() {
           </li>
           <div className='col text-right'>
             <AddSku helper={addSkuHelper} formData={blankObj} />
+            <UploadSku helper={uploadSkuHelper} />
           </div>
         </ul>
 

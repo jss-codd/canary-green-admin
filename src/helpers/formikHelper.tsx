@@ -1,5 +1,5 @@
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import React, { CSSProperties, memo } from "react";
+import React, { CSSProperties, memo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { SelectPicker } from "rsuite";
@@ -23,9 +23,9 @@ const PreventOverflowContainer = (props: { children: any; }) => {
 }
 
 const FormikHelper = (props: {
-    buttonStyle: CSSProperties | undefined; initialValues: any; validationSchema: any; sendFunction: any; fields: any; buttonText: string; loaderText: string, endpoint: string; inheritFunctions: any; divClass: string; updatedID: number;
+    buttonStyle: CSSProperties | undefined; initialValues: any; validationSchema: any; sendFunction: any; fields: any; buttonText: string; loaderText: string, endpoint: string; inheritFunctions: any; divClass: string; updatedID: number; includeFiles: boolean; inheritFunctionsOnFail: any;
 }) => {
-    const { initialValues, validationSchema, sendFunction, fields, buttonText, loaderText, endpoint, inheritFunctions, divClass, updatedID } = props;
+    const { initialValues, validationSchema, sendFunction, fields, buttonText, loaderText, endpoint, inheritFunctions, divClass, updatedID, includeFiles, inheritFunctionsOnFail } = props;
 
     const dispatch = useDispatch();
     const buttonloader = useSelector((state: any) => state.buttonloader.value);
@@ -35,9 +35,20 @@ const FormikHelper = (props: {
             enableReinitialize={true}
             initialValues={initialValues}
             validationSchema={validationSchema}
-            onSubmit={(values) => {
+            onSubmit={async (values) => {
+                if (includeFiles) {
+                    const formData = new FormData();
+                    for (let value in values) {
+                        formData.append(value, values[value]);
+                    }
+
+                    values = formData;
+                }
+
                 dispatch(buttonLoaderStatus());
+
                 const mutation = updatedID > 0 ? sendFunction(values, updatedID, endpoint, dispatch) : sendFunction(values, endpoint, dispatch);
+
                 mutation
                     .then((res: any) => {
                         if (!res || res.status != 200) {
@@ -54,6 +65,7 @@ const FormikHelper = (props: {
                             } else {
                                 toast.error(data.message);
                                 dispatch(buttonLoaderStatus());
+                                inheritFunctionsOnFail(data)
                             }
                         },
                         (err: any) => {
@@ -67,9 +79,10 @@ const FormikHelper = (props: {
             {(formik) => {
                 const { errors, touched, isValid, dirty, values, setFieldValue } = formik;
                 return (
-                    <Form className="form-horizontal label-small">
+                    <Form className="form-horizontal label-small" encType="multipart/form-data">
                         <div className='row'>
                             {fields.map((d: {
+                                accept: string | undefined;
                                 searchable: boolean | undefined | null;
                                 divClass: string | undefined | null;
                                 withOtherInput: any;
@@ -112,16 +125,19 @@ const FormikHelper = (props: {
                                                     </>
                                                 )}
                                             </>
-                                        ) : (
-                                            <Field
+                                        ) : (d.type === 'file' ?
+                                            (<input type='file' className={d.className || `form-control`} name={d.name} onChange={(e: any) => {
+                                                formik.setFieldValue(d.name, e.currentTarget.files[0]);
+                                            }
+                                            } />) :
+                                            (<Field
                                                 type={d.type}
                                                 className={d.className || `form-control`}
                                                 placeholder={d.placeholder || `Enter value here`}
                                                 name={d.name}
                                                 onChange={formik.handleChange}
                                                 onBlur={formik.handleBlur}
-                                            />
-                                        )}
+                                            />))}
                                         <ErrorMessage
                                             name={d.name}
                                             component="span"
@@ -157,11 +173,13 @@ const FormikHelper = (props: {
 
 FormikHelper.defaultProps = {
     inheritFunctions: () => { console.log('form function console') },
+    inheritFunctionsOnFail: () => { console.log('form function fail console') },
     buttonText: 'SUBMIT',
     loaderText: 'Submitting',
     buttonStyle: { width: "auto" },
     divClass: 'col-xl-6',
-    updatedID: 0
+    updatedID: 0,
+    includeFiles: false
 }
 
 export default memo(FormikHelper);

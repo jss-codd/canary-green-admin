@@ -11,6 +11,7 @@ export const fetchWrapper = {
     handler,
     getWithAuth,
     putWithAuth,
+    fileWithAuth
 };
 
 function getNoAuth(url: RequestInfo) {
@@ -45,6 +46,15 @@ function postWithAuth(url: RequestInfo, body: any) {
     };
     return fetch(url, requestOptions);
 }
+
+function fileWithAuth(url: RequestInfo, body: any) {
+    const requestOptions = {
+      method: "POST",
+      body: body,
+      headers: { ...authHeader() },
+    };
+    return fetch(url, requestOptions);
+  }
 
 function putNoAuth(url: RequestInfo, body: any) {
     const requestOptions = {

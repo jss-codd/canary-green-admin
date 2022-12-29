@@ -78,6 +78,19 @@ export const commonSubmit = async (data: any, endpoint: string, dispatch: Dispat
   }
 };
 
+export const commonUpload = async (data: any, endpoint: string, dispatch: Dispatch<AnyAction>) => {
+  try {
+    const response = await fetchWrapper.fileWithAuth(
+      `${process.env.API_PATH}${endpoint}`,
+      data
+    );
+    const res = fetchWrapper.handler(response, dispatch);
+    return res;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const commonPut = async (data: object, id: Number, endpoint: string, dispatch: Dispatch<AnyAction>, prm1: any = "") => {
   try {
     const response = await fetchWrapper.putWithAuth(
