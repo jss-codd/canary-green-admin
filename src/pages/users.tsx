@@ -1,18 +1,12 @@
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { toast } from "react-toastify";
-import TagsInput from "react-tagsinput";
 import "react-tagsinput/react-tagsinput.css";
-import Tab from 'react-bootstrap/Tab';
-import Tabs from 'react-bootstrap/Tabs';
-import Switch from "react-switch";
 
 import Sidebar from '../components/Sidebar';
-import ButtonLoader from '../components/buttonLoader';
-import { FaCog, FaMinusSquare, FaSearch, FaSpinner } from 'react-icons/fa';
+import { FaCog, FaMinusSquare, FaSearch } from 'react-icons/fa';
 import { commonFetchAllUser } from '../services/UserServices';
-
 
 const initialValues = {
     firstName: "",
@@ -26,9 +20,6 @@ const initialValues = {
     billingAddress: "",
 };
 
-const validationSchema = {
-};
-
 const subscriptionDataArr = ['90021 - 1555 Newton St - Project Cannabi', '51601 - 10842 Mangolia Blvd, Project Cannabi', '92018 - 3703 Camino del Rio S - THCSD', '92109 - 4645 De Soto St - Cannabist'];
 
 function Users() {
@@ -40,8 +31,6 @@ function Users() {
     const [filterText, setFilterText] = useState("");
     const [userIndex, setUserIndex] = useState(0);
     const [subscriptionData, setSubscriptionData] = useState(subscriptionDataArr);
-
-    const buttonloader = useSelector((state: any) => state.buttonloader.value)
 
     const selectUser = (i: Number) => {
         setUserIndex(Number(i));

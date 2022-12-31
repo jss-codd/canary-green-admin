@@ -71,6 +71,7 @@ const fields = [
     { type: "type", placeholder: "Type*", name: "type" },
     { type: "text", placeholder: "Company*", name: "company" },
 ];
+
 const labelsname = [
     { label: "First Name", value: "First Name" },
     { label: "Last  Name", value: "Last  Name" },
@@ -995,12 +996,6 @@ function Brand_Master() {
             return datav;
         });
     }
-
-    //    const selectLabel = ()=>{
-    //     const selectlabelData=tableData.find((e)=>e.id == id);  
-    //     setFormLabels =tableData
-
-    //    }
 
     const getOperateLocation = async () => {
         commonFetchAllUser('operate-region', dispatch)

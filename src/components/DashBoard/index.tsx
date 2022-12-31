@@ -8,8 +8,8 @@ import { FaAngleDoubleUp, FaChartLine, FaDatabase, FaExclamation, FaExclamationT
 
 const geoUrl = "https://raw.githubusercontent.com/deldersveld/topojson/master/world-countries.json";
 
-const rangeColor:any = ["#ffedea", "#ff5233"];
-const colorScale:any = scaleLinear()
+const rangeColor: any = ["#ffedea", "#ff5233"];
+const colorScale: any = scaleLinear()
   .domain([0.01, 2.00])
   .range(rangeColor);
 
@@ -28,7 +28,6 @@ const Dashboard = () => {
             <div className='header bg-gradient-dark pb-8 pt-2'>
               <div className='container-fluid'>
                 <div className='header-body'>
-
                   <h1 className='h2 mb-2 text-center text-white text-uppercase'><u>Brand Indicators</u></h1>
                   <div className='row align-items-center'>
                     <div className='col-lg-6 col-xl-4'>

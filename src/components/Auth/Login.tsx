@@ -32,7 +32,7 @@ interface AuthState {
 
 const Login = () => {
     const dispatch = useDispatch();
-    
+
     const buttonloader = useSelector((state: any) => state.buttonloader.value)
 
     const [errorText, setErrorText] = useState("");
@@ -66,12 +66,7 @@ const Login = () => {
                             setErrorText('');
                             if (res.data.token) {
                                 localStorage.setItem("canary_user", JSON.stringify(res.data));
-                                storeExpiry("canary_user_auth_token", res.data.token, ((Number(res.data.expiryDuration) * 60000)/4), true);
-
-                                // dispatch({
-                                //     type: LOGIN_SUCCESS,
-                                //     payload: { user: res.data },
-                                // });
+                                storeExpiry("canary_user_auth_token", res.data.token, ((Number(res.data.expiryDuration) * 60000) / 4), true);
 
                                 dispatch(loginAction({ user: res.data }));
 
@@ -105,12 +100,14 @@ const Login = () => {
                                             {errorText}
                                         </div>
                                     )}
-                                    <div className="text-center"><Image
-                                        src={logo1}
-                                        alt="logo"
-                                        width="100px"
-                                        height="90px"
-                                    /></div>
+                                    <div className="text-center">
+                                        <Image
+                                            src={logo1}
+                                            alt="logo"
+                                            width="100px"
+                                            height="90px"
+                                        />
+                                    </div>
 
                                     <h3 className="Auth-form-title">Sign In </h3>
                                     <div className="form-group mt-3">
@@ -162,4 +159,5 @@ const Login = () => {
         </div>
     );
 }
+
 export default Login;

@@ -63,7 +63,7 @@ const UploadSku = (props: { helper: { buttonClass: string; buttonName: string; }
     const inheritFunctions = (data: any) => {
         closePopUp();
         setTimeout(() => {
-            //window.location.reload();
+            window.location.reload();
         }, 1000);
     }
 

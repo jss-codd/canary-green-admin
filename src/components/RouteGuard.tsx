@@ -6,16 +6,12 @@ import { useSelector } from "react-redux";
 export { RouteGuard };
 
 // redirect to login page if accessing a private page and not logged in
-export const publicPaths = [
-  "/login",
-  "/",
-  "/logout"
-];
+export const publicPaths = ["/login", "/", "/logout"];
 
 function RouteGuard({ children }: any) {
   const router = useRouter();
   const [authorized, setAuthorized] = useState(false);
-  
+
   const { user: currentUser } = useSelector((state: any) => state.auth);
 
   useEffect(() => {
@@ -42,7 +38,7 @@ function RouteGuard({ children }: any) {
     let conditionUser = currentUser;
 
     let path = url.split("?")[0];
-    path = "/"+path.split('/')[1];
+    path = "/" + path.split('/')[1];
 
     comparePath = publicPaths;
 

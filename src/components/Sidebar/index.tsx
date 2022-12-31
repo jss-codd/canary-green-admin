@@ -31,13 +31,10 @@ function Sidebar() {
   const doLogout = () => {
     logout(dispatch);
   };
-  
+
   return (
     <>
-      <nav
-        id='sidenav-main'
-        className='navbar-vertical fixed-left navbar-light bg-white navbar navbar-expand-md'
-      >
+      <nav id='sidenav-main' className='navbar-vertical fixed-left navbar-light bg-white navbar navbar-expand-md'>
         <div className='container-fluid'>
           <button className='navbar-toggler' type='button'>
             <span className='navbar-toggler-icon'></span>
@@ -145,7 +142,7 @@ function Sidebar() {
                 </Link>
               </li>
 
-              <li className='nav-item '>
+              <li className='nav-item'>
                 <Link href='/brand'>
                   <a
                     onClick={(e) => {
@@ -167,7 +164,7 @@ function Sidebar() {
               </li>
               <Collapse isOpen={router.pathname == '/brand-registrations' || router.pathname == '/brand-master' || router.pathname == '/sku-master' || router.pathname == '/subscriptions' || router.pathname == '/coal-mine' ? !collapseOpenBrand : collapseOpenBrand}>
                 <ul className='sidebar-nav'>
-                  <li className='nav-item '>
+                  <li className='nav-item'>
                     <Link href='/brand-registrations'>
                       <a
                         className={
@@ -180,7 +177,7 @@ function Sidebar() {
                       </a>
                     </Link>
                   </li>
-                  <li className='nav-item '>
+                  <li className='nav-item'>
                     <Link href='./brand-master'>
                       <a
                         className={
@@ -193,7 +190,7 @@ function Sidebar() {
                       </a>
                     </Link>
                   </li>
-                  <li className='nav-item '>
+                  <li className='nav-item'>
                     <Link href='/sku-master'>
                       <a
                         className={
@@ -206,7 +203,7 @@ function Sidebar() {
                       </a>
                     </Link>
                   </li>
-                  <li className='nav-item '>
+                  <li className='nav-item'>
                     <Link href='./subscriptions'>
                       <a
                         className={
@@ -219,7 +216,7 @@ function Sidebar() {
                       </a>
                     </Link>
                   </li>
-                  <li className='nav-item '>
+                  <li className='nav-item'>
                     <Link href='./coal-mine'>
                       <a
                         className={

@@ -49,12 +49,12 @@ function postWithAuth(url: RequestInfo, body: any) {
 
 function fileWithAuth(url: RequestInfo, body: any) {
     const requestOptions = {
-      method: "POST",
-      body: body,
-      headers: { ...authHeader() },
+        method: "POST",
+        body: body,
+        headers: { ...authHeader() },
     };
     return fetch(url, requestOptions);
-  }
+}
 
 function putNoAuth(url: RequestInfo, body: any) {
     const requestOptions = {
