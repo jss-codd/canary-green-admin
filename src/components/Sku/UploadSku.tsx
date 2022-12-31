@@ -8,7 +8,9 @@ import { commonUpload } from "../../services/UserServices";
 const PopUp = React.forwardRef(({ content, formProps, ...props }: any, ref) => {
     return (
         <Popover ref={ref} {...props} style={{ width: "70%" }}>
-            <div className="px-1 mb-2"><a target="_blank" href={`${process.env.WEB_PATH}/sample/Canary-Product-Update-Upload-Sheet.xlsx`} className="text-primary"><FaCloudDownloadAlt /> Download Sample File</a></div>
+            <div className="px-1 mb-2">
+                <a target="_blank" rel="noreferrer" href={`${process.env.WEB_PATH}/sample/Canary-Product-Update-Upload-Sheet.xlsx`} className="text-primary"><FaCloudDownloadAlt /> Download Sample File</a>
+            </div>
             <FormikHelper {...formProps}></FormikHelper>
         </Popover>
     );
