@@ -126,7 +126,7 @@ const FormikHelper = (props: {
                                                 )}
                                             </>
                                         ) : (d.type === 'file' ?
-                                            (<input type='file' className={d.className || `form-control`} name={d.name} onChange={(e: any) => {
+                                            (<input type='file' accept={d.accept} className={d.className || `form-control`} name={d.name} onChange={(e: any) => {
                                                 formik.setFieldValue(d.name, e.currentTarget.files[0]);
                                             }
                                             } />) :

@@ -32,7 +32,6 @@ function Sidebar() {
     logout(dispatch);
   };
   
-
   return (
     <>
       <nav
@@ -129,7 +128,6 @@ function Sidebar() {
                 </div>
               </div>
             </form>
-            {/* || router.pathname == '/Settings' */}
 
             <ul className='navbar-nav'>
               <li className='nav-item'>
