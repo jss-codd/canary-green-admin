@@ -22,7 +22,7 @@ const initialValues = {
     skuFile: ""
 };
 
-const FILE_SIZE = 1 * 1024 * 1024; // for 1MB
+const FILE_SIZE = 1 * 512 * 1024; // for .5mb
 
 const SUPPORTED_FORMATS = [
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -34,12 +34,12 @@ const validationSchema = Yup.object().shape({
         .required("A file is required")
         .test(
             "fileSize",
-            "File too large (1 MB max limit)",
+            "File too large (512 KB max limit)",
             (value: { size: number; }) => value && value.size <= FILE_SIZE
         )
         .test(
             "fileFormat",
-            "Unsupported Format (Only xlsx files supported)",
+            "Unsupported Format (Only .xlsx files supported)",
             (value: { type: string; }) => value && SUPPORTED_FORMATS.includes(value.type)
         )
 });
@@ -47,8 +47,6 @@ const validationSchema = Yup.object().shape({
 const UploadSku = (props: { helper: { buttonClass: string; buttonName: string; }; }) => {
     const { buttonClass, buttonName } = props.helper;
     const popUpTriggerRef = useRef<any>(null);
-
-    const [formValues, setFormValues] = useState(initialValues);
 
     const closePopUp = () => popUpTriggerRef?.current?.close();
 
@@ -68,7 +66,7 @@ const UploadSku = (props: { helper: { buttonClass: string; buttonName: string; }
     }
 
     const formProps = {
-        initialValues: formValues,
+        initialValues,
         validationSchema,
         sendFunction: commonUpload,
         fields,

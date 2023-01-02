@@ -538,7 +538,7 @@ export default function SkuMaster() {
                       <th scope='col' style={{ textAlign: 'center' }}>Brand</th>
                       <th scope='col'>Product Name</th>
                       <th scope='col'>Category</th>
-                      <th scope='col'>Sub Category</th>
+                      <th scope='col'>Size</th>
                       <th></th>
                     </tr>
                   </thead>
@@ -550,7 +550,7 @@ export default function SkuMaster() {
                           <td style={{ whiteSpace: "normal" }}>{post.BRAND || 'NA'}</td>
                           <td style={{ whiteSpace: "normal" }}>{post.ITEM_NAME}</td>
                           <td style={{ whiteSpace: "normal" }}>{post.CATEGORY_NAME}</td>
-                          <td style={{ whiteSpace: "normal" }}>{post.CATEGORY_TYPE}</td>
+                          <td style={{ whiteSpace: "normal" }}>{post.SIZE}</td>
                           <td>
                             <AddSku helper={editSkuHelper} formData={post} />
                           </td>
