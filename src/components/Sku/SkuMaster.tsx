@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { SelectPicker, Modal, Button } from 'rsuite';
+import { SelectPicker, Modal, Button, Table } from 'rsuite';
 import axios from 'axios';
 import { Pagination } from 'antd';
 import { useDispatch } from 'react-redux';
 import { toast } from "react-toastify";
+const { Column, HeaderCell, Cell } = Table;
 
 import { authHeader } from '../../helpers/auth-header';
 import { commonFetchAllAuth, commonSubmit, logout } from '../../services/UserServices';
@@ -22,7 +23,6 @@ export default function SkuMaster() {
   const [RFIDItem, setRFIDItem] = useState<any[]>([]);
 
   const [posts, setPosts] = useState<any[]>([]);
-  const [filterPosts, setFilterPosts] = useState<any[]>([]);
   const [filterPostsExc, setFilterPostsExc] = useState<any[]>([]);
   const [filterRFID, setFilterRFID] = useState<any[]>([]);
   const [product, setProduct] = useState<any[]>([]);
@@ -59,6 +59,10 @@ export default function SkuMaster() {
   const [searchBrandExc, setSearchBrandExc] = useState('');
   const [mapConfirmModalShow, setMapConfirmModalShow] = useState(false);
   const [mapConfirmPopupObj, setMapConfirmPopupObj] = useState({ rfid: "", mapped_item: "", mapped_to_item: "", mapped_item_id: 0, mapped_to_item_id: 0, index: 0 });
+
+  const [sortColumn, setSortColumn] = useState();
+  const [sortType, setSortType] = useState();
+  const [loading, setLoading] = useState(false);
 
   const addSkuHelper = {
     setProduct,
@@ -121,6 +125,7 @@ export default function SkuMaster() {
 
   const loadData = async (search = '', pageno = 0, limit = 10) => {
     setLoadingClass('loading');
+    setLoading(true);
     const defaultOptions = {
       headers: {
         ...authHeader(),
@@ -133,9 +138,9 @@ export default function SkuMaster() {
       )
       .then((response) => {
         setPosts(response?.data || []);
-        setFilterPosts((response?.data || []).slice(0, postsPerPage));
         setTotal(response?.data?.length || 0);
         setLoadingClass('');
+        setLoading(false);
         setProduct(response?.data?.map((d: { ITEM_NAME: any; ID: any; }) => ({ label: d.ITEM_NAME, value: d.ID })));
       })
       .catch((error) => {
@@ -279,22 +284,18 @@ export default function SkuMaster() {
   useEffect(() => {
     let filteredPost = posts;
     if (filteredPost.length > 0) {
-
-      const start = (+page - 1) * postsPerPage;
-      const end = +postsPerPage + (+start);
-
-      filteredPost = filteredPost.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchText.toLowerCase()));
+      if (searchText) {
+        filteredPost = filteredPost.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchText.toLowerCase()));
+      }
 
       if (searchBrand) {
         const getBrandLabel = brandList.find((d) => d.value === searchBrand)?.label;
         filteredPost = filteredPost.filter((d) => d.BRAND === getBrandLabel);
       }
 
-      setFilterPosts(filteredPost.slice(start, end));
-
       setTotal(filteredPost.length);
     }
-  }, [searchText, page, postsPerPage, skuChanged, searchBrand]);
+  }, [searchText, skuChanged, searchBrand]);
 
   //run when search enter, page change, post per change for SKU Exceptions Master
   useEffect(() => {
@@ -415,6 +416,72 @@ export default function SkuMaster() {
     getFormList(dispatch).then((data) => setFormList(data?.map((d: { NAME: any; ID: any; }) => ({ label: d.NAME, value: d.ID }))));
   }, [])
 
+  const getSKUTableData = () => {
+    const start = (+page - 1) * postsPerPage;
+
+    const end = +postsPerPage + (+start);
+
+    let filteredPost = posts;
+
+    if (searchText) {
+      filteredPost = filteredPost.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchText.toLowerCase()));
+    }
+
+    if (searchBrand) {
+      const getBrandLabel = brandList.find((d) => d.value === searchBrand)?.label;
+      filteredPost = filteredPost.filter((d) => d.BRAND === getBrandLabel);
+    }
+
+    if (sortColumn && sortType) {
+      const sorted = filteredPost.sort((a, b) => {
+        let x = a[sortColumn];
+        let y = b[sortColumn];
+        if (typeof x === 'string') {
+          x = x.charCodeAt(0);
+        }
+        if (typeof y === 'string') {
+          y = y.charCodeAt(0);
+        }
+        if (sortType === 'asc') {
+          return x - y;
+        } else {
+          return y - x;
+        }
+      });
+
+      return sorted.slice(start, end);
+    }
+
+    return filteredPost.slice(start, end);
+  };
+
+  const handleSortColumn = (sortColumn: any, sortType: any) => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      setSortColumn(sortColumn);
+      setSortType(sortType);
+    }, 500);
+  };
+
+  const setSearchTextHandler = (searchText: any) => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      setPage(1);
+      setSearchText(searchText);
+    }, 100);
+  };
+
+  const setSearchBrandHandler = (searchBrand: any) => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      setPage(1);
+      setSearchBrand(searchBrand)
+    }, 100);
+  };
+
   return (
     <>
       <div className={bodyLoaderClass}></div>
@@ -437,11 +504,10 @@ export default function SkuMaster() {
                     aria-label='Search'
                     value={searchText}
                     onChange={(e) => {
-                      setPage(1);
-                      setSearchText(e.target.value);
+                      setSearchTextHandler(e.target.value);
                     }}
                   />
-                  <SelectPicker value={searchBrand} placeholder="All Brands" size="lg" data={brandList} style={{ width: 200 }} onChange={(d: any) => setSearchBrand(d)} />
+                  <SelectPicker value={searchBrand} placeholder="All Brands" size="lg" data={brandList} style={{ width: 200 }} onChange={(d: any) => setSearchBrandHandler(d)} />
                 </>
               )}
               {basicActive === 'tab2' && (
@@ -530,51 +596,56 @@ export default function SkuMaster() {
             role='tabpanel'
           >
             <div className='shadow card my-4'>
-              <div className='table-responsive'>
-                <table className={`align-items-center table-flush table mb-2 table-sm ${loadingClass}`}>
-                  <thead className='thead-light'>
-                    <tr>
-                      <th scope='col'>ID</th>
-                      <th scope='col' style={{ textAlign: 'center' }}>Brand</th>
-                      <th scope='col'>Product Name</th>
-                      <th scope='col'>Category</th>
-                      <th scope='col'>Size</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filterPosts.length > 0 ? (
-                      filterPosts.map((post: any, i: Number) => (
-                        <tr key={post.ID}>
-                          <td style={{ whiteSpace: "normal" }}>{post.ID}</td>
-                          <td style={{ whiteSpace: "normal" }}>{post.BRAND || 'NA'}</td>
-                          <td style={{ whiteSpace: "normal" }}>{post.ITEM_NAME}</td>
-                          <td style={{ whiteSpace: "normal" }}>{post.CATEGORY_NAME}</td>
-                          <td style={{ whiteSpace: "normal" }}>{post.SIZE}</td>
-                          <td>
-                            <AddSku helper={editSkuHelper} formData={post} />
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan={6}>&nbsp;</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-                <div className='col text-right'>
-                  <Pagination
-                    onChange={(value) => setPage(value)}
-                    pageSize={postsPerPage}
-                    total={total}
-                    current={page}
-                    showSizeChanger
-                    showQuickJumper
-                    onShowSizeChange={onShowSizeChange}
-                    itemRender={itemRender}
-                  />
-                </div>
+              <Table
+                height={420}
+                autoHeight={true}
+                data={getSKUTableData()}
+                sortColumn={sortColumn}
+                sortType={sortType}
+                onSortColumn={handleSortColumn}
+                loading={loading}
+                wordWrap="break-word"
+              >
+                <Column width={100} align="center" fixed sortable>
+                  <HeaderCell style={{ fontSize: "16px" }}>ID</HeaderCell>
+                  <Cell dataKey="ID" />
+                </Column>
+                <Column width={200} sortable>
+                  <HeaderCell style={{ fontSize: "16px" }}>BRAND</HeaderCell>
+                  <Cell dataKey="BRAND" />
+                </Column>
+                <Column width={300} sortable>
+                  <HeaderCell style={{ fontSize: "16px" }}>PRODUCT NAME</HeaderCell>
+                  <Cell dataKey="ITEM_NAME" />
+                </Column>
+
+                <Column width={200} sortable>
+                  <HeaderCell style={{ fontSize: "16px" }}>CATEGORY</HeaderCell>
+                  <Cell dataKey="CATEGORY_NAME" />
+                </Column>
+
+                <Column width={100} sortable>
+                  <HeaderCell style={{ fontSize: "16px" }}>SIZE</HeaderCell>
+                  <Cell dataKey="SIZE" />
+                </Column>
+                <Column width={100}>
+                  <HeaderCell>{" "}</HeaderCell>
+                  <Cell style={{ padding: '10px 0' }}>
+                    {(rowData: any) => <AddSku helper={editSkuHelper} formData={rowData} />}
+                  </Cell>
+                </Column>
+              </Table>
+              <div className='col text-right'>
+                <Pagination
+                  onChange={(value) => setPage(value)}
+                  pageSize={postsPerPage}
+                  total={total}
+                  current={page}
+                  showSizeChanger
+                  showQuickJumper
+                  onShowSizeChange={onShowSizeChange}
+                  itemRender={itemRender}
+                />
               </div>
             </div>
           </div>
