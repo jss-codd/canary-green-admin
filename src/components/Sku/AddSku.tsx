@@ -4,10 +4,10 @@ import * as Yup from "yup";
 import FormikHelper from "../../helpers/formikHelper";
 import { commonSubmit, commonPut } from "../../services/UserServices";
 
-const AddProductPopUp = React.forwardRef(({ content, formProps, ...props }: any, ref) => {
+const AddProductPopUp = React.forwardRef(({ content, formProps, RFID, ...props }: any, ref) => {
     return (
         <Popover ref={ref} {...props} style={{ width: "70%" }}>
-            {formProps.updatedID > 0 ? <h3 className="text-center">SKU ID: {formProps.updatedID}</h3> : ""}
+            {formProps.updatedID > 0 ? <h3 className="text-center">SKU ID: {formProps.updatedID} <br></br>RFID: {RFID}</h3> : ""}
             <FormikHelper {...formProps}></FormikHelper>
         </Popover>
     );
@@ -33,7 +33,7 @@ const validationSchema = Yup.object().shape({
     productCategory: Yup.string().trim().required("*required field"),
     dominance: Yup.string().trim(),
     tier: Yup.string().trim().oneOf(['Good', 'Better', 'Best'], 'Invalid tier selection').required("*required field"),
-    flavorStrain: Yup.string().trim().required("*required field"),
+    flavorStrain: Yup.string().trim(),
     form: Yup.string().trim().required("*required field"),
 });
 
@@ -41,10 +41,10 @@ const tier = ['Good', 'Better', 'Best'];
 
 const AddSku = (props: {
     helper: { setProduct: any; setSkuChanged: any; setPosts: any; brandList: any[]; sizeList: any[]; categoryList: any[]; dominanceList: any[]; flavorStrainList: any[]; formList: any[]; buttonName: any; buttonClass: any; };
-    formData: { ID: any; SIZE: any; BRAND: any; CATEGORY_NAME: any; DOMINANCE: any; TIER: any; FLAVOR_STRAIN: any; FORM: any; ITEM_NAME: any; };
+    formData: { ID: any; SIZE: any; BRAND: any; CATEGORY_NAME: any; DOMINANCE: any; TIER: any; FLAVOR_STRAIN: any; FORM: any; ITEM_NAME: any; RFID: any; };
 }) => {
     const { setProduct, setSkuChanged, setPosts, brandList, sizeList, categoryList, dominanceList, flavorStrainList, formList, buttonName, buttonClass } = props.helper;
-    const { ID, SIZE, BRAND, CATEGORY_NAME, DOMINANCE, TIER, FLAVOR_STRAIN, FORM, ITEM_NAME } = props.formData;
+    const { ID, SIZE, BRAND, CATEGORY_NAME, DOMINANCE, TIER, FLAVOR_STRAIN, FORM, ITEM_NAME, RFID } = props.formData;
 
     const addProductTriggerRef = useRef<any>(null);
 
@@ -89,9 +89,9 @@ const AddSku = (props: {
     }
 
     useEffect(() => {
-        if (ID > 0) {
-            setFormValues({ productName: ITEM_NAME || "", productSize: SIZE || "", productBrand: BRAND || "", productCategory: CATEGORY_NAME || "", dominance: DOMINANCE || "", tier: TIER || "", flavorStrain: FLAVOR_STRAIN || "", form: FORM || "" });
-        }
+        //if (ID > 0) {
+        setFormValues({ productName: ITEM_NAME || "", productSize: SIZE || "", productBrand: BRAND || "", productCategory: CATEGORY_NAME || "", dominance: DOMINANCE || "", tier: TIER || "", flavorStrain: FLAVOR_STRAIN || "", form: FORM || "" });
+        //}
     }, [ITEM_NAME, SIZE, BRAND, CATEGORY_NAME, DOMINANCE, TIER, FLAVOR_STRAIN, FORM])
 
     return (
@@ -100,7 +100,7 @@ const AddSku = (props: {
             controlId="control-id-click"
             ref={addProductTriggerRef}
             placement="auto"
-            speaker={<AddProductPopUp content={""} formProps={formProps} />}
+            speaker={<AddProductPopUp content={""} formProps={formProps} RFID={RFID} />}
         >
             <button className={`${buttonClass}`}>
                 {buttonName}

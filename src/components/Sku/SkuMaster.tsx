@@ -23,8 +23,6 @@ export default function SkuMaster() {
   const [RFIDItem, setRFIDItem] = useState<any[]>([]);
 
   const [posts, setPosts] = useState<any[]>([]);
-  const [filterPostsExc, setFilterPostsExc] = useState<any[]>([]);
-  const [filterRFID, setFilterRFID] = useState<any[]>([]);
   const [product, setProduct] = useState<any[]>([]);
 
   const [searchText, setSearchText] = useState('');
@@ -39,9 +37,6 @@ export default function SkuMaster() {
   const [postsPerPage, setPostsPerPage] = useState(10);
   const [postsPerPageExc, setPostsPerPageExc] = useState(10);
   const [perPageRFID, setPerPageRFID] = useState(10);
-  const [loadingClass, setLoadingClass] = useState('');
-  const [loadingClassExc, setLoadingClassExc] = useState('');
-  const [loadingClassRFID, setLoadingClassRFID] = useState('');
   const [bodyLoaderClass, setBodyLoaderClass] = useState("");
 
   const [selectValue, setSelectValue] = React.useState<any[]>([]);
@@ -63,6 +58,14 @@ export default function SkuMaster() {
   const [sortColumn, setSortColumn] = useState();
   const [sortType, setSortType] = useState();
   const [loading, setLoading] = useState(false);
+
+  const [sortColumnRFID, setSortColumnRFID] = useState();
+  const [sortTypeRFID, setSortTypeRFID] = useState();
+  const [loadingRFID, setLoadingRFID] = useState(false);
+
+  const [sortColumnExc, setSortColumnExc] = useState();
+  const [sortTypeExc, setSortTypeExc] = useState();
+  const [loadingExc, setLoadingExc] = useState(false);
 
   const addSkuHelper = {
     setProduct,
@@ -92,6 +95,20 @@ export default function SkuMaster() {
     buttonClass: "btn btn-success btn-sm",
   }
 
+  const cloneSkuHelper = {
+    setProduct,
+    setSkuChanged,
+    setPosts,
+    brandList,
+    sizeList,
+    categoryList,
+    dominanceList,
+    flavorStrainList,
+    formList,
+    buttonName: 'Clone',
+    buttonClass: "btn btn-primary btn-sm",
+  }
+
   const editBatchHelper = {
     setRFIDChanged,
     setRFIDItem,
@@ -113,7 +130,8 @@ export default function SkuMaster() {
     ITEM_NAME: "",
     TIER: "",
     FLAVOR_STRAIN: "",
-    FORM: ""
+    FORM: "",
+    RFID: ""
   };
 
   const handleBasicClick = (value: string) => {
@@ -124,7 +142,6 @@ export default function SkuMaster() {
   };
 
   const loadData = async (search = '', pageno = 0, limit = 10) => {
-    setLoadingClass('loading');
     setLoading(true);
     const defaultOptions = {
       headers: {
@@ -139,7 +156,6 @@ export default function SkuMaster() {
       .then((response) => {
         setPosts(response?.data || []);
         setTotal(response?.data?.length || 0);
-        setLoadingClass('');
         setLoading(false);
         setProduct(response?.data?.map((d: { ITEM_NAME: any; ID: any; }) => ({ label: d.ITEM_NAME, value: d.ID })));
       })
@@ -302,42 +318,36 @@ export default function SkuMaster() {
     let filteredPost = exceptionsItem;
 
     if (filteredPost.length > 0) {
-      const start = (+pageExc - 1) * postsPerPageExc;
-      const end = +postsPerPageExc + (+start);
-
-      filteredPost = filteredPost.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchTextExc.toLowerCase()));
+      if (searchTextExc) {
+        filteredPost = filteredPost.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchTextExc.toLowerCase()));
+      }
 
       if (searchBrandExc) {
         const getBrandLabel = brandList.find((d) => d.value === searchBrandExc)?.label;
         filteredPost = filteredPost.filter((d) => d.BRAND === getBrandLabel);
       }
 
-      setFilterPostsExc(filteredPost.slice(start, end));
-
       setTotalExc(filteredPost.length);
     }
-  }, [searchTextExc, pageExc, postsPerPageExc, searchBrandExc, excChanged]);
+  }, [searchTextExc, searchBrandExc, excChanged]);
 
   //run when search enter, page change, post per change for RFID Master
   useEffect(() => {
     let filteredPost = RFIDItem;
 
     if (filteredPost.length > 0) {
-      const start = (+pageRFID - 1) * perPageRFID;
-      const end = +perPageRFID + (+start);
-
-      filteredPost = filteredPost.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchTextRFID.toLowerCase()));
+      if (searchTextRFID) {
+        filteredPost = filteredPost.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchTextRFID.toLowerCase()));
+      }
 
       if (searchBrandRFID) {
         const getBrandLabel = brandList.find((d) => d.value === searchBrandRFID)?.label;
         filteredPost = filteredPost.filter((d) => d.BRAND === getBrandLabel);
       }
 
-      setFilterRFID(filteredPost.slice(start, end));
-
       setTotalRFID(filteredPost.length);
     }
-  }, [searchTextRFID, pageRFID, perPageRFID, RFIDChanged, searchBrandRFID]);
+  }, [searchTextRFID, RFIDChanged, searchBrandRFID]);
 
   //call api for sku products
   useEffect(() => {
@@ -347,7 +357,7 @@ export default function SkuMaster() {
   // sku exception items
   useEffect(() => {
     const getExceptionsItem = () => {
-      setLoadingClassExc('loading');
+      setLoadingExc(true);
       commonFetchAllAuth('sku-exceptions-items', dispatch)
         .then((res: any) => {
           if (!res || res.status != 200) {
@@ -359,12 +369,11 @@ export default function SkuMaster() {
           (data) => {
             setExceptionsItem(data);
             setSelectValue(new Array(data?.length).fill(""));
-            setFilterPostsExc((data || []).slice(0, postsPerPageExc));
             setTotalExc(data?.length || 0);
-            setLoadingClassExc('');
+            setLoadingExc(false);
           },
           (err) => {
-            setLoadingClassExc('');
+            setLoadingExc(false);
             console.log(err);
           }
         );
@@ -376,7 +385,7 @@ export default function SkuMaster() {
   //RFIDS Tab
   useEffect(() => {
     const getBatchInventory = () => {
-      setLoadingClassRFID('loading');
+      setLoadingRFID(true);
       commonFetchAllAuth('batch-level-inventory', dispatch)
         .then((res: any) => {
           if (!res || res.status != 200) {
@@ -387,12 +396,11 @@ export default function SkuMaster() {
         .then(
           (data) => {
             setRFIDItem(data);
-            setFilterRFID((data || []).slice(0, perPageRFID));
             setTotalRFID(data?.length || 0);
-            setLoadingClassRFID('');
+            setLoadingRFID(false);
           },
           (err) => {
-            setLoadingClassRFID('');
+            setLoadingRFID(false);
             console.log(err);
           }
         );
@@ -416,6 +424,7 @@ export default function SkuMaster() {
     getFormList(dispatch).then((data) => setFormList(data?.map((d: { NAME: any; ID: any; }) => ({ label: d.NAME, value: d.ID }))));
   }, [])
 
+  //FOR SKU TAB
   const getSKUTableData = () => {
     const start = (+page - 1) * postsPerPage;
 
@@ -482,6 +491,144 @@ export default function SkuMaster() {
     }, 100);
   };
 
+  //FOR RFID TAB
+  const getRFIDTableData = () => {
+    const start = (+pageRFID - 1) * perPageRFID;
+
+    const end = +perPageRFID + (+start);
+
+    let filteredPost = RFIDItem;
+
+    if (searchTextRFID) {
+      filteredPost = filteredPost.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchTextRFID.toLowerCase()));
+    }
+
+    if (searchBrandRFID) {
+      const getBrandLabel = brandList.find((d) => d.value === searchBrandRFID)?.label;
+      filteredPost = filteredPost.filter((d) => d.BRAND === getBrandLabel);
+    }
+
+    if (sortColumnRFID && sortTypeRFID) {
+      const sorted = filteredPost.sort((a, b) => {
+        let x = a[sortColumnRFID];
+        let y = b[sortColumnRFID];
+
+        if (typeof x === 'string') {
+          x = x.charCodeAt(0);
+        }
+        if (typeof y === 'string') {
+          y = y.charCodeAt(0);
+        }
+
+        if (sortTypeRFID === 'asc') {
+          return x - y;
+        } else {
+          return y - x;
+        }
+      });
+
+      return sorted.slice(start, end);
+    }
+
+    return filteredPost.slice(start, end);
+  };
+
+  const handleSortColumnRFID = (sortColumn: any, sortType: any) => {
+    setLoadingRFID(true);
+    setTimeout(() => {
+      setLoadingRFID(false);
+      setSortColumnRFID(sortColumn);
+      setSortTypeRFID(sortType);
+    }, 500);
+  };
+
+  const setSearchTextRFIDHandler = (searchText: any) => {
+    setLoadingRFID(true);
+    setTimeout(() => {
+      setLoadingRFID(false);
+      setPageRFID(1);
+      setSearchTextRFID(searchText);
+    }, 100);
+  };
+
+  const setSearchBrandRFIDHandler = (searchBrand: any) => {
+    setLoadingRFID(true);
+    setTimeout(() => {
+      setLoadingRFID(false);
+      setPageRFID(1);
+      setSearchBrandRFID(searchBrand)
+    }, 100);
+  };
+
+  //FOR EXCEPTIONS TAB
+  const getExcTableData = () => {
+    const start = (+pageExc - 1) * postsPerPageExc;
+
+    const end = +postsPerPageExc + (+start);
+
+    let filteredPost = exceptionsItem;
+
+    if (searchTextExc) {
+      filteredPost = filteredPost.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchTextExc.toLowerCase()));
+    }
+
+    if (searchBrandExc) {
+      const getBrandLabel = brandList.find((d) => d.value === searchBrandExc)?.label;
+      filteredPost = filteredPost.filter((d) => d.BRAND === getBrandLabel);
+    }
+
+    if (sortColumnExc && sortTypeExc) {
+      const sorted = filteredPost.sort((a, b) => {
+        let x = a[sortColumnExc];
+        let y = b[sortTypeExc];
+
+        if (typeof x === 'string') {
+          x = x.charCodeAt(0);
+        }
+        if (typeof y === 'string') {
+          y = y.charCodeAt(0);
+        }
+
+        if (sortTypeExc === 'asc') {
+          return x - y;
+        } else {
+          return y - x;
+        }
+      });
+
+      return sorted.slice(start, end);
+    }
+
+    return filteredPost.slice(start, end);
+  };
+
+  const handleSortColumnExc = (sortColumn: any, sortType: any) => {
+    setLoadingExc(true);
+    setTimeout(() => {
+      setLoadingExc(false);
+      setSortColumnExc(sortColumn);
+      setSortTypeExc(sortType);
+    }, 500);
+  };
+
+  const setSearchTextExcHandler = (searchText: any) => {
+    setLoadingExc(true);
+    setTimeout(() => {
+      setLoadingExc(false);
+      setPageExc(1);
+      setSearchTextExc(searchText);
+    }, 100);
+  };
+
+  const setSearchBrandExcHandler = (searchBrand: any) => {
+    setLoadingExc(true);
+    setTimeout(() => {
+      setLoadingExc(false);
+      setPageExc(1);
+      setSearchBrandExc(searchBrand)
+    }, 100);
+  };
+
   return (
     <>
       <div className={bodyLoaderClass}></div>
@@ -519,11 +666,10 @@ export default function SkuMaster() {
                     aria-label='Search'
                     value={searchTextRFID}
                     onChange={(e) => {
-                      setPageRFID(1);
-                      setSearchTextRFID(e.target.value);
+                      setSearchTextRFIDHandler(e.target.value);
                     }}
                   />
-                  <SelectPicker value={searchBrandRFID} placeholder="All Brands" size="lg" data={brandList} style={{ width: 200 }} onChange={(d: any) => setSearchBrandRFID(d)} />
+                  <SelectPicker value={searchBrandRFID} placeholder="All Brands" size="lg" data={brandList} style={{ width: 200 }} onChange={(d: any) => setSearchBrandRFIDHandler(d)} />
                 </>
               )}
               {basicActive === 'tab3' && (
@@ -535,11 +681,10 @@ export default function SkuMaster() {
                     aria-label='Search'
                     value={searchTextExc}
                     onChange={(e) => {
-                      setPageExc(1);
-                      setSearchTextExc(e.target.value);
+                      setSearchTextExcHandler(e.target.value);
                     }}
                   />
-                  <SelectPicker value={searchBrandExc} placeholder="All Brands" size="lg" data={brandList} style={{ width: 200 }} onChange={(d: any) => setSearchBrandExc(d)} />
+                  <SelectPicker value={searchBrandExc} placeholder="All Brands" size="lg" data={brandList} style={{ width: 200 }} onChange={(d: any) => setSearchBrandExcHandler(d)} />
                 </>
               )}
             </form>{' '}
@@ -610,16 +755,16 @@ export default function SkuMaster() {
                   <HeaderCell style={{ fontSize: "16px" }}>ID</HeaderCell>
                   <Cell dataKey="ID" />
                 </Column>
-                <Column width={200} sortable>
+                <Column width={175} sortable>
                   <HeaderCell style={{ fontSize: "16px" }}>BRAND</HeaderCell>
                   <Cell dataKey="BRAND" />
                 </Column>
-                <Column width={300} sortable>
+                <Column width={250} sortable>
                   <HeaderCell style={{ fontSize: "16px" }}>PRODUCT NAME</HeaderCell>
                   <Cell dataKey="ITEM_NAME" />
                 </Column>
 
-                <Column width={200} sortable>
+                <Column width={175} sortable>
                   <HeaderCell style={{ fontSize: "16px" }}>CATEGORY</HeaderCell>
                   <Cell dataKey="CATEGORY_NAME" />
                 </Column>
@@ -628,10 +773,18 @@ export default function SkuMaster() {
                   <HeaderCell style={{ fontSize: "16px" }}>SIZE</HeaderCell>
                   <Cell dataKey="SIZE" />
                 </Column>
-                <Column width={100}>
+
+                <Column width={75}>
                   <HeaderCell>{" "}</HeaderCell>
                   <Cell style={{ padding: '10px 0' }}>
                     {(rowData: any) => <AddSku helper={editSkuHelper} formData={rowData} />}
+                  </Cell>
+                </Column>
+
+                <Column width={75}>
+                  <HeaderCell>{" "}</HeaderCell>
+                  <Cell style={{ padding: '10px 0' }}>
+                    {(rowData: any) => <AddSku helper={cloneSkuHelper} formData={{...rowData, ID: 0}} />}
                   </Cell>
                 </Column>
               </Table>
@@ -659,49 +812,54 @@ export default function SkuMaster() {
             role='tabpanel'
           >
             <div className='shadow card my-4'>
-              <div className='table-responsive'>
-                <table className={`align-items-center table-flush table mb-2 ${loadingClassRFID}`}>
-                  <thead className='thead-light'>
-                    <tr>
-                      <th scope='col'>RFID</th>
-                      <th scope='col'>Product Name</th>
-                      <th scope='col'>Location</th>
-                      <th scope='col'>Quan</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filterRFID.length > 0 ? (
-                      <>
-                        {filterRFID.map((d, i) => (
-                          <tr key={`rfid-${i}`}>
-                            <td style={{ whiteSpace: "normal" }}>{d.RFID}</td>
-                            <td style={{ whiteSpace: "normal" }}>{d.ITEM_NAME}</td>
-                            <td style={{ whiteSpace: "normal" }}>{d.NAME.replace(/___/g, ',')}</td>
-                            <td>{d.ONHANDD_VALUE}</td>
-                            <td><EditBatch helper={editBatchHelper} formData={d} /></td>
-                          </tr>
-                        ))}
-                      </>
-                    ) : (
-                      <tr>
-                        <td style={{ whiteSpace: "normal" }} colSpan={5}>&nbsp;</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-                <div className='col text-right'>
-                  <Pagination
-                    onChange={(value) => setPageRFID(value)}
-                    pageSize={perPageRFID}
-                    total={totalRFID}
-                    current={pageRFID}
-                    showSizeChanger
-                    showQuickJumper
-                    onShowSizeChange={onShowSizeChangeRFID}
-                    itemRender={itemRender}
-                  />
-                </div>
+              <Table
+                height={420}
+                autoHeight={true}
+                data={getRFIDTableData()}
+                sortColumn={sortColumnRFID}
+                sortType={sortTypeRFID}
+                onSortColumn={handleSortColumnRFID}
+                loading={loadingRFID}
+                wordWrap="break-word"
+              >
+                <Column width={300} align="center" fixed sortable>
+                  <HeaderCell style={{ fontSize: "16px" }}>RFID</HeaderCell>
+                  <Cell dataKey="RFID" />
+                </Column>
+                <Column width={300} sortable>
+                  <HeaderCell style={{ fontSize: "16px" }}>PRODUCT NAME</HeaderCell>
+                  <Cell dataKey="ITEM_NAME" />
+                </Column>
+                <Column width={200} sortable>
+                  <HeaderCell style={{ fontSize: "16px" }}>LOCATION</HeaderCell>
+                  <Cell>
+                    {(rowData: any) => rowData.NAME.replace(/___/g, ',')}
+                  </Cell>
+                </Column>
+
+                <Column width={100} sortable>
+                  <HeaderCell style={{ fontSize: "16px" }}>QUAN</HeaderCell>
+                  <Cell dataKey="ONHANDD_VALUE" />
+                </Column>
+
+                <Column width={100}>
+                  <HeaderCell>{" "}</HeaderCell>
+                  <Cell style={{ padding: '10px 0' }}>
+                    {(rowData: any) => <EditBatch helper={editBatchHelper} formData={rowData} />}
+                  </Cell>
+                </Column>
+              </Table>
+              <div className='col text-right'>
+                <Pagination
+                  onChange={(value) => setPageRFID(value)}
+                  pageSize={perPageRFID}
+                  total={totalRFID}
+                  current={pageRFID}
+                  showSizeChanger
+                  showQuickJumper
+                  onShowSizeChange={onShowSizeChangeRFID}
+                  itemRender={itemRender}
+                />
               </div>
             </div>
           </div>
@@ -715,49 +873,47 @@ export default function SkuMaster() {
             role='tabpanel'
           >
             <div className='shadow card my-4'>
-              <div className='table-responsive'>
-                <table className={`align-items-center table-flush table mb-2 table-sm ${loadingClassExc}`}>
-                  <thead className='thead-light'>
-                    <tr>
-                      <th>RFID</th>
-                      <th>Source Name</th>
-                      <th>Destination Name</th>
-                      <th>Product Name</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filterPostsExc.length > 0 ? (
-                      <>
-                        {filterPostsExc.map((d, i) => (
-                          <tr key={`exception-${i}`}>
-                            <td style={{ whiteSpace: "normal" }}>{d.RFID}</td>
-                            <td style={{ whiteSpace: "normal" }}>{d.ITEM_NAME}</td>
-                            <td style={{ whiteSpace: "normal" }}>{d.DESTINATION_ITEM_NAME}</td>
-                            <td style={{ whiteSpace: "normal" }}>
-                              <SelectPicker value={selectValue[i]} data={product} style={{ width: 150 }} onChange={(e: any) => productMap(e, d.ID, i)} />
-                            </td>
-                          </tr>
-                        ))}
-                      </>
-                    ) : (
-                      <tr>
-                        <td style={{ whiteSpace: "normal" }} colSpan={4}>&nbsp;</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-                <div className='col text-right'>
-                  <Pagination
-                    onChange={(value) => setPageExc(value)}
-                    pageSize={postsPerPageExc}
-                    total={totalExc}
-                    current={pageExc}
-                    showSizeChanger
-                    showQuickJumper
-                    onShowSizeChange={onShowSizeChangeExc}
-                    itemRender={itemRender}
-                  />
-                </div>
+              <Table
+                height={420}
+                autoHeight={true}
+                data={getExcTableData()}
+                sortColumn={sortColumnExc}
+                sortType={sortTypeExc}
+                onSortColumn={handleSortColumnExc}
+                loading={loadingExc}
+                wordWrap="break-word"
+              >
+                <Column width={250} align="center" fixed sortable>
+                  <HeaderCell style={{ fontSize: "16px" }}>RFID</HeaderCell>
+                  <Cell dataKey="RFID" />
+                </Column>
+                <Column width={250} sortable>
+                  <HeaderCell style={{ fontSize: "16px" }}>SOURCE NAME</HeaderCell>
+                  <Cell dataKey="ITEM_NAME" />
+                </Column>
+                <Column width={250} sortable>
+                  <HeaderCell style={{ fontSize: "16px" }}>DESTINATION NAME</HeaderCell>
+                  <Cell dataKey="DESTINATION_ITEM_NAME" />
+                </Column>
+
+                <Column width={250}>
+                  <HeaderCell style={{ fontSize: "16px" }}>PRODUCT NAME</HeaderCell>
+                  <Cell style={{ padding: '10px 0' }}>
+                    {(rowData: any, rowIndex: number | undefined) => <SelectPicker value={selectValue[rowIndex || 0]} data={product} style={{ width: 200 }} onChange={(e: any) => productMap(e, rowData.ID, rowIndex || 0)} />}
+                  </Cell>
+                </Column>
+              </Table>
+              <div className='col text-right'>
+                <Pagination
+                  onChange={(value) => setPageExc(value)}
+                  pageSize={postsPerPageExc}
+                  total={totalExc}
+                  current={pageExc}
+                  showSizeChanger
+                  showQuickJumper
+                  onShowSizeChange={onShowSizeChangeExc}
+                  itemRender={itemRender}
+                />
               </div>
             </div>
           </div>
