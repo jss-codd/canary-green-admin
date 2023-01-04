@@ -24,7 +24,8 @@ const initialValues = {
     RFID: "",
     ITEM_ID: "",
     BRAND: "",
-    ONHANDD: ""
+    ONHANDD: "",
+    UNIQUE_ID: ""
 };
 
 const validationSchema = Yup.object().shape({
@@ -33,10 +34,10 @@ const validationSchema = Yup.object().shape({
 
 const EditBatch = (props: {
     helper: { setRFIDChanged: any; setRFIDItem: any; buttonName: string; buttonClass: string; };
-    formData: { RFID: any; ITEM_NAME: any; NAME: any; ONHANDD_VALUE: any; ITEM_ID: any; BRAND: any; ONHANDD: any; };
+    formData: { RFID: any; ITEM_NAME: any; NAME: any; ONHANDD_VALUE: any; ITEM_ID: any; BRAND: any; ONHANDD: any; UNIQUE_ID: any; };
 }) => {
     const { setRFIDChanged, setRFIDItem, buttonName, buttonClass } = props.helper;
-    const { RFID, ITEM_NAME, NAME, ONHANDD_VALUE, ITEM_ID, BRAND, ONHANDD } = props.formData;
+    const { RFID, ITEM_NAME, NAME, ONHANDD_VALUE, ITEM_ID, BRAND, ONHANDD, UNIQUE_ID } = props.formData;
 
     const triggerRef = useRef<any>(null);
 
@@ -67,9 +68,9 @@ const EditBatch = (props: {
 
     useEffect(() => {
         if (NAME !== "") {
-            setFormValues({ RFID: RFID || "", ITEM_NAME: ITEM_NAME || "", LOC_NAME: NAME || "", QTY: ONHANDD_VALUE || 0, ITEM_ID: ITEM_ID || "", BRAND: BRAND || "", ONHANDD: ONHANDD || "" });
+            setFormValues({ RFID: RFID || "", ITEM_NAME: ITEM_NAME || "", LOC_NAME: NAME || "", QTY: ONHANDD_VALUE || 0, ITEM_ID: ITEM_ID || "", BRAND: BRAND || "", ONHANDD: ONHANDD || "", UNIQUE_ID: UNIQUE_ID || "" });
         }
-    }, [RFID, ITEM_NAME, NAME, ONHANDD_VALUE, ITEM_ID, BRAND, ONHANDD])
+    }, [RFID, ITEM_NAME, NAME, ONHANDD_VALUE, ITEM_ID, BRAND, ONHANDD, UNIQUE_ID])
 
     return (
         <Whisper

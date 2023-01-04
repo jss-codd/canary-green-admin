@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { SelectPicker, Modal, Button, Table } from 'rsuite';
 import axios from 'axios';
 import { Pagination } from 'antd';
@@ -15,7 +15,143 @@ import UploadSku from './UploadSku';
 
 const baseURL = process.env.API_PATH + 'sku-products';
 
-export default function SkuMaster() {
+//FOR SKU TAB
+const getSKUTableData = (page: number, postsPerPage: number, posts: any[], searchText: string, searchBrand: string, sortColumn: string | number | undefined, sortType: string | undefined, brandList: any[]) => {
+  if (posts.length > 0) {
+    const start = (+page - 1) * postsPerPage;
+
+    const end = +postsPerPage + (+start);
+
+    let filteredPost = posts;
+
+    if (searchText) {
+      filteredPost = filteredPost.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchText.toLowerCase()));
+    }
+
+    if (searchBrand) {
+      const getBrandLabel = brandList.find((d) => d.value === searchBrand)?.label;
+      filteredPost = filteredPost.filter((d) => d.BRAND === getBrandLabel);
+    }
+
+    if (sortColumn && sortType) {
+      const sorted = filteredPost.sort((a, b) => {
+        let x = a[sortColumn];
+        let y = b[sortColumn];
+        if (typeof x === 'string') {
+          x = x.charCodeAt(0);
+        }
+        if (typeof y === 'string') {
+          y = y.charCodeAt(0);
+        }
+        if (sortType === 'asc') {
+          return x - y;
+        } else {
+          return y - x;
+        }
+      });
+
+      return sorted.slice(start, end);
+    }
+
+    return Array.isArray(filteredPost) ? filteredPost.slice(start, end) : [];
+  } else {
+    return [];
+  }
+}
+
+//FOR RFID TAB
+const getRFIDTableData = (pageRFID: string | number, perPageRFID: number, RFIDItem: any, searchTextRFID: string, searchBrandRFID: any, sortColumnRFID: string | undefined, sortTypeRFID: string | undefined, brandList: any[], basicActive: string) => {
+  if (RFIDItem.length > 0 && basicActive === 'tab2') {
+    const start = (+pageRFID - 1) * perPageRFID;
+
+    const end = +perPageRFID + (+start);
+
+    let filteredPost = RFIDItem;
+
+    if (searchTextRFID) {
+      filteredPost = filteredPost.filter((d: { ITEM_NAME: string; }) => d.ITEM_NAME.toLowerCase().includes(searchTextRFID.toLowerCase()));
+    }
+
+    if (searchBrandRFID) {
+      const getBrandLabel = brandList.find((d) => d.value === searchBrandRFID)?.label;
+      filteredPost = filteredPost.filter((d: { BRAND: any; }) => d.BRAND === getBrandLabel);
+    }
+
+    if (sortColumnRFID && sortTypeRFID) {
+      const sorted = filteredPost.sort((a: { [x: string]: any; }, b: { [x: string]: any; }) => {
+        let x = a[sortColumnRFID];
+        let y = b[sortColumnRFID];
+
+        if (typeof x === 'string') {
+          x = x.charCodeAt(0);
+        }
+        if (typeof y === 'string') {
+          y = y.charCodeAt(0);
+        }
+
+        if (sortTypeRFID === 'asc') {
+          return x - y;
+        } else {
+          return y - x;
+        }
+      });
+
+      return sorted.slice(start, end);
+    }
+
+    return Array.isArray(filteredPost) ? filteredPost.slice(start, end) : [];
+  } else {
+    return [];
+  }
+};
+
+//FOR Exceptions TAB
+const getExcTableData = (pageExc: number, postsPerPageExc: number, exceptionsItem: any[], searchTextExc: string | undefined, searchBrandExc: string | undefined, sortColumnExc: string | number | undefined, sortTypeExc: string | undefined, brandList: any[], basicActive: string) => {
+  if (exceptionsItem.length > 0 && basicActive === 'tab3') {
+    const start = (+pageExc - 1) * postsPerPageExc;
+
+    const end = +postsPerPageExc + (+start);
+
+    let filteredPost = exceptionsItem;
+
+    if (searchTextExc) {
+      filteredPost = filteredPost.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchTextExc.toLowerCase()));
+    }
+
+    if (searchBrandExc) {
+      const getBrandLabel = brandList.find((d) => d.value === searchBrandExc)?.label;
+      filteredPost = filteredPost.filter((d) => d.BRAND === getBrandLabel);
+    }
+
+    if (sortColumnExc && sortTypeExc) {
+      const sorted = filteredPost.sort((a, b) => {
+        let x = a[sortColumnExc];
+        let y = b[sortTypeExc];
+
+        if (typeof x === 'string') {
+          x = x.charCodeAt(0);
+        }
+        if (typeof y === 'string') {
+          y = y.charCodeAt(0);
+        }
+
+        if (sortTypeExc === 'asc') {
+          return x - y;
+        } else {
+          return y - x;
+        }
+      });
+
+      return sorted.slice(start, end);
+    }
+
+    return Array.isArray(filteredPost) ? filteredPost?.slice(start, end) : [];
+  } else {
+    return [];
+  }
+};
+
+const SkuMaster = () => {
   const dispatch = useDispatch();
 
   const [basicActive, setBasicActive] = useState('tab1');
@@ -160,8 +296,7 @@ export default function SkuMaster() {
         setProduct(response?.data?.map((d: { ITEM_NAME: any; ID: any; }) => ({ label: d.ITEM_NAME, value: d.ID })));
       })
       .catch((error) => {
-        console.log('error', error.response.status);
-        if (error.response.status == '403' || error.response.status == '401') {
+        if (error?.response?.status == '403' || error?.response?.status == '401') {
           logout(dispatch);
         }
       });
@@ -347,7 +482,7 @@ export default function SkuMaster() {
 
       setTotalRFID(filteredPost.length);
     }
-  }, [searchTextRFID, RFIDChanged, searchBrandRFID]);
+  }, [searchTextRFID, searchBrandRFID]);
 
   //call api for sku products
   useEffect(() => {
@@ -424,45 +559,8 @@ export default function SkuMaster() {
     getFormList(dispatch).then((data) => setFormList(data?.map((d: { NAME: any; ID: any; }) => ({ label: d.NAME, value: d.ID }))));
   }, [])
 
-  //FOR SKU TAB
-  const getSKUTableData = () => {
-    const start = (+page - 1) * postsPerPage;
-
-    const end = +postsPerPage + (+start);
-
-    let filteredPost = posts;
-
-    if (searchText) {
-      filteredPost = filteredPost.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchText.toLowerCase()));
-    }
-
-    if (searchBrand) {
-      const getBrandLabel = brandList.find((d) => d.value === searchBrand)?.label;
-      filteredPost = filteredPost.filter((d) => d.BRAND === getBrandLabel);
-    }
-
-    if (sortColumn && sortType) {
-      const sorted = filteredPost.sort((a, b) => {
-        let x = a[sortColumn];
-        let y = b[sortColumn];
-        if (typeof x === 'string') {
-          x = x.charCodeAt(0);
-        }
-        if (typeof y === 'string') {
-          y = y.charCodeAt(0);
-        }
-        if (sortType === 'asc') {
-          return x - y;
-        } else {
-          return y - x;
-        }
-      });
-
-      return sorted.slice(start, end);
-    }
-
-    return filteredPost.slice(start, end);
-  };
+  //For SKU Tab
+  const skuTableData = useMemo(() => getSKUTableData(page, postsPerPage, posts, searchText, searchBrand, sortColumn, sortType, brandList), [page, postsPerPage, posts.length, searchText, searchBrand, sortColumn, sortType, skuChanged]);
 
   const handleSortColumn = (sortColumn: any, sortType: any) => {
     setLoading(true);
@@ -492,46 +590,7 @@ export default function SkuMaster() {
   };
 
   //FOR RFID TAB
-  const getRFIDTableData = () => {
-    const start = (+pageRFID - 1) * perPageRFID;
-
-    const end = +perPageRFID + (+start);
-
-    let filteredPost = RFIDItem;
-
-    if (searchTextRFID) {
-      filteredPost = filteredPost.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchTextRFID.toLowerCase()));
-    }
-
-    if (searchBrandRFID) {
-      const getBrandLabel = brandList.find((d) => d.value === searchBrandRFID)?.label;
-      filteredPost = filteredPost.filter((d) => d.BRAND === getBrandLabel);
-    }
-
-    if (sortColumnRFID && sortTypeRFID) {
-      const sorted = filteredPost.sort((a, b) => {
-        let x = a[sortColumnRFID];
-        let y = b[sortColumnRFID];
-
-        if (typeof x === 'string') {
-          x = x.charCodeAt(0);
-        }
-        if (typeof y === 'string') {
-          y = y.charCodeAt(0);
-        }
-
-        if (sortTypeRFID === 'asc') {
-          return x - y;
-        } else {
-          return y - x;
-        }
-      });
-
-      return sorted.slice(start, end);
-    }
-
-    return filteredPost.slice(start, end);
-  };
+  const RFIDTableData = useMemo(() => getRFIDTableData(pageRFID, perPageRFID, RFIDItem, searchTextRFID, searchBrandRFID, sortColumnRFID, sortTypeRFID, brandList, basicActive), [pageRFID, perPageRFID, RFIDItem.length, searchTextRFID, searchBrandRFID, sortColumnRFID, sortTypeRFID, basicActive, RFIDChanged]);
 
   const handleSortColumnRFID = (sortColumn: any, sortType: any) => {
     setLoadingRFID(true);
@@ -561,46 +620,7 @@ export default function SkuMaster() {
   };
 
   //FOR EXCEPTIONS TAB
-  const getExcTableData = () => {
-    const start = (+pageExc - 1) * postsPerPageExc;
-
-    const end = +postsPerPageExc + (+start);
-
-    let filteredPost = exceptionsItem;
-
-    if (searchTextExc) {
-      filteredPost = filteredPost.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchTextExc.toLowerCase()));
-    }
-
-    if (searchBrandExc) {
-      const getBrandLabel = brandList.find((d) => d.value === searchBrandExc)?.label;
-      filteredPost = filteredPost.filter((d) => d.BRAND === getBrandLabel);
-    }
-
-    if (sortColumnExc && sortTypeExc) {
-      const sorted = filteredPost.sort((a, b) => {
-        let x = a[sortColumnExc];
-        let y = b[sortTypeExc];
-
-        if (typeof x === 'string') {
-          x = x.charCodeAt(0);
-        }
-        if (typeof y === 'string') {
-          y = y.charCodeAt(0);
-        }
-
-        if (sortTypeExc === 'asc') {
-          return x - y;
-        } else {
-          return y - x;
-        }
-      });
-
-      return sorted.slice(start, end);
-    }
-
-    return filteredPost.slice(start, end);
-  };
+  const excTableData = useMemo(() => getExcTableData(pageExc, postsPerPageExc, exceptionsItem, searchTextExc, searchBrandExc, sortColumnExc, sortTypeExc, brandList, basicActive), [pageExc, postsPerPageExc, exceptionsItem.length, searchTextExc, searchBrandExc, sortColumnExc, sortTypeExc, basicActive, excChanged]);
 
   const handleSortColumnExc = (sortColumn: any, sortType: any) => {
     setLoadingExc(true);
@@ -744,7 +764,7 @@ export default function SkuMaster() {
               <Table
                 height={420}
                 autoHeight={true}
-                data={getSKUTableData()}
+                data={skuTableData}
                 sortColumn={sortColumn}
                 sortType={sortType}
                 onSortColumn={handleSortColumn}
@@ -784,7 +804,7 @@ export default function SkuMaster() {
                 <Column width={75}>
                   <HeaderCell>{" "}</HeaderCell>
                   <Cell style={{ padding: '10px 0' }}>
-                    {(rowData: any) => <AddSku helper={cloneSkuHelper} formData={{...rowData, ID: 0}} />}
+                    {(rowData: any) => <AddSku helper={cloneSkuHelper} formData={{ ...rowData, ID: 0 }} />}
                   </Cell>
                 </Column>
               </Table>
@@ -815,7 +835,7 @@ export default function SkuMaster() {
               <Table
                 height={420}
                 autoHeight={true}
-                data={getRFIDTableData()}
+                data={RFIDTableData}
                 sortColumn={sortColumnRFID}
                 sortType={sortTypeRFID}
                 onSortColumn={handleSortColumnRFID}
@@ -876,7 +896,7 @@ export default function SkuMaster() {
               <Table
                 height={420}
                 autoHeight={true}
-                data={getExcTableData()}
+                data={excTableData}
                 sortColumn={sortColumnExc}
                 sortType={sortTypeExc}
                 onSortColumn={handleSortColumnExc}
@@ -945,3 +965,5 @@ export default function SkuMaster() {
     </>
   );
 }
+
+export default SkuMaster;
