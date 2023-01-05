@@ -60,7 +60,7 @@ const getSKUTableData = (page: number, postsPerPage: number, posts: any[], searc
 }
 
 //FOR RFID TAB
-const getRFIDTableData = (pageRFID: string | number, perPageRFID: number, RFIDItem: any, searchTextRFID: string, searchBrandRFID: any, sortColumnRFID: string | undefined, sortTypeRFID: string | undefined, brandList: any[], basicActive: string) => {
+const getRFIDTableData = (pageRFID: string | number, perPageRFID: number, RFIDItem: any, searchTextRFID: string, sortColumnRFID: string | undefined, sortTypeRFID: string | undefined, brandList: any[], basicActive: string) => {
   if (RFIDItem.length > 0 && basicActive === 'tab2') {
     const start = (+pageRFID - 1) * perPageRFID;
 
@@ -70,11 +70,6 @@ const getRFIDTableData = (pageRFID: string | number, perPageRFID: number, RFIDIt
 
     if (searchTextRFID) {
       filteredPost = filteredPost.filter((d: { ITEM_NAME: string; }) => d.ITEM_NAME.toLowerCase().includes(searchTextRFID.toLowerCase()));
-    }
-
-    if (searchBrandRFID) {
-      const getBrandLabel = brandList.find((d) => d.value === searchBrandRFID)?.label;
-      filteredPost = filteredPost.filter((d: { BRAND: any; }) => d.BRAND === getBrandLabel);
     }
 
     if (sortColumnRFID && sortTypeRFID) {
@@ -176,6 +171,7 @@ const SkuMaster = () => {
   const [bodyLoaderClass, setBodyLoaderClass] = useState("");
 
   const [selectValue, setSelectValue] = React.useState<any[]>([]);
+  const [selectValueRFID, setSelectValueRFID] = React.useState<any[]>([]);
   const [brandList, setBrandList] = useState<any[]>([]);
   const [sizeList, setSizeList] = useState<any[]>([]);
   const [categoryList, setCategoryList] = useState<any[]>([]);
@@ -186,10 +182,10 @@ const SkuMaster = () => {
   const [excChanged, setExcChanged] = useState(false);
   const [RFIDChanged, setRFIDChanged] = useState(false);
   const [searchBrand, setSearchBrand] = useState('');
-  const [searchBrandRFID, setSearchBrandRFID] = useState('');
   const [searchBrandExc, setSearchBrandExc] = useState('');
   const [mapConfirmModalShow, setMapConfirmModalShow] = useState(false);
-  const [mapConfirmPopupObj, setMapConfirmPopupObj] = useState({ rfid: "", mapped_item: "", mapped_to_item: "", mapped_item_id: 0, mapped_to_item_id: 0, index: 0 });
+  const [mapConfirmModalShowRFID, setMapConfirmModalShowRFID] = useState(false);
+  const [mapConfirmPopupObj, setMapConfirmPopupObj] = useState({ rfid: "", mapped_item: "", mapped_to_item: "", mapped_item_id: 0, mapped_to_item_id: 0, index: 0, mapped_to_rfid: "" });
 
   const [sortColumn, setSortColumn] = useState();
   const [sortType, setSortType] = useState();
@@ -352,6 +348,15 @@ const SkuMaster = () => {
     }
   }
 
+  const mapConfirmHandleCloseRFID = (type: string) => {
+    if (type === 'yes') {
+      productMapConfirmedRFID(mapConfirmPopupObj.mapped_to_item_id, mapConfirmPopupObj.mapped_item_id, mapConfirmPopupObj.index);
+    } else {
+      setSelectValueRFID((pre) => ({ ...pre, [mapConfirmPopupObj.index]: "" }));
+      setMapConfirmModalShowRFID(false);
+    }
+  }
+
   //call when product map from exceptions section
   const productMap = (mapped_to_item_id: number, mapped_item_id: number, index: number) => {
     if ((+mapped_to_item_id || 0) > 0 && (+mapped_item_id || 0) > 0) {
@@ -360,15 +365,17 @@ const SkuMaster = () => {
 
       if (mapped_item && mapped_item !== undefined) {
 
-        const findItemName = product.find((d) => d.value === mapped_to_item_id).label;
+        //const findItemName = product.find((d) => d.value === mapped_to_item_id).label;
+        const findMappedToItem = posts.find((d) => d.ID === mapped_to_item_id);
 
         setMapConfirmPopupObj((pre) => ({
           rfid: mapped_item.RFID,
           mapped_item: mapped_item.ITEM_NAME,
-          mapped_to_item: findItemName,
+          mapped_to_item: findMappedToItem.ITEM_NAME,
           mapped_item_id: mapped_item_id,
           mapped_to_item_id: mapped_to_item_id,
-          index: index
+          index: index,
+          mapped_to_rfid: findMappedToItem.RFID,
         }))
 
         setSelectValue((pre) => ({ ...pre, [index]: mapped_to_item_id }));
@@ -431,6 +438,75 @@ const SkuMaster = () => {
     }
   }
 
+  const productMapConfirmedRFID = (mapped_to_item_id: number, mapped_item_id: number, index: number) => {
+    if ((+mapped_to_item_id || 0) > 0 && (+mapped_item_id || 0) > 0) {
+      setBodyLoaderClass("cover-spin");
+
+      const data_to_send = { mapped_to_item_id, mapped_item_id };
+
+      commonSubmit(data_to_send, 'sku-rfid-item-mapping', dispatch)
+        .then((res: any) => {
+          if (!res || res.status != 200) {
+            throw new Error("Server responds with error!");
+          }
+          return res.json();
+        })
+        .then(
+          (data) => {
+            if (data.res) {
+              toast.success(data.message);
+
+              const removedArr = RFIDItem.filter(function (obj) {
+                return obj.ID !== (+mapped_item_id || 0);
+              });
+
+              setRFIDItem(removedArr);
+
+              setSelectValueRFID(new Array(removedArr?.length).fill(""));
+              setRFIDChanged(pre => !pre);
+              setBodyLoaderClass("");
+              setMapConfirmModalShowRFID(false);
+            }
+          },
+          (err) => {
+            console.log(err);
+            toast.error('Something went wrong');
+            setBodyLoaderClass("");
+            setMapConfirmModalShowRFID(false);
+          }
+        );
+    } else {
+      setMapConfirmModalShowRFID(false);
+    }
+  }
+
+  //call when product map from RFID section
+  const productMapRFID = (mapped_to_item_id: number, mapped_item_id: number, index: number) => {
+    if ((+mapped_to_item_id || 0) > 0 && (+mapped_item_id || 0) > 0) {
+
+      const mapped_item = RFIDItem.find((d) => d.ID === mapped_item_id);
+
+      if (mapped_item && mapped_item !== undefined) {
+
+        const findMappedToItem = posts.find((d) => d.ID === mapped_to_item_id);
+
+        setMapConfirmPopupObj((pre) => ({
+          rfid: mapped_item.RFID,
+          mapped_item: mapped_item.ITEM_NAME,
+          mapped_to_item: findMappedToItem.ITEM_NAME,
+          mapped_item_id: mapped_item_id,
+          mapped_to_item_id: mapped_to_item_id,
+          index: index,
+          mapped_to_rfid: findMappedToItem.RFID
+        }))
+
+        setSelectValueRFID((pre) => ({ ...pre, [index]: mapped_to_item_id }));
+
+        setMapConfirmModalShowRFID(true);
+      }
+    }
+  }
+
   //run when search enter, page change, post per change for SKU Master
   useEffect(() => {
     let filteredPost = posts;
@@ -475,14 +551,9 @@ const SkuMaster = () => {
         filteredPost = filteredPost.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchTextRFID.toLowerCase()));
       }
 
-      if (searchBrandRFID) {
-        const getBrandLabel = brandList.find((d) => d.value === searchBrandRFID)?.label;
-        filteredPost = filteredPost.filter((d) => d.BRAND === getBrandLabel);
-      }
-
       setTotalRFID(filteredPost.length);
     }
-  }, [searchTextRFID, searchBrandRFID]);
+  }, [searchTextRFID, RFIDChanged]);
 
   //call api for sku products
   useEffect(() => {
@@ -521,7 +592,7 @@ const SkuMaster = () => {
   useEffect(() => {
     const getBatchInventory = () => {
       setLoadingRFID(true);
-      commonFetchAllAuth('batch-level-inventory', dispatch)
+      commonFetchAllAuth('mapped-sku-list', dispatch)
         .then((res: any) => {
           if (!res || res.status != 200) {
             throw new Error("Server responds with error!");
@@ -531,6 +602,7 @@ const SkuMaster = () => {
         .then(
           (data) => {
             setRFIDItem(data);
+            setSelectValueRFID(new Array(data?.length).fill(""));
             setTotalRFID(data?.length || 0);
             setLoadingRFID(false);
           },
@@ -590,7 +662,7 @@ const SkuMaster = () => {
   };
 
   //FOR RFID TAB
-  const RFIDTableData = useMemo(() => getRFIDTableData(pageRFID, perPageRFID, RFIDItem, searchTextRFID, searchBrandRFID, sortColumnRFID, sortTypeRFID, brandList, basicActive), [pageRFID, perPageRFID, RFIDItem.length, searchTextRFID, searchBrandRFID, sortColumnRFID, sortTypeRFID, basicActive, RFIDChanged]);
+  const RFIDTableData = useMemo(() => getRFIDTableData(pageRFID, perPageRFID, RFIDItem, searchTextRFID, sortColumnRFID, sortTypeRFID, brandList, basicActive), [pageRFID, perPageRFID, RFIDItem.length, searchTextRFID, sortColumnRFID, sortTypeRFID, basicActive, RFIDChanged]);
 
   const handleSortColumnRFID = (sortColumn: any, sortType: any) => {
     setLoadingRFID(true);
@@ -607,15 +679,6 @@ const SkuMaster = () => {
       setLoadingRFID(false);
       setPageRFID(1);
       setSearchTextRFID(searchText);
-    }, 100);
-  };
-
-  const setSearchBrandRFIDHandler = (searchBrand: any) => {
-    setLoadingRFID(true);
-    setTimeout(() => {
-      setLoadingRFID(false);
-      setPageRFID(1);
-      setSearchBrandRFID(searchBrand)
     }, 100);
   };
 
@@ -689,7 +752,6 @@ const SkuMaster = () => {
                       setSearchTextRFIDHandler(e.target.value);
                     }}
                   />
-                  <SelectPicker value={searchBrandRFID} placeholder="All Brands" size="lg" data={brandList} style={{ width: 200 }} onChange={(d: any) => setSearchBrandRFIDHandler(d)} />
                 </>
               )}
               {basicActive === 'tab3' && (
@@ -842,30 +904,25 @@ const SkuMaster = () => {
                 loading={loadingRFID}
                 wordWrap="break-word"
               >
-                <Column width={300} align="center" fixed sortable>
+                <Column width={250} align="center" fixed sortable>
                   <HeaderCell style={{ fontSize: "16px" }}>RFID</HeaderCell>
                   <Cell dataKey="RFID" />
                 </Column>
-                <Column width={300} sortable>
+                <Column width={250} sortable>
                   <HeaderCell style={{ fontSize: "16px" }}>PRODUCT NAME</HeaderCell>
                   <Cell dataKey="ITEM_NAME" />
                 </Column>
-                <Column width={200} sortable>
-                  <HeaderCell style={{ fontSize: "16px" }}>LOCATION</HeaderCell>
-                  <Cell>
-                    {(rowData: any) => rowData.NAME.replace(/___/g, ',')}
+                <Column width={250} sortable>
+                  <HeaderCell style={{ fontSize: "16px" }}>MAPPED TO</HeaderCell>
+                  <Cell style={{ padding: '10px 0' }}>
+                    {(rowData: any) => { return (<>{rowData.MAPPED_TO}<br></br><span className='text-danger'>{rowData.MAPPED_RFID}</span></>) }}
                   </Cell>
                 </Column>
 
-                <Column width={100} sortable>
-                  <HeaderCell style={{ fontSize: "16px" }}>QUAN</HeaderCell>
-                  <Cell dataKey="ONHANDD_VALUE" />
-                </Column>
-
-                <Column width={100}>
-                  <HeaderCell>{" "}</HeaderCell>
+                <Column width={200}>
+                  <HeaderCell style={{ fontSize: "16px" }}>MAP AGAIN</HeaderCell>
                   <Cell style={{ padding: '10px 0' }}>
-                    {(rowData: any) => <EditBatch helper={editBatchHelper} formData={rowData} />}
+                    {/* {(rowData: any, rowIndex: number | undefined) => <SelectPicker value={selectValueRFID[rowIndex || 0]} data={product} style={{ width: 200 }} onChange={(e: any) => productMapRFID(e, rowData.ID, rowIndex || 0)} />} */}
                   </Cell>
                 </Column>
               </Table>
@@ -939,7 +996,7 @@ const SkuMaster = () => {
           </div>
         </div>
       </div>
-
+      {/* Modal for exception tab */}
       <Modal backdrop={`static`} keyboard={false} open={mapConfirmModalShow} onClose={() => mapConfirmHandleClose('no')}>
         <Modal.Header>
           <Modal.Title>Confirmation for mapping SKU</Modal.Title>
@@ -951,6 +1008,8 @@ const SkuMaster = () => {
           <small><span className='text-danger'>SOURCE NAME:</span> {mapConfirmPopupObj.mapped_item}</small>
           <br></br>
           <small><span className='text-danger'>MAP TO:</span> {mapConfirmPopupObj.mapped_to_item}</small>
+          <br></br>
+          <small><span className='text-danger'>MAP TO RFID:</span> {mapConfirmPopupObj.mapped_to_rfid}</small>
         </Modal.Body>
 
         <Modal.Footer>
@@ -958,6 +1017,32 @@ const SkuMaster = () => {
             Yes
           </Button>
           <Button onClick={() => mapConfirmHandleClose('no')} appearance="subtle">
+            Cancel
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* modal for RFID Tab */}
+      <Modal backdrop={`static`} keyboard={false} open={mapConfirmModalShowRFID} onClose={() => mapConfirmHandleCloseRFID('no')}>
+        <Modal.Header>
+          <Modal.Title>Confirmation for remapping SKU</Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+          <small><span className='text-danger'>RFID: </span> {mapConfirmPopupObj.rfid}</small>
+          <br></br>
+          <small><span className='text-danger'>SOURCE NAME:</span> {mapConfirmPopupObj.mapped_item}</small>
+          <br></br>
+          <small><span className='text-danger'>MAP TO:</span> {mapConfirmPopupObj.mapped_to_item}</small>
+          <br></br>
+          <small><span className='text-danger'>MAP TO RFID:</span> {mapConfirmPopupObj.mapped_to_rfid}</small>
+        </Modal.Body>
+
+        <Modal.Footer>
+          <Button onClick={() => mapConfirmHandleCloseRFID('yes')} appearance="primary">
+            Yes
+          </Button>
+          <Button onClick={() => mapConfirmHandleCloseRFID('no')} appearance="subtle">
             Cancel
           </Button>
         </Modal.Footer>

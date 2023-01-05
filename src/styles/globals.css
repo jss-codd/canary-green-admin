@@ -25095,3 +25095,11 @@ table.padding-1 td {
   animation: spin .8s linear infinite;
 }
 /* Spinner CSS End*/
+
+input[type=search]::-webkit-search-cancel-button {
+  -webkit-appearance: searchfield-cancel-button;
+}
+
+input[type=search] {
+  -webkit-appearance: none;
+}
