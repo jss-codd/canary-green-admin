@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Collapse } from 'reactstrap';
+import Collapse from 'react-bootstrap/Collapse';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import {
@@ -150,7 +150,6 @@ function Sidebar() {
                       setCollapseOpenBrand(!collapseOpenBrand);
                     }}
                     role='button'
-                    id='collapseExample'
                     className={
                       router.pathname == '/brand-registrations' || router.pathname == '/brand-master' || router.pathname == '/sku-master' || router.pathname == '/subscriptions' || router.pathname == '/coal-mine'
                         ? 'nav-link active'
@@ -162,7 +161,7 @@ function Sidebar() {
                   </a>
                 </Link>
               </li>
-              <Collapse isOpen={router.pathname == '/brand-registrations' || router.pathname == '/brand-master' || router.pathname == '/sku-master' || router.pathname == '/subscriptions' || router.pathname == '/coal-mine' ? !collapseOpenBrand : collapseOpenBrand}>
+              <Collapse in={router.pathname == '/brand-registrations' || router.pathname == '/brand-master' || router.pathname == '/sku-master' || router.pathname == '/subscriptions' || router.pathname == '/coal-mine' ? !collapseOpenBrand : collapseOpenBrand}>
                 <ul className='sidebar-nav'>
                   <li className='nav-item'>
                     <Link href='/brand-registrations'>
@@ -240,7 +239,6 @@ function Sidebar() {
                       setCollapseOpenRetail(!collapseOpenRetail);
                     }}
                     role='button'
-                    id='collapseExample'
                     className={
                       router.pathname == '/users' || router.pathname == '/locations'
                         ? 'nav-link active'
@@ -253,7 +251,7 @@ function Sidebar() {
                 </Link>
               </li>
 
-              <Collapse isOpen={router.pathname == '/users' || router.pathname == '/locations' ? !collapseOpenRetail : collapseOpenRetail}>
+              <Collapse in={router.pathname == '/users' || router.pathname == '/locations' ? !collapseOpenRetail : collapseOpenRetail}>
                 <ul className='sidebar-nav'>
                   <li className='nav-item '>
                     <Link href='/users'>

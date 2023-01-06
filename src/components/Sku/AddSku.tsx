@@ -7,7 +7,7 @@ import { commonSubmit, commonPut } from "../../services/UserServices";
 const AddProductPopUp = React.forwardRef(({ content, formProps, RFID, ...props }: any, ref) => {
     return (
         <Popover ref={ref} {...props} style={{ width: "70%" }}>
-            {formProps.updatedID > 0 ? <h3 className="text-center">SKU ID: {formProps.updatedID} <br></br>RFID: {RFID}</h3> : ""}
+            {formProps.updatedID > 0 ? <h3 className="text-center">SKU ID: {formProps.updatedID}</h3> : ""}
             <FormikHelper {...formProps}></FormikHelper>
         </Popover>
     );
@@ -89,9 +89,7 @@ const AddSku = (props: {
     }
 
     useEffect(() => {
-        //if (ID > 0) {
         setFormValues({ productName: ITEM_NAME || "", productSize: SIZE || "", productBrand: BRAND || "", productCategory: CATEGORY_NAME || "", dominance: DOMINANCE || "", tier: TIER || "", flavorStrain: FLAVOR_STRAIN || "", form: FORM || "" });
-        //}
     }, [ITEM_NAME, SIZE, BRAND, CATEGORY_NAME, DOMINANCE, TIER, FLAVOR_STRAIN, FORM])
 
     return (

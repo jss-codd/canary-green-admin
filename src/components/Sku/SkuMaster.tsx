@@ -10,7 +10,7 @@ import { authHeader } from '../../helpers/auth-header';
 import { commonFetchAllAuth, commonSubmit, logout } from '../../services/UserServices';
 import { getBrandList, getSizeList, getCategoryList, getDominanceList, getFlavorStrainList, getFormList } from '../../services/CommonServices';
 import AddSku from './AddSku';
-import EditBatch from './EditBatch';
+//import EditBatch from './EditBatch';
 import UploadSku from './UploadSku';
 
 const baseURL = process.env.API_PATH + 'sku-products';
@@ -25,7 +25,7 @@ const getSKUTableData = (page: number, postsPerPage: number, posts: any[], searc
     let filteredPost = posts;
 
     if (searchText) {
-      filteredPost = filteredPost.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchText.toLowerCase()));
+      filteredPost = filteredPost.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchText.toLowerCase()) || d.ID.toString().includes(searchText) || (d.CATEGORY_NAME || "").toLowerCase().includes(searchText.toLowerCase()) || (d.SIZE || "").toLowerCase().includes(searchText.toLowerCase()));
     }
 
     if (searchBrand) {
@@ -69,7 +69,7 @@ const getRFIDTableData = (pageRFID: string | number, perPageRFID: number, RFIDIt
     let filteredPost = RFIDItem;
 
     if (searchTextRFID) {
-      filteredPost = filteredPost.filter((d: { ITEM_NAME: string; }) => d.ITEM_NAME.toLowerCase().includes(searchTextRFID.toLowerCase()));
+      filteredPost = filteredPost.filter((d: { ITEM_NAME: string; RFID: string; }) => d.ITEM_NAME.toLowerCase().includes(searchTextRFID.toLowerCase()) || (d.RFID || "").toLowerCase().includes(searchTextRFID.toLowerCase()));
     }
 
     if (sortColumnRFID && sortTypeRFID) {
@@ -110,7 +110,7 @@ const getExcTableData = (pageExc: number, postsPerPageExc: number, exceptionsIte
     let filteredPost = exceptionsItem;
 
     if (searchTextExc) {
-      filteredPost = filteredPost.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchTextExc.toLowerCase()));
+      filteredPost = filteredPost.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchTextExc.toLowerCase()) || (d.RFID || "").toLowerCase().includes(searchTextExc.toLowerCase()));
     }
 
     if (searchBrandExc) {
@@ -241,12 +241,12 @@ const SkuMaster = () => {
     buttonClass: "btn btn-primary btn-sm",
   }
 
-  const editBatchHelper = {
-    setRFIDChanged,
-    setRFIDItem,
-    buttonName: 'Edit',
-    buttonClass: "btn btn-success btn-sm",
-  }
+  // const editBatchHelper = {
+  //   setRFIDChanged,
+  //   setRFIDItem,
+  //   buttonName: 'Edit',
+  //   buttonClass: "btn btn-success btn-sm",
+  // }
 
   const uploadSkuHelper = {
     buttonName: 'Upload',
@@ -402,7 +402,7 @@ const SkuMaster = () => {
         })
         .then(
           (data) => {
-            if (data.res) {
+            if (data.status) {
               toast.success(data.message);
               //first get unique id then remove it from exception table
               const mapped_item_unique_id = exceptionsItem.find((d) => d.ID === mapped_item_id).UNIQUE_ID;
@@ -422,8 +422,19 @@ const SkuMaster = () => {
 
               setSelectValue(new Array(removedArr?.length).fill(""));
               setExcChanged(pre => !pre);
+
+              //now add to RFID Tab also
+              if (data.res.length > 0) {
+                setSelectValueRFID(new Array((RFIDItem?.length + 1)).fill(""));
+                setRFIDItem((pre: any[]) => ([...pre, ...data.res]));
+
+                setRFIDChanged(pre => !pre);
+              }
+
               setBodyLoaderClass("");
               setMapConfirmModalShow(false);
+            } else {
+              toast.error(data.message);
             }
           },
           (err) => {
@@ -453,24 +464,21 @@ const SkuMaster = () => {
         })
         .then(
           (data) => {
-            if (data.res) {
+            if (data.status) {
               toast.success(data.message);
 
-              const removedArr = RFIDItem.filter(function (obj) {
-                return obj.ID !== (+mapped_item_id || 0);
-              });
+              setRFIDItem((pre: any[]) => (pre.map(obj => data.res.find((o: { ID: Number; }) => o.ID === obj.ID) || obj)));
 
-              setRFIDItem(removedArr);
-
-              setSelectValueRFID(new Array(removedArr?.length).fill(""));
+              setSelectValueRFID(new Array(RFIDItem?.length).fill(""));
               setRFIDChanged(pre => !pre);
               setBodyLoaderClass("");
               setMapConfirmModalShowRFID(false);
+            } else {
+              toast.error(data.message);
             }
           },
           (err) => {
             console.log(err);
-            toast.error('Something went wrong');
             setBodyLoaderClass("");
             setMapConfirmModalShowRFID(false);
           }
@@ -512,7 +520,7 @@ const SkuMaster = () => {
     let filteredPost = posts;
     if (filteredPost.length > 0) {
       if (searchText) {
-        filteredPost = filteredPost.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchText.toLowerCase()));
+        filteredPost = filteredPost.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchText.toLowerCase()) || d.ID.toString().includes(searchText) || (d.CATEGORY_NAME || "").toLowerCase().includes(searchText.toLowerCase()) || (d.SIZE || "").toLowerCase().includes(searchText.toLowerCase()));
       }
 
       if (searchBrand) {
@@ -530,7 +538,7 @@ const SkuMaster = () => {
 
     if (filteredPost.length > 0) {
       if (searchTextExc) {
-        filteredPost = filteredPost.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchTextExc.toLowerCase()));
+        filteredPost = filteredPost.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchTextExc.toLowerCase()) || (d.RFID || "").toLowerCase().includes(searchTextExc.toLowerCase()));
       }
 
       if (searchBrandExc) {
@@ -548,7 +556,7 @@ const SkuMaster = () => {
 
     if (filteredPost.length > 0) {
       if (searchTextRFID) {
-        filteredPost = filteredPost.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchTextRFID.toLowerCase()));
+        filteredPost = filteredPost.filter((d) => d.ITEM_NAME.toLowerCase().includes(searchTextRFID.toLowerCase()) || (d.RFID || "").toLowerCase().includes(searchTextRFID.toLowerCase()));
       }
 
       setTotalRFID(filteredPost.length);
@@ -914,15 +922,16 @@ const SkuMaster = () => {
                 </Column>
                 <Column width={250} sortable>
                   <HeaderCell style={{ fontSize: "16px" }}>MAPPED TO</HeaderCell>
-                  <Cell style={{ padding: '10px 0' }}>
+                  <Cell dataKey="MAPPED_TO" />
+                  {/* <Cell style={{ padding: '10px 0' }}>
                     {(rowData: any) => { return (<>{rowData.MAPPED_TO}<br></br><span className='text-danger'>{rowData.MAPPED_RFID}</span></>) }}
-                  </Cell>
+                  </Cell> */}
                 </Column>
 
                 <Column width={200}>
                   <HeaderCell style={{ fontSize: "16px" }}>MAP AGAIN</HeaderCell>
                   <Cell style={{ padding: '10px 0' }}>
-                    {/* {(rowData: any, rowIndex: number | undefined) => <SelectPicker value={selectValueRFID[rowIndex || 0]} data={product} style={{ width: 200 }} onChange={(e: any) => productMapRFID(e, rowData.ID, rowIndex || 0)} />} */}
+                    {(rowData: any, rowIndex: number | undefined) => <SelectPicker value={selectValueRFID[rowIndex || 0]} data={product} style={{ width: 200 }} onChange={(e: any) => productMapRFID(e, rowData.ID, rowIndex || 0)} />}
                   </Cell>
                 </Column>
               </Table>
@@ -1008,8 +1017,8 @@ const SkuMaster = () => {
           <small><span className='text-danger'>SOURCE NAME:</span> {mapConfirmPopupObj.mapped_item}</small>
           <br></br>
           <small><span className='text-danger'>MAP TO:</span> {mapConfirmPopupObj.mapped_to_item}</small>
-          <br></br>
-          <small><span className='text-danger'>MAP TO RFID:</span> {mapConfirmPopupObj.mapped_to_rfid}</small>
+          {/* <br></br>
+          <small><span className='text-danger'>MAP TO RFID:</span> {mapConfirmPopupObj.mapped_to_rfid}</small> */}
         </Modal.Body>
 
         <Modal.Footer>
@@ -1034,8 +1043,8 @@ const SkuMaster = () => {
           <small><span className='text-danger'>SOURCE NAME:</span> {mapConfirmPopupObj.mapped_item}</small>
           <br></br>
           <small><span className='text-danger'>MAP TO:</span> {mapConfirmPopupObj.mapped_to_item}</small>
-          <br></br>
-          <small><span className='text-danger'>MAP TO RFID:</span> {mapConfirmPopupObj.mapped_to_rfid}</small>
+          {/* <br></br>
+          <small><span className='text-danger'>MAP TO RFID:</span> {mapConfirmPopupObj.mapped_to_rfid}</small> */}
         </Modal.Body>
 
         <Modal.Footer>
