@@ -224,7 +224,9 @@ const SkuMaster = () => {
     categoryList,
     dominanceList,
     flavorStrainList,
+    setFlavorStrainList,
     formList,
+    setFormList,
     buttonName: 'Edit',
     buttonClass: "btn btn-success btn-sm",
   }
