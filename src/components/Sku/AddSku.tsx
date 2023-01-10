@@ -40,10 +40,10 @@ const validationSchema = Yup.object().shape({
 const tier = ['Good', 'Better', 'Best'];
 
 const AddSku = (props: {
-    helper: { setProduct: any; setSkuChanged: any; setPosts: any; brandList: any[]; sizeList: any[]; categoryList: any[]; dominanceList: any[]; flavorStrainList: any[]; formList: any[]; buttonName: any; buttonClass: any; };
+    helper: { setProduct: any; setSkuChanged: any; setPosts: any; brandList: any[]; sizeList: any[]; categoryList: any[]; dominanceList: any[]; flavorStrainList: any[]; setFlavorStrainList: any; formList: any[]; setFormList: any; buttonName: any; buttonClass: any; };
     formData: { ID: any; SIZE: any; BRAND: any; CATEGORY_NAME: any; DOMINANCE: any; TIER: any; FLAVOR_STRAIN: any; FORM: any; ITEM_NAME: any; RFID: any; };
 }) => {
-    const { setProduct, setSkuChanged, setPosts, brandList, sizeList, categoryList, dominanceList, flavorStrainList, formList, buttonName, buttonClass } = props.helper;
+    const { setProduct, setSkuChanged, setPosts, brandList, sizeList, categoryList, dominanceList, flavorStrainList, setFlavorStrainList, formList, setFormList, buttonName, buttonClass } = props.helper;
     const { ID, SIZE, BRAND, CATEGORY_NAME, DOMINANCE, TIER, FLAVOR_STRAIN, FORM, ITEM_NAME, RFID } = props.formData;
 
     const addProductTriggerRef = useRef<any>(null);
@@ -53,6 +53,18 @@ const AddSku = (props: {
     const closeProductPopUp = () => addProductTriggerRef?.current?.close();
 
     const inheritFunctionsOnAdd = (data: any) => {
+        const statusStrain = flavorStrainList.filter((d) => d.label == data.res[0].FLAVOR_STRAIN).length;
+
+        if(statusStrain === 0) {
+            setFlavorStrainList((pre: any[]) => ([...pre, ...[{value: 0, label: data.res[0].FLAVOR_STRAIN}]]));
+        }
+
+        const statusForm = formList.filter((d) => d.label == data.res[0].FORM).length;
+        
+        if(statusForm === 0) {
+            setFormList((pre: any[]) => ([...pre, ...[{value: 0, label: data.res[0].FORM}]]));
+        }
+
         setPosts((pre: any[]) => ([...data.res, ...pre]));
         setProduct((pre: any[]) => ([...[{ label: data.res[0].ITEM_NAME, value: data.res[0].ID }], ...pre]));
         setSkuChanged((pre: boolean) => !pre);

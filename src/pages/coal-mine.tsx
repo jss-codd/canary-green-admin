@@ -6,6 +6,7 @@ import Sidebar from '../components/Sidebar';
 import { FaSearch, FaSpinner } from 'react-icons/fa';
 import { commonFetchAllUser } from '../services/UserServices';
 import { agingInventoryItems, agingInventoryItemsStatus, expirationApproachingItems, expirationApproachingItemsStatus, fetchAgingInventoryItems, fetchExpirationApproachingItems, fetchLowestPricedLocations, fetchLowInventoryItems, fetchTopPricedLocations, lowestPricedLocationsItems, lowestPricedLocationsItemsStatus, lowInventoryItems, lowInventoryItemsStatus, mergeBrands, mergeCategories, mergeLocations, mergeProducts, topPricedLocationsItems, topPricedLocationsItemsStatus } from '../redux/reducers/CoalMine';
+import { fetchOprateRegion, operateRegions, operateRegionsStatus } from '../redux/reducers/OprateRegions';
 
 let category: any[] = [];
 let location: any[] = [];
@@ -19,6 +20,9 @@ let productFilterValue: { ITEM_ID: number; ITEM_NAME: string }[] = [];
 
 function CoalMine() {
     const dispatch: any = useDispatch();
+
+    const operateRegionsLoaded = useSelector(operateRegionsStatus);
+    const operateRegionsData = useSelector(operateRegions);
 
     const lowInventoryItemsLoaded = useSelector(lowInventoryItemsStatus);
     const lowInventoryInitialData = useSelector(lowInventoryItems);
@@ -240,33 +244,8 @@ function CoalMine() {
         setProductData(filteredProduct);
     }
 
-    const getOperateLocation = async () => {
-        commonFetchAllUser('operate-region', dispatch)
-            .then((res: any) => {
-                if (!res || res.status != 200) {
-                    throw new Error("Server responds with error!");
-                }
-                return res.json();
-            })
-            .then(
-                (data) => {
-                    if (data.status) {
-                        setOperateLocation(data.regions)
-                    } else {
-                        toast.error(data.message);
-                        setOperateLocation([])
-                    }
-                },
-                (err) => {
-                    console.log(err);
-                }
-            );
-    }
-
     // fetch coal mine & operate location data for first time
     useEffect(() => {
-        getOperateLocation();
-
         if (!lowInventoryItemsLoaded) {
             dispatch(fetchLowInventoryItems());
         }
@@ -282,7 +261,17 @@ function CoalMine() {
         if (!lowestPricedLocationsLoaded) {
             dispatch(fetchLowestPricedLocations());
         }
+        if (!operateRegionsLoaded) {
+            dispatch(fetchOprateRegion());
+        }
     }, [])
+
+    //set in state for OperateLocation
+    useEffect(() => {
+        if (operateRegionsLoaded) {
+            setOperateLocation(operateRegionsData);
+        }
+    }, [operateRegionsLoaded]);
 
     //set in state for lowInventoryItems
     useEffect(() => {

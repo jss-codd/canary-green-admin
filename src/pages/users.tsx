@@ -1,12 +1,15 @@
 import { ErrorMessage, Field, Form, Formik } from 'formik';
-import React, { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { toast } from "react-toastify";
 import "react-tagsinput/react-tagsinput.css";
+import * as Yup from "yup";
+import moment from 'moment';
 
 import Sidebar from '../components/Sidebar';
 import { FaCog, FaMinusSquare, FaSearch } from 'react-icons/fa';
-import { commonFetchAllUser } from '../services/UserServices';
+import { commonFetchAllAuth, commonFetchAllUser } from '../services/UserServices';
+import { fetchOprateRegion, operateRegions, operateRegionsStatus } from '../redux/reducers/OprateRegions';
 
 const initialValues = {
     firstName: "",
@@ -20,10 +23,28 @@ const initialValues = {
     billingAddress: "",
 };
 
+const validationSchema = Yup.object().shape({
+    firstName: Yup.string().trim().required("*required field"),
+    lastName: Yup.string().trim().required("*required field"),
+    email: Yup.string().trim().required("*required field"),
+    phone: Yup.string().trim().required("*required field"),
+    title: Yup.string().trim().required("*required field"),
+    billingAddress: Yup.string().required("*required field"),
+    timeZone: Yup.string().trim().required("*required field"),
+    zipCode: Yup.string().trim().required("*required field"),
+});
+
 const subscriptionDataArr = ['90021 - 1555 Newton St - Project Cannabi', '51601 - 10842 Mangolia Blvd, Project Cannabi', '92018 - 3703 Camino del Rio S - THCSD', '92109 - 4645 De Soto St - Cannabist'];
 
+const filteredUsersData = (filterText: string, userList: any[]) => {
+    return userList.filter((d) => (d.FIRSTNAME || "").toLowerCase().includes(filterText.toLowerCase()) || d.EMAIL.toLowerCase().includes(filterText.toLowerCase()));
+}
+
 function Users() {
-    const dispatch = useDispatch();
+    const dispatch: any = useDispatch();
+
+    const operateRegionsLoaded = useSelector(operateRegionsStatus);
+    const operateRegionsData = useSelector(operateRegions);
 
     const [formInputs, setFormInputs] = useState<any>(initialValues);
     const [operateLocation, setOperateLocation] = useState<any[]>([]);
@@ -31,27 +52,32 @@ function Users() {
     const [filterText, setFilterText] = useState("");
     const [userIndex, setUserIndex] = useState(0);
     const [subscriptionData, setSubscriptionData] = useState(subscriptionDataArr);
+    const [bodyLoaderClass, setBodyLoaderClass] = useState("cover-spin");
+    const [memberSince, setMemberSince] = useState("");
+    const [lastLogin, setLastLogin] = useState("");
 
     const selectUser = (i: Number) => {
         setUserIndex(Number(i));
 
-        const selectedData = userList.find((e) => e.id == i);
+        const selectedData = userList.find((e) => e.ID == i);
 
-        if (selectedData?.id) {
+        if (selectedData?.ID) {
             setFormInputs(() => {
                 const datav = {
-                    firstName: selectedData?.name.split(' ')[0],
-                    lastName: selectedData?.name.split(' ')[1] || '',
-                    id: selectedData?.id,
-                    email: selectedData?.email,
-                    phone: selectedData?.phone,
-                    title: 'Marketing Specialist',
-                    billingAddress: selectedData?.address?.street + ' ' + selectedData?.address?.suite + ' ' + selectedData?.address?.city,
-                    timeZone: 'Pacific',
-                    zipCode: selectedData?.address?.zipcode,
+                    firstName: selectedData?.FIRSTNAME || "",
+                    lastName: selectedData?.LASTNAME || '',
+                    id: selectedData?.ID,
+                    email: selectedData?.EMAIL,
+                    phone: selectedData?.PHONE,
+                    title: selectedData.TITLE || "",
+                    billingAddress: selectedData?.BILLINGADDRESS || "",
+                    timeZone: selectedData.TIMEZONE || "",
+                    zipCode: selectedData?.ZIPCODE || ""
                 };
                 return datav;
             });
+            setMemberSince(moment(selectedData.DATE_TIME).format('MM/DD/YYYY'));
+            setLastLogin(moment(selectedData.LAST_LOGIN).format('MM/DD/YYYY @ HH:mm A'))
         }
     }
 
@@ -59,33 +85,10 @@ function Users() {
         setFilterText(e.target.value);
     }
 
-    const filteredUsers = userList.filter((d) => d.name.toLowerCase().includes(filterText.toLowerCase()) || d.email.toLowerCase().includes(filterText.toLowerCase()));
+    const filteredUsers = useMemo(() => filteredUsersData(filterText, userList), [filterText, userList.length]);
 
-    const getOperateLocation = async () => {
-        commonFetchAllUser('operate-region', dispatch)
-            .then((res: any) => {
-                if (!res || res.status != 200) {
-                    throw new Error("Server responds with error!");
-                }
-                return res.json();
-            })
-            .then(
-                (data) => {
-                    if (data.status) {
-                        setOperateLocation(data.regions)
-                    } else {
-                        toast.error(data.message);
-                        setOperateLocation([])
-                    }
-                },
-                (err) => {
-                    console.log(err);
-                }
-            );
-    }
-
-    const getFakeUsers = async () => {
-        fetch("https://jsonplaceholder.typicode.com/users")
+    const getCanaryUsers = async () => {
+        commonFetchAllAuth('canary-users', dispatch)
             .then((res: any) => {
                 if (!res || res.status != 200) {
                     throw new Error("Server responds with error!");
@@ -95,8 +98,10 @@ function Users() {
             .then(
                 (data) => {
                     setUserList(data);
+                    setBodyLoaderClass("");
                 },
                 (err) => {
+                    setBodyLoaderClass("");
                     console.log(err);
                 }
             );
@@ -108,12 +113,22 @@ function Users() {
     }
 
     useEffect(() => {
-        getOperateLocation();
-        getFakeUsers();
+        if (!operateRegionsLoaded) {
+            dispatch(fetchOprateRegion());
+        }
+
+        getCanaryUsers();
     }, [])
+
+    useEffect(() => {
+        if (operateRegionsLoaded) {
+            setOperateLocation(operateRegionsData);
+        }
+    }, [operateRegionsLoaded]);
 
     return (
         <>
+            <div className={bodyLoaderClass}></div>
             <Sidebar />
             <div className='main-content'>
                 <div className='cantainer'>
@@ -138,8 +153,8 @@ function Users() {
                                             </thead>
                                             <tbody>
                                                 {filteredUsers.map((d, i) => (
-                                                    <tr key={i} onClick={() => selectUser(d.id)}>
-                                                        <td className={userIndex == d.id ? 'bg-gradient-success text-white' : ''}>{d.name}{" "}<span style={{ fontSize: "14px" }}>{d.email}</span></td>
+                                                    <tr key={i} onClick={() => selectUser(d.ID)}>
+                                                        <td className={userIndex == d.id ? 'bg-gradient-success text-white' : ''}>{d.FIRSTNAME}{" "}<span style={{ fontSize: "14px" }}>{d.EMAIL}</span></td>
                                                     </tr>
                                                 ))}
                                             </tbody>
@@ -154,8 +169,9 @@ function Users() {
                                                 <Formik
                                                     enableReinitialize={true}
                                                     initialValues={formInputs}
-                                                    //validationSchema={validationSchema}
+                                                    validationSchema={validationSchema}
                                                     onSubmit={async (values, { resetForm, setErrors }) => {
+                                                        toast.success("Successfully Updated");
                                                         console.log(values);
                                                         return;
                                                     }}
@@ -315,12 +331,20 @@ function Users() {
                                                                         <div style={{ maxHeight: "30vh" }} className='table-responsive fixTableHead border border-light rounded'>
                                                                             <table className='align-items-center table-flush table table-borderless padding-1'>
                                                                                 <tbody>
-                                                                                    <tr>
-                                                                                        <td><label><input type="checkbox" />&nbsp; Select All</label></td>
-                                                                                    </tr>
+                                                                                    {/* <tr>
+                                                                                        <td>
+                                                                                            <label>
+                                                                                                <input type="checkbox" />&nbsp; Select All
+                                                                                            </label>
+                                                                                        </td>
+                                                                                    </tr> */}
                                                                                     {operateLocation.map((d: { ID: number; NAME: string }) => (
                                                                                         <tr key={`region-${d.ID}`}>
-                                                                                            <td><label><input type="checkbox" />&nbsp; {d.NAME}</label></td>
+                                                                                            <td>
+                                                                                                <label>
+                                                                                                    <input type="checkbox" />&nbsp; {d.NAME}
+                                                                                                </label>
+                                                                                            </td>
                                                                                         </tr>
                                                                                     ))}
                                                                                 </tbody>
@@ -352,7 +376,11 @@ function Users() {
                                                                                             </tr>
                                                                                             {subscriptionData.map((d, i) => (
                                                                                                 <tr key={`loc-${i}`}>
-                                                                                                    <td><label><input type="checkbox" />&nbsp; {d}</label></td>
+                                                                                                    <td>
+                                                                                                        <label>
+                                                                                                            <input type="checkbox" />&nbsp; {d}
+                                                                                                        </label>
+                                                                                                    </td>
                                                                                                 </tr>
                                                                                             ))}
                                                                                         </>
@@ -366,9 +394,9 @@ function Users() {
                                                                 <div className="row">
                                                                     <div className='col-xl-12 form-group'>
                                                                         <h5 className='border-bottom border-info'>User Stats</h5>
-                                                                        <h5>Member Since: 8/14/2021</h5>
-                                                                        <h5>Last Visit: 8/13/22 @ 11:32AM</h5>
-                                                                        <h5>Hours Logged: 122 hrs</h5>
+                                                                        <h5>Member Since: {memberSince}</h5>
+                                                                        <h5>Last Visit: {lastLogin}</h5>
+                                                                        {/* <h5>Hours Logged: 122 hrs</h5> */}
 
                                                                         <h4 className='text-muted mt-3'><span><FaMinusSquare /></span>&nbsp;&nbsp;User Blocked</h4>
                                                                         <h4 className='text-muted'><span><FaMinusSquare /></span>&nbsp;&nbsp;Premium Subscription</h4>
@@ -389,7 +417,6 @@ function Users() {
                                                     <FaCog style={{ verticalAlign: "top" }} size="1.2em" className="spinner" />
                                                     <FaCog style={{ verticalAlign: "bottom", marginLeft: "-19px" }} size="1.2em" className="spinner" />
                                                 </span>
-
                                             )}
                                         </div>
                                     </div>

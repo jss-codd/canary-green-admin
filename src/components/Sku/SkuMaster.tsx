@@ -208,7 +208,9 @@ const SkuMaster = () => {
     categoryList,
     dominanceList,
     flavorStrainList,
+    setFlavorStrainList,
     formList,
+    setFormList,
     buttonName: 'Add Product',
     buttonClass: "btn btn-primary",
   }
@@ -236,17 +238,12 @@ const SkuMaster = () => {
     categoryList,
     dominanceList,
     flavorStrainList,
+    setFlavorStrainList,
     formList,
+    setFormList,
     buttonName: 'Clone',
     buttonClass: "btn btn-primary btn-sm",
   }
-
-  // const editBatchHelper = {
-  //   setRFIDChanged,
-  //   setRFIDItem,
-  //   buttonName: 'Edit',
-  //   buttonClass: "btn btn-success btn-sm",
-  // }
 
   const uploadSkuHelper = {
     buttonName: 'Upload',
